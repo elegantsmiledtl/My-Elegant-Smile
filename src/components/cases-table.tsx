@@ -55,10 +55,10 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'N/A';
     if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'dd/MM/yyyy');
+      return format(timestamp.toDate(), 'PPP');
     }
     if (timestamp instanceof Date) {
-        return format(timestamp, 'dd/MM/yyyy');
+        return format(timestamp, 'PPP');
     }
     return 'Invalid Date';
   }
@@ -169,7 +169,6 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
                   onUpdate={(updatedCase) => {
                     onUpdateCase(updatedCase);
                     setIsEditDialogOpen(false);
-                    setCaseToEdit(null);
                   }} 
                 />
             )}
