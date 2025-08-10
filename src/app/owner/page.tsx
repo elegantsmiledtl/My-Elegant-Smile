@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Users, Trash2, PlusCircle } from 'lucide-react';
+import { QrCode, Users, Trash2, PlusCircle, Receipt } from 'lucide-react';
 import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
@@ -286,7 +286,7 @@ export default function OwnerPage() {
                 <ToothIcon className="w-6 h-6 text-primary" />
                 All Recorded Cases
                 </CardTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
                         <DialogTrigger asChild>
                              <Button variant="outline">
@@ -344,6 +344,12 @@ export default function OwnerPage() {
                             </Dialog>
                         </DialogContent>
                     </Dialog>
+                     <Button asChild variant="outline">
+                      <Link href="/owner/invoice">
+                        <Receipt className="mr-2" />
+                        Invoices
+                      </Link>
+                    </Button>
                      <Button asChild variant="outline">
                       <Link href="/owner/qr">
                         <QrCode className="mr-2" />
