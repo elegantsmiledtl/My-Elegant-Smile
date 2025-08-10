@@ -53,6 +53,17 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
   }
 
   const formatDate = (timestamp: any) => {
+    if (!timestamp) return 'N/A';
+    if (timestamp && timestamp.toDate) {
+      return format(timestamp.toDate(), 'PPP');
+    }
+    if (timestamp instanceof Date) {
+        return format(timestamp, 'PPP');
+    }
+    return 'Invalid Date';
+  }
+  
+  const formatDateTime = (timestamp: any) => {
     if (timestamp && timestamp.toDate) {
       return format(timestamp.toDate(), 'PPP p');
     }
@@ -76,6 +87,7 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
         <TableHeader>
           <TableRow>
             <TableHead>Created At</TableHead>
+            <TableHead>Delivery Date</TableHead>
             <TableHead>Patient</TableHead>
             <TableHead>Dentist</TableHead>
             <TableHead>Tooth #(s)</TableHead>
@@ -91,7 +103,8 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
         <TableBody>
           {cases.map((c) => (
             <TableRow key={c.id}>
-              <TableCell>{formatDate(c.createdAt)}</TableCell>
+              <TableCell>{formatDateTime(c.createdAt)}</TableCell>
+              <TableCell>{formatDate(c.deliveryDate)}</TableCell>
               <TableCell className="font-medium">{c.patientName}</TableCell>
               <TableCell>
                 <Link href={`/doctor/${encodeURIComponent(c.dentistName)}`} className="text-primary hover:underline">

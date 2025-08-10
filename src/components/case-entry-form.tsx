@@ -22,6 +22,7 @@ import type { DentalCase } from '@/types';
 import ToothSelector from './tooth-selector';
 import { Checkbox } from './ui/checkbox';
 import { useRouter } from 'next/navigation';
+import { DatePicker } from './ui/date-picker';
 
 const formSchema = z.object({
   patientName: z.string().min(2, { message: 'Patient name must be at least 2 characters.' }),
@@ -30,6 +31,7 @@ const formSchema = z.object({
   prosthesisType: z.string().min(1, { message: 'At least one prosthesis type must be selected.' }),
   material: z.string().min(1, { message: 'At least one material must be selected.' }),
   shade: z.string().min(1, { message: 'Shade is required.' }),
+  deliveryDate: z.date().optional(),
   notes: z.string().optional(),
 });
 
@@ -48,6 +50,14 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
   const { toast } = useToast();
   const router = useRouter();
 
+  // Helper to convert Firestore Timestamp to Date
+  const toDate = (timestamp: any): Date | undefined => {
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate();
+    }
+    return undefined;
+  };
+
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,6 +67,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
       prosthesisType: caseToEdit?.prosthesisType || '',
       material: caseToEdit?.material || '',
       shade: caseToEdit?.shade || '',
+      deliveryDate: toDate(caseToEdit?.deliveryDate),
       notes: caseToEdit?.notes || '',
     },
   });
@@ -115,6 +126,23 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         </FormItem>
                       )}
                     />
+                     <FormField
+                        control={form.control}
+                        name="deliveryDate"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                            <FormLabel className="font-bold">Delivery Date</FormLabel>
+                            <FormControl>
+                                <DatePicker 
+                                    value={field.value} 
+                                    onChange={field.onChange}
+                                    placeholder="Select delivery date"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
                     <FormField
                       control={form.control}
                       name="toothNumbers"
@@ -176,6 +204,8 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         </FormItem>
                       )}
                     />
+                </div>
+                 <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="material"
@@ -237,8 +267,6 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         </FormItem>
                       )}
                     />
-                </div>
-                 <div className="space-y-4">
                      <FormField
                       control={form.control}
                       name="notes"

@@ -28,6 +28,7 @@ export function convertJsonToCsv(jsonData: DentalCase[]): string {
         return {
             id: caseItem.id,
             createdAt: caseItem.createdAt,
+            deliveryDate: caseItem.deliveryDate,
             patientName: caseItem.patientName,
             dentistName: caseItem.dentistName,
             toothNumbers: caseItem.toothNumbers,
@@ -48,12 +49,12 @@ export function convertJsonToCsv(jsonData: DentalCase[]): string {
             let cellData = row[key as keyof typeof row];
             
             // Handle Firestore Timestamps
-            if (key === 'createdAt' && cellData && typeof (cellData as any).toDate === 'function') {
+            if ((key === 'createdAt' || key === 'deliveryDate') && cellData && typeof (cellData as any).toDate === 'function') {
                 return (cellData as any).toDate().toISOString();
             }
 
             if (cellData instanceof Date) {
-                return cellData.toISOString().split('T')[0];
+                return cellData.toISOString();
             }
             // Escape commas and quotes
             let cell = cellData != null ? String(cellData) : '';
