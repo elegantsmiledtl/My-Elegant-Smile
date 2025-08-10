@@ -55,10 +55,10 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'N/A';
     if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'PPP');
+      return format(timestamp.toDate(), 'dd/MM/yyyy');
     }
     if (timestamp instanceof Date) {
-        return format(timestamp, 'PPP');
+        return format(timestamp, 'dd/MM/yyyy');
     }
     return 'Invalid Date';
   }
