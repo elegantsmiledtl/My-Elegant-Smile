@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Home, Receipt, FileDown } from 'lucide-react';
@@ -129,7 +129,7 @@ export default function InvoicePage() {
 
     setIsSavingPdf(true);
 
-    const cleanupNodes: HTMLElement[] = [];
+    const cleanupNodes: { parent: HTMLElement; node: HTMLElement }[] = [];
 
     // Temporarily replace inputs with static text for PDF generation
     const priceInputs = invoiceElement.querySelectorAll<HTMLInputElement>('input[type="number"]');
@@ -140,10 +140,32 @@ export default function InvoicePage() {
             textNode.textContent = input.value;
             textNode.className = 'price-text-for-pdf'; 
             parent.appendChild(textNode);
-            cleanupNodes.push(textNode);
+            cleanupNodes.push({ parent, node: textNode });
             input.style.display = 'none';
         }
     });
+
+    // Temporarily replace calculated totals with static text
+    if (invoiceSummary) {
+        Object.entries(invoiceSummary.summary).forEach(([material, data]) => {
+            if (data.toothCount > 0) {
+                const totalCell = invoiceElement.querySelector(`[data-total-for="${material}"]`);
+                if (totalCell) {
+                    const textNode = document.createElement('span');
+                    textNode.textContent = data.total.toFixed(2);
+                    totalCell.appendChild(textNode);
+                    cleanupNodes.push({ parent: totalCell as HTMLElement, node: textNode });
+                }
+            }
+        });
+        const grandTotalCell = invoiceElement.querySelector('[data-grand-total]');
+        if (grandTotalCell) {
+             const textNode = document.createElement('span');
+             textNode.textContent = `${invoiceSummary.grandTotal.toFixed(2)} JOD`;
+             grandTotalCell.appendChild(textNode);
+             cleanupNodes.push({ parent: grandTotalCell as HTMLElement, node: textNode });
+        }
+    }
 
 
     try {
@@ -152,11 +174,20 @@ export default function InvoicePage() {
         
         const pdf = new jsPDF({
             orientation: 'portrait',
-            unit: 'px',
-            format: [canvas.width, canvas.height]
+            unit: 'mm',
+            format: 'a4'
         });
 
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+        const imgY = 10; // Margin from top
+
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
         
         const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
         pdf.save(fileName);
@@ -174,11 +205,15 @@ export default function InvoicePage() {
             description: 'Failed to generate PDF file.',
         });
     } finally {
-        // Restore the inputs
+        // Restore the inputs and totals
         priceInputs.forEach(input => {
             input.style.display = 'block';
         });
-        cleanupNodes.forEach(el => el.remove());
+        cleanupNodes.forEach(({ parent, node }) => {
+            if (parent.contains(node)) {
+                parent.removeChild(node);
+            }
+        });
 
         setIsSavingPdf(false);
     }
@@ -241,11 +276,10 @@ export default function InvoicePage() {
                       <Card>
                           <CardHeader>
                               <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
-                               <CardDescription>
-                                  {fromDate && toDate 
-                                      ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
-                                      : 'All dates'}
-                              </CardDescription>
+                               {fromDate && toDate 
+                                    ? <p className="text-sm text-muted-foreground">From {format(fromDate, 'PPP')} to {format(toDate, 'PPP')}</p>
+                                    : <p className="text-sm text-muted-foreground">All dates</p>
+                                }
                           </CardHeader>
                           <CardContent>
                               <Table>
@@ -271,7 +305,9 @@ export default function InvoicePage() {
                                                           className="h-8 text-right"
                                                       />
                                                   </TableCell>
-                                                  <TableCell className="text-right font-semibold">{data.total.toFixed(2)}</TableCell>
+                                                  <TableCell className="text-right font-semibold" data-total-for={material}>
+                                                    {isSavingPdf ? null : data.total.toFixed(2)}
+                                                  </TableCell>
                                               </TableRow>
                                           )
                                       ))}
@@ -281,7 +317,9 @@ export default function InvoicePage() {
                           <CardFooter className="bg-muted/50 p-4 justify-end">
                               <div className="flex items-center gap-4">
                                   <p className="text-lg font-bold">Grand Total:</p>
-                                  <p className="text-2xl font-bold text-primary">{invoiceSummary.grandTotal.toFixed(2)} JOD</p>
+                                  <p className="text-2xl font-bold text-primary" data-grand-total>
+                                    {isSavingPdf ? null : `${invoiceSummary.grandTotal.toFixed(2)} JOD`}
+                                  </p>
                               </div>
                           </CardFooter>
                       </Card>
