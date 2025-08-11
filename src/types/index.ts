@@ -12,3 +12,19 @@ export type DentalCase = {
   notes?: string;
   source?: 'Mobile' | 'Desktop';
 };
+
+export type InvoiceSummaryItem = {
+    toothCount: number;
+    price: number;
+    total: number;
+};
+
+export type Invoice = {
+    id: string;
+    dentistName: string;
+    fromDate?: any;
+    toDate?: any;
+    summary: Record<string, InvoiceSummaryItem>;
+    grandTotal: number;
+    createdAt: any;
+};

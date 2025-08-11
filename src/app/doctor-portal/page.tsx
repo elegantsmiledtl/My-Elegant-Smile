@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addCase, getCasesByDoctor } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -92,6 +92,12 @@ export default function DoctorPortalPage() {
                         <Stethoscope className="w-6 h-6" />
                         Welcome, {dentistName}
                     </h2>
+                     <Button asChild variant="outline">
+                        <Link href="/doctor/invoices">
+                            <Receipt className="mr-2 h-4 w-4" />
+                            My Invoices
+                        </Link>
+                    </Button>
                     <Button onClick={handleLogout} variant="outline">
                         <LogOut className="mr-2" />
                         Logout

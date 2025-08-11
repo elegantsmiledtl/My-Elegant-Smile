@@ -5,9 +5,9 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt, FileDown } from 'lucide-react';
+import { Home, Receipt, FileDown, Send } from 'lucide-react';
 import Logo from '@/components/logo';
-import { getCases } from '@/lib/firebase';
+import { getCases, saveInvoice } from '@/lib/firebase';
 import type { DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,6 +38,8 @@ export default function InvoicePage() {
   const { toast } = useToast();
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
 
   useEffect(() => {
     const fetchAllCases = async () => {
@@ -129,12 +131,9 @@ export default function InvoicePage() {
 
     setIsSavingPdf(true);
 
-    // Use a timeout to allow React to re-render with isSavingPdf=true before we manipulate the DOM
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const cleanupNodes: { parent: HTMLElement; node: HTMLElement }[] = [];
-
-    // Temporarily replace inputs with static text for PDF generation
     const priceInputs = invoiceElement.querySelectorAll<HTMLInputElement>('input[type="number"]');
     priceInputs.forEach(input => {
         const parent = input.parentElement;
@@ -147,7 +146,6 @@ export default function InvoicePage() {
         }
     });
 
-    // Temporarily replace calculated totals with static text
     if (invoiceSummary) {
         Object.entries(invoiceSummary.summary).forEach(([material, data]) => {
             if (data.toothCount > 0) {
@@ -187,7 +185,7 @@ export default function InvoicePage() {
         
         const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
         const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 10; // Margin from top
+        const imgY = 10;
 
         pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
         
@@ -207,7 +205,6 @@ export default function InvoicePage() {
             description: 'Failed to generate PDF file.',
         });
     } finally {
-        // Restore the inputs and totals
         priceInputs.forEach(input => {
             input.style.display = '';
         });
@@ -218,6 +215,46 @@ export default function InvoicePage() {
         });
 
         setIsSavingPdf(false);
+    }
+  };
+
+  const handleShareInvoice = async () => {
+    if (!selectedDoctor || !invoiceSummary) {
+        toast({
+            variant: 'destructive',
+            title: 'Cannot Share',
+            description: 'Please select a doctor and generate an invoice first.',
+        });
+        return;
+    }
+    
+    setIsSharing(true);
+
+    try {
+        const invoiceData = {
+            dentistName: selectedDoctor,
+            fromDate: fromDate || null,
+            toDate: toDate || null,
+            summary: invoiceSummary.summary,
+            grandTotal: invoiceSummary.grandTotal,
+        };
+
+        await saveInvoice(invoiceData);
+        
+        toast({
+            title: 'Invoice Shared!',
+            description: `An invoice for ${selectedDoctor} has been saved and is now visible in their portal.`,
+        });
+
+    } catch (error) {
+        console.error("Invoice Sharing Error:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Sharing Failed',
+            description: 'Could not share the invoice. Please try again.',
+        });
+    } finally {
+        setIsSharing(false);
     }
   };
 
@@ -342,7 +379,11 @@ export default function InvoicePage() {
            
           </CardContent>
            {invoiceSummary && (
-                <div className="flex justify-end p-6 pt-0">
+                <div className="flex justify-end p-6 pt-0 gap-2">
+                    <Button onClick={handleShareInvoice} disabled={isSharing}>
+                        <Send className="mr-2 h-4 w-4" />
+                        {isSharing ? 'Sharing...' : 'Save & Share Invoice'}
+                    </Button>
                     <Button onClick={handleSaveAsPdf} disabled={isSavingPdf}>
                         <FileDown className="mr-2 h-4 w-4" />
                         {isSavingPdf ? 'Saving...' : 'Save as PDF'}

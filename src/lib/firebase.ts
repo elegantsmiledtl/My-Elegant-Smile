@@ -14,7 +14,7 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore';
-import type { DentalCase } from '@/types';
+import type { DentalCase, Invoice } from '@/types';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -30,6 +30,8 @@ const db = getFirestore(app);
 
 const casesCollection = collection(db, 'dentalCases');
 const usersCollection = collection(db, 'users');
+const invoicesCollection = collection(db, 'invoices');
+
 
 // A function to get all cases, sorted by creation time
 export const getCases = async (): Promise<DentalCase[]> => {
@@ -116,3 +118,25 @@ export const verifyUser = async (name: string, password?: string) => {
     const snapshot = await getDocs(q);
     return !snapshot.empty;
 };
+
+// --- Invoice Management Functions ---
+export const saveInvoice = async (invoiceData: Omit<Invoice, 'id' | 'createdAt'>) => {
+    const docRef = await addDoc(invoicesCollection, {
+        ...invoiceData,
+        createdAt: serverTimestamp()
+    });
+    return docRef.id;
+}
+
+export const getInvoicesByDoctor = async (dentistName: string): Promise<Invoice[]> => {
+    const q = query(
+        invoicesCollection,
+        where("dentistName", "==", dentistName),
+        orderBy("createdAt", "desc")
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+    } as Invoice));
+}
