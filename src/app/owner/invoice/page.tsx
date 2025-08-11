@@ -117,7 +117,8 @@ export default function InvoicePage() {
   }, [doctorCases, materialPrices]);
   
   const handleSaveAsPdf = async () => {
-    if (!invoiceRef.current || !selectedDoctor) {
+    const invoiceElement = invoiceRef.current;
+    if (!invoiceElement || !selectedDoctor) {
         toast({
             variant: 'destructive',
             title: 'Error',
@@ -125,11 +126,25 @@ export default function InvoicePage() {
         });
         return;
     }
-    
+
     setIsSavingPdf(true);
 
+    // Temporarily replace inputs with static text for PDF generation
+    const priceInputs = invoiceElement.querySelectorAll<HTMLInputElement>('input[type="number"]');
+    priceInputs.forEach(input => {
+        const parent = input.parentElement;
+        if (parent) {
+            const textNode = document.createElement('span');
+            textNode.textContent = input.value;
+            textNode.className = 'price-text-for-pdf'; // Add a class for easy removal later
+            parent.appendChild(textNode);
+            input.style.display = 'none';
+        }
+    });
+
+
     try {
-        const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
+        const canvas = await html2canvas(invoiceElement, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
@@ -156,6 +171,12 @@ export default function InvoicePage() {
             description: 'Failed to generate PDF file.',
         });
     } finally {
+        // Restore the inputs
+        priceInputs.forEach(input => {
+            input.style.display = 'block';
+        });
+        invoiceElement.querySelectorAll('.price-text-for-pdf').forEach(el => el.remove());
+
         setIsSavingPdf(false);
     }
   };
@@ -175,6 +196,7 @@ export default function InvoicePage() {
         </div>
       </header>
       <main className="p-4 sm:p-6 lg:p-8">
+        <div ref={invoiceRef}>
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -210,7 +232,7 @@ export default function InvoicePage() {
                  </div>
             )}
             
-            <div className="p-4" ref={invoiceRef}>
+            <div className="p-4">
               {invoiceSummary && selectedDoctor && (
                   <div className="space-y-6">
                       <Card>
@@ -285,6 +307,7 @@ export default function InvoicePage() {
                 </div>
             )}
         </Card>
+        </div>
       </main>
     </div>
   );
