@@ -15,24 +15,24 @@ import CasesTable from '@/components/cases-table';
 import { DatePicker } from '@/components/ui/date-picker';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
-const materialPrices: Record<string, number> = {
-    "Zolid": 25,
-    "Zirconia": 30,
-    "Nickel Free": 20,
-    "N-Guard": 15,
-    "Implant": 50,
-    "MookUp": 10
-};
-
 
 export default function InvoicePage() {
   const [allCases, setAllCases] = useState<DentalCase[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
+  const [materialPrices, setMaterialPrices] = useState<Record<string, number>>({
+    "Zolid": 25,
+    "Zirconia": 30,
+    "Nickel Free": 20,
+    "N-Guard": 15,
+    "Implant": 50,
+    "MookUp": 10
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,7 +63,6 @@ export default function InvoicePage() {
     return allCases.filter(c => {
       if (c.dentistName !== selectedDoctor) return false;
 
-      // Ensure createdAt exists and is a valid timestamp object
       if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
       const caseDate = c.createdAt.toDate();
       
@@ -74,6 +73,16 @@ export default function InvoicePage() {
     });
 
   }, [allCases, selectedDoctor, fromDate, toDate]);
+
+  const handlePriceChange = (material: string, newPrice: string) => {
+    const price = Number(newPrice);
+    if (!isNaN(price)) {
+        setMaterialPrices(prevPrices => ({
+            ...prevPrices,
+            [material]: price
+        }));
+    }
+  };
 
   const invoiceSummary = useMemo(() => {
     if (doctorCases.length === 0) return null;
@@ -101,7 +110,7 @@ export default function InvoicePage() {
     });
 
     return { summary, grandTotal };
-  }, [doctorCases]);
+  }, [doctorCases, materialPrices]);
 
 
   return (
@@ -164,7 +173,7 @@ export default function InvoicePage() {
                                 <TableRow>
                                     <TableHead>Material</TableHead>
                                     <TableHead className="text-right">Tooth Count</TableHead>
-                                    <TableHead className="text-right">Price per Tooth (JOD)</TableHead>
+                                    <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
                                     <TableHead className="text-right">Total (JOD)</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -174,7 +183,14 @@ export default function InvoicePage() {
                                         <TableRow key={material}>
                                             <TableCell className="font-medium">{material}</TableCell>
                                             <TableCell className="text-right">{data.toothCount}</TableCell>
-                                            <TableCell className="text-right">{data.price.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Input
+                                                    type="number"
+                                                    value={data.price}
+                                                    onChange={(e) => handlePriceChange(material, e.target.value)}
+                                                    className="h-8 text-right"
+                                                />
+                                            </TableCell>
                                             <TableCell className="text-right font-semibold">{data.total.toFixed(2)}</TableCell>
                                         </TableRow>
                                     )
