@@ -129,6 +129,9 @@ export default function InvoicePage() {
 
     setIsSavingPdf(true);
 
+    // Use a timeout to allow React to re-render with isSavingPdf=true before we manipulate the DOM
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     const cleanupNodes: { parent: HTMLElement; node: HTMLElement }[] = [];
 
     // Temporarily replace inputs with static text for PDF generation
@@ -138,8 +141,7 @@ export default function InvoicePage() {
         if (parent) {
             const textNode = document.createElement('span');
             textNode.textContent = input.value;
-            textNode.className = 'price-text-for-pdf'; 
-            parent.appendChild(textNode);
+            parent.insertBefore(textNode, input);
             cleanupNodes.push({ parent, node: textNode });
             input.style.display = 'none';
         }
@@ -207,7 +209,7 @@ export default function InvoicePage() {
     } finally {
         // Restore the inputs and totals
         priceInputs.forEach(input => {
-            input.style.display = 'block';
+            input.style.display = '';
         });
         cleanupNodes.forEach(({ parent, node }) => {
             if (parent.contains(node)) {
