@@ -318,7 +318,7 @@ export default function InvoicePage() {
                           </CardContent>
                           <CardFooter className="bg-muted/50 p-4 justify-end">
                               <div className="flex items-center gap-4">
-                                  <p className="text-lg font-bold">Grand Total:</p>
+                                  <p className="text-lg font-bold">Total:</p>
                                   <p className="text-2xl font-bold text-primary" data-grand-total>
                                     {isSavingPdf ? null : `${invoiceSummary.grandTotal.toFixed(2)} JOD`}
                                   </p>
