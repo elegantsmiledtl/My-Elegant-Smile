@@ -129,7 +129,7 @@ export default function InvoicePage() {
     setIsSavingPdf(true);
 
     try {
-        const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
+        const canvas = await html2canvas(invoiceRef.current, { scale: 1 });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
