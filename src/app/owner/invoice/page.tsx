@@ -1,13 +1,50 @@
 
 'use client';
 
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Home, Receipt } from 'lucide-react';
 import Logo from '@/components/logo';
+import { getCases } from '@/lib/firebase';
+import type { DentalCase } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CasesTable from '@/components/cases-table';
 
 export default function InvoicePage() {
+  const [allCases, setAllCases] = useState<DentalCase[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchAllCases = async () => {
+      try {
+        const casesFromDb = await getCases();
+        setAllCases(casesFromDb);
+      } catch (error) {
+        console.error("Firebase Error:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Database Error',
+          description: 'Could not fetch cases. Please try again.',
+        });
+      }
+    };
+    fetchAllCases();
+  }, [toast]);
+
+  const sortedDoctors = useMemo(() => {
+    const doctorNames = new Set(allCases.map(c => c.dentistName));
+    return Array.from(doctorNames).sort((a, b) => a.localeCompare(b));
+  }, [allCases]);
+
+  const doctorCases = useMemo(() => {
+    if (!selectedDoctor) return [];
+    return allCases.filter(c => c.dentistName === selectedDoctor);
+  }, [allCases, selectedDoctor]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
@@ -29,16 +66,39 @@ export default function InvoicePage() {
               Invoice Management
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
-              <p>Invoice generation and tracking will be available here.</p>
-              <p className="text-sm">Select a doctor and date range to create an invoice.</p>
+          <CardContent className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                <p className="font-semibold">Select a doctor to generate an invoice:</p>
+                <Select onValueChange={setSelectedDoctor} value={selectedDoctor || ''}>
+                    <SelectTrigger className="w-full sm:w-[280px]">
+                        <SelectValue placeholder="Select doctor..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {sortedDoctors.map(doctor => (
+                            <SelectItem key={doctor} value={doctor}>
+                                {doctor}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
+
+            {selectedDoctor && (
+              <div>
+                <h3 className="text-xl font-bold mb-4">Cases for {selectedDoctor}</h3>
+                <CasesTable cases={doctorCases} />
+              </div>
+            )}
+            
+            {!selectedDoctor && (
+                 <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                    <p>Please select a doctor to view their cases.</p>
+                </div>
+            )}
+           
           </CardContent>
         </Card>
       </main>
     </div>
   );
 }
-
-    
