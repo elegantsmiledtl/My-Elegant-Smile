@@ -15,6 +15,8 @@ import CasesTable from '@/components/cases-table';
 import { DatePicker } from '@/components/ui/date-picker';
 import { endOfDay, startOfDay } from 'date-fns';
 
+const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
+
 export default function InvoicePage() {
   const [allCases, setAllCases] = useState<DentalCase[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
@@ -61,6 +63,27 @@ export default function InvoicePage() {
     });
 
   }, [allCases, selectedDoctor, fromDate, toDate]);
+
+  const materialSummary = useMemo(() => {
+    if (doctorCases.length === 0) return null;
+
+    const summary = materialOptions.reduce((acc, material) => {
+        acc[material] = 0;
+        return acc;
+    }, {} as Record<string, number>);
+
+    doctorCases.forEach(c => {
+        const materialsInCase = c.material.split(',').map(m => m.trim());
+        materialsInCase.forEach(material => {
+            if (summary.hasOwnProperty(material)) {
+                summary[material]++;
+            }
+        });
+    });
+
+    return summary;
+  }, [doctorCases]);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -109,6 +132,24 @@ export default function InvoicePage() {
                          <DatePicker value={toDate} onChange={setToDate} placeholder="To Date" />
                     </div>
                  </div>
+            )}
+            
+            {materialSummary && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Material Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            {Object.entries(materialSummary).map(([material, count]) => (
+                                <div key={material} className="p-4 bg-background rounded-lg text-center shadow">
+                                    <p className="text-sm font-medium text-muted-foreground">{material}</p>
+                                    <p className="text-2xl font-bold">{count}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             )}
 
             {selectedDoctor && (
