@@ -73,10 +73,11 @@ export default function InvoicePage() {
     }, {} as Record<string, number>);
 
     doctorCases.forEach(c => {
+        const toothCount = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const materialsInCase = c.material.split(',').map(m => m.trim());
         materialsInCase.forEach(material => {
             if (summary.hasOwnProperty(material)) {
-                summary[material]++;
+                summary[material] += toothCount;
             }
         });
     });
@@ -137,7 +138,7 @@ export default function InvoicePage() {
             {materialSummary && (
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">Material Summary</CardTitle>
+                        <CardTitle className="text-lg">Material Summary (by Tooth Count)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
