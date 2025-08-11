@@ -5,17 +5,21 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt } from 'lucide-react';
+import { Home, Receipt, Calendar } from 'lucide-react';
 import Logo from '@/components/logo';
 import { getCases } from '@/lib/firebase';
 import type { DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CasesTable from '@/components/cases-table';
+import { DatePicker } from '@/components/ui/date-picker';
+import { endOfDay, startOfDay } from 'date-fns';
 
 export default function InvoicePage() {
   const [allCases, setAllCases] = useState<DentalCase[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [toDate, setToDate] = useState<Date | undefined>();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,8 +46,21 @@ export default function InvoicePage() {
 
   const doctorCases = useMemo(() => {
     if (!selectedDoctor) return [];
-    return allCases.filter(c => c.dentistName === selectedDoctor);
-  }, [allCases, selectedDoctor]);
+    
+    return allCases.filter(c => {
+      if (c.dentistName !== selectedDoctor) return false;
+
+      // Ensure createdAt exists and is a valid timestamp object
+      if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
+      const caseDate = c.createdAt.toDate();
+      
+      const isAfterFrom = fromDate ? caseDate >= startOfDay(fromDate) : true;
+      const isBeforeTo = toDate ? caseDate <= endOfDay(toDate) : true;
+      
+      return isAfterFrom && isBeforeTo;
+    });
+
+  }, [allCases, selectedDoctor, fromDate, toDate]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -82,6 +99,17 @@ export default function InvoicePage() {
                     </SelectContent>
                 </Select>
             </div>
+            
+             {selectedDoctor && (
+                 <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg bg-muted/50">
+                    <p className="font-semibold text-sm">Filter by creation date:</p>
+                    <div className="flex gap-2 items-center">
+                         <DatePicker value={fromDate} onChange={setFromDate} placeholder="From Date" />
+                         <span>-</span>
+                         <DatePicker value={toDate} onChange={setToDate} placeholder="To Date" />
+                    </div>
+                 </div>
+            )}
 
             {selectedDoctor && (
               <div>
