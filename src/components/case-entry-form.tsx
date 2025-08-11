@@ -131,7 +131,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         name="deliveryDate"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
-                            <FormLabel className="font-bold">Delivery Date</FormLabel>
+                            <FormLabel className="font-bold">Delivery Date (Optional)</FormLabel>
                             <FormControl>
                                 <DatePicker 
                                     value={field.value} 
