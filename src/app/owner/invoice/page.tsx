@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt } from 'lucide-react';
+import { Home, Receipt, FileDown } from 'lucide-react';
 import Logo from '@/components/logo';
 import { getCases } from '@/lib/firebase';
 import type { DentalCase } from '@/types';
@@ -13,9 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CasesTable from '@/components/cases-table';
 import { DatePicker } from '@/components/ui/date-picker';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
@@ -34,6 +36,8 @@ export default function InvoicePage() {
     "MookUp": 10
   });
   const { toast } = useToast();
+  const invoiceRef = useRef<HTMLDivElement>(null);
+  const [isSavingPdf, setIsSavingPdf] = useState(false);
 
   useEffect(() => {
     const fetchAllCases = async () => {
@@ -111,6 +115,50 @@ export default function InvoicePage() {
 
     return { summary, grandTotal };
   }, [doctorCases, materialPrices]);
+  
+  const handleSaveAsPdf = async () => {
+    if (!invoiceRef.current || !selectedDoctor) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Cannot generate PDF. Make sure an invoice is displayed.',
+        });
+        return;
+    }
+    
+    setIsSavingPdf(true);
+
+    try {
+        const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        
+        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+        pdf.save(fileName);
+
+        toast({
+            title: 'Success',
+            description: 'Invoice has been saved as a PDF.',
+        });
+
+    } catch (error) {
+        console.error("PDF Generation Error:", error);
+        toast({
+            variant: 'destructive',
+            title: 'PDF Error',
+            description: 'Failed to generate PDF file.',
+        });
+    } finally {
+        setIsSavingPdf(false);
+    }
+  };
 
 
   return (
@@ -162,61 +210,77 @@ export default function InvoicePage() {
                  </div>
             )}
             
-            {invoiceSummary && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Invoice Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Material</TableHead>
-                                    <TableHead className="text-right">Tooth Count</TableHead>
-                                    <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
-                                    <TableHead className="text-right">Total (JOD)</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(invoiceSummary.summary).map(([material, data]) => (
-                                    data.toothCount > 0 && (
-                                        <TableRow key={material}>
-                                            <TableCell className="font-medium">{material}</TableCell>
-                                            <TableCell className="text-right">{data.toothCount}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Input
-                                                    type="number"
-                                                    value={data.price}
-                                                    onChange={(e) => handlePriceChange(material, e.target.value)}
-                                                    className="h-8 text-right"
-                                                />
-                                            </TableCell>
-                                            <TableCell className="text-right font-semibold">{data.total.toFixed(2)}</TableCell>
-                                        </TableRow>
-                                    )
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                    <CardFooter className="bg-muted/50 p-4 justify-end">
-                        <div className="flex items-center gap-4">
-                            <p className="text-lg font-bold">Grand Total:</p>
-                            <p className="text-2xl font-bold text-primary">{invoiceSummary.grandTotal.toFixed(2)} JOD</p>
-                        </div>
-                    </CardFooter>
-                </Card>
+            {invoiceSummary && selectedDoctor && (
+                <div ref={invoiceRef} className="p-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
+                             <CardDescription>
+                                {fromDate && toDate 
+                                    ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
+                                    : 'All dates'}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Material</TableHead>
+                                        <TableHead className="text-right">Tooth Count</TableHead>
+                                        <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
+                                        <TableHead className="text-right">Total (JOD)</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                        data.toothCount > 0 && (
+                                            <TableRow key={material}>
+                                                <TableCell className="font-medium">{material}</TableCell>
+                                                <TableCell className="text-right">{data.toothCount}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Input
+                                                        type="number"
+                                                        value={data.price}
+                                                        onChange={(e) => handlePriceChange(material, e.target.value)}
+                                                        className="h-8 text-right"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="text-right font-semibold">{data.total.toFixed(2)}</TableCell>
+                                            </TableRow>
+                                        )
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                        <CardFooter className="bg-muted/50 p-4 justify-end">
+                            <div className="flex items-center gap-4">
+                                <p className="text-lg font-bold">Grand Total:</p>
+                                <p className="text-2xl font-bold text-primary">{invoiceSummary.grandTotal.toFixed(2)} JOD</p>
+                            </div>
+                        </CardFooter>
+                    </Card>
+                </div>
+            )}
+
+             {invoiceSummary && (
+                <div className="flex justify-end">
+                    <Button onClick={handleSaveAsPdf} disabled={isSavingPdf}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        {isSavingPdf ? 'Saving...' : 'Save as PDF'}
+                    </Button>
+                </div>
             )}
 
             {selectedDoctor && (
               <div>
-                <h3 className="text-xl font-bold mb-4">Cases for {selectedDoctor}</h3>
+                <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
                 <CasesTable cases={doctorCases} />
               </div>
             )}
             
             {!selectedDoctor && (
                  <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
-                    <p>Please select a doctor to view their cases.</p>
+                    <p>Please select a doctor to view their cases and generate an invoice.</p>
                 </div>
             )}
            
