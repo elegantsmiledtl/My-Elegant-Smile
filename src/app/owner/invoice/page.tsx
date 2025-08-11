@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt, Calendar } from 'lucide-react';
+import { Home, Receipt } from 'lucide-react';
 import Logo from '@/components/logo';
 import { getCases } from '@/lib/firebase';
 import type { DentalCase } from '@/types';
@@ -14,8 +14,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import CasesTable from '@/components/cases-table';
 import { DatePicker } from '@/components/ui/date-picker';
 import { endOfDay, startOfDay } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
+const materialPrices: Record<string, number> = {
+    "Zolid": 25,
+    "Zirconia": 30,
+    "Nickel Free": 20,
+    "N-Guard": 15,
+    "Implant": 50,
+    "MookUp": 10
+};
+
 
 export default function InvoicePage() {
   const [allCases, setAllCases] = useState<DentalCase[]>([]);
@@ -64,25 +75,32 @@ export default function InvoicePage() {
 
   }, [allCases, selectedDoctor, fromDate, toDate]);
 
-  const materialSummary = useMemo(() => {
+  const invoiceSummary = useMemo(() => {
     if (doctorCases.length === 0) return null;
 
     const summary = materialOptions.reduce((acc, material) => {
-        acc[material] = 0;
+        acc[material] = { toothCount: 0, price: materialPrices[material] || 0, total: 0 };
         return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { toothCount: number; price: number; total: number }>);
 
     doctorCases.forEach(c => {
-        const toothCount = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
+        const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const materialsInCase = c.material.split(',').map(m => m.trim());
         materialsInCase.forEach(material => {
             if (summary.hasOwnProperty(material)) {
-                summary[material] += toothCount;
+                summary[material].toothCount += toothCountInCase;
             }
         });
     });
 
-    return summary;
+    let grandTotal = 0;
+    Object.keys(summary).forEach(material => {
+        const materialInfo = summary[material];
+        materialInfo.total = materialInfo.toothCount * materialInfo.price;
+        grandTotal += materialInfo.total;
+    });
+
+    return { summary, grandTotal };
   }, [doctorCases]);
 
 
@@ -135,21 +153,41 @@ export default function InvoicePage() {
                  </div>
             )}
             
-            {materialSummary && (
+            {invoiceSummary && (
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">Material Summary (by Tooth Count)</CardTitle>
+                        <CardTitle className="text-lg">Invoice Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                            {Object.entries(materialSummary).map(([material, count]) => (
-                                <div key={material} className="p-4 bg-background rounded-lg text-center shadow">
-                                    <p className="text-sm font-medium text-muted-foreground">{material}</p>
-                                    <p className="text-2xl font-bold">{count}</p>
-                                </div>
-                            ))}
-                        </div>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Material</TableHead>
+                                    <TableHead className="text-right">Tooth Count</TableHead>
+                                    <TableHead className="text-right">Price per Tooth (JOD)</TableHead>
+                                    <TableHead className="text-right">Total (JOD)</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                    data.toothCount > 0 && (
+                                        <TableRow key={material}>
+                                            <TableCell className="font-medium">{material}</TableCell>
+                                            <TableCell className="text-right">{data.toothCount}</TableCell>
+                                            <TableCell className="text-right">{data.price.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right font-semibold">{data.total.toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    )
+                                ))}
+                            </TableBody>
+                        </Table>
                     </CardContent>
+                    <CardFooter className="bg-muted/50 p-4 justify-end">
+                        <div className="flex items-center gap-4">
+                            <p className="text-lg font-bold">Grand Total:</p>
+                            <p className="text-2xl font-bold text-primary">{invoiceSummary.grandTotal.toFixed(2)} JOD</p>
+                        </div>
+                    </CardFooter>
                 </Card>
             )}
 
