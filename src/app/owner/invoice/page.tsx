@@ -129,6 +129,8 @@ export default function InvoicePage() {
 
     setIsSavingPdf(true);
 
+    const cleanupNodes: HTMLElement[] = [];
+
     // Temporarily replace inputs with static text for PDF generation
     const priceInputs = invoiceElement.querySelectorAll<HTMLInputElement>('input[type="number"]');
     priceInputs.forEach(input => {
@@ -136,15 +138,16 @@ export default function InvoicePage() {
         if (parent) {
             const textNode = document.createElement('span');
             textNode.textContent = input.value;
-            textNode.className = 'price-text-for-pdf'; // Add a class for easy removal later
+            textNode.className = 'price-text-for-pdf'; 
             parent.appendChild(textNode);
+            cleanupNodes.push(textNode);
             input.style.display = 'none';
         }
     });
 
 
     try {
-        const canvas = await html2canvas(invoiceElement, { scale: 2 });
+        const canvas = await html2canvas(invoiceElement, { scale: 1 });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
@@ -175,7 +178,7 @@ export default function InvoicePage() {
         priceInputs.forEach(input => {
             input.style.display = 'block';
         });
-        invoiceElement.querySelectorAll('.price-text-for-pdf').forEach(el => el.remove());
+        cleanupNodes.forEach(el => el.remove());
 
         setIsSavingPdf(false);
     }
@@ -238,7 +241,7 @@ export default function InvoicePage() {
                       <Card>
                           <CardHeader>
                               <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
-                              <CardDescription>
+                               <CardDescription>
                                   {fromDate && toDate 
                                       ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
                                       : 'All dates'}
@@ -312,5 +315,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-    
