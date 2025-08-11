@@ -182,7 +182,7 @@ export default function InvoicePage() {
               Invoice Management
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6" >
             <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
                 <p className="font-semibold">Select a doctor to generate an invoice:</p>
                 <Select onValueChange={setSelectedDoctor} value={selectedDoctor || ''}>
@@ -210,7 +210,7 @@ export default function InvoicePage() {
                  </div>
             )}
             
-            <div ref={invoiceRef} className="p-4">
+            <div className="p-4" ref={invoiceRef}>
               {invoiceSummary && selectedDoctor && (
                   <div className="space-y-6">
                       <Card>
@@ -268,9 +268,10 @@ export default function InvoicePage() {
                   </div>
               )}
             </div>
-
-             {invoiceSummary && (
-                <div className="flex justify-end">
+           
+          </CardContent>
+           {invoiceSummary && (
+                <div className="flex justify-end p-6 pt-0">
                     <Button onClick={handleSaveAsPdf} disabled={isSavingPdf}>
                         <FileDown className="mr-2 h-4 w-4" />
                         {isSavingPdf ? 'Saving...' : 'Save as PDF'}
@@ -283,10 +284,10 @@ export default function InvoicePage() {
                     <p>Please select a doctor to view their cases and generate an invoice.</p>
                 </div>
             )}
-           
-          </CardContent>
         </Card>
       </main>
     </div>
   );
 }
+
+    
