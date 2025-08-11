@@ -328,7 +328,13 @@ export default function InvoicePage() {
 
                       <div>
                         <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
-                        <CasesTable cases={doctorCases} />
+                        <CasesTable 
+                            cases={doctorCases} 
+                            hideDentist 
+                            hideDeliveryDate 
+                            hideShade 
+                            hideSource
+                        />
                       </div>
                   </div>
               )}

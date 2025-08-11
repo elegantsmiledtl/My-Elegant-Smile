@@ -40,9 +40,21 @@ interface CasesTableProps {
   cases: DentalCase[];
   onDeleteCase?: (id: string) => void;
   onUpdateCase?: (updatedCase: DentalCase) => void;
+  hideDentist?: boolean;
+  hideDeliveryDate?: boolean;
+  hideShade?: boolean;
+  hideSource?: boolean;
 }
 
-export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesTableProps) {
+export default function CasesTable({ 
+    cases, 
+    onDeleteCase, 
+    onUpdateCase,
+    hideDentist,
+    hideDeliveryDate,
+    hideShade,
+    hideSource 
+}: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [caseToEdit, setCaseToEdit] = useState<DentalCase | null>(null);
@@ -87,15 +99,15 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
         <TableHeader>
           <TableRow>
             <TableHead>Created At</TableHead>
-            <TableHead>Delivery Date</TableHead>
+            {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
-            <TableHead>Dentist</TableHead>
+            {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Tooth Count</TableHead>
             <TableHead>Prosthesis</TableHead>
             <TableHead>Material</TableHead>
-            <TableHead>Shade</TableHead>
-            <TableHead>Source</TableHead>
+            {!hideShade && <TableHead>Shade</TableHead>}
+            {!hideSource && <TableHead>Source</TableHead>}
             <TableHead>Notes</TableHead>
             {showActions && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
@@ -104,26 +116,30 @@ export default function CasesTable({ cases, onDeleteCase, onUpdateCase }: CasesT
           {cases.map((c) => (
             <TableRow key={c.id}>
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
-              <TableCell>{formatDate(c.deliveryDate)}</TableCell>
+              {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
-              <TableCell>
-                <Link href={`/doctor/${encodeURIComponent(c.dentistName)}`} className="text-primary hover:underline">
-                  {c.dentistName}
-                </Link>
-              </TableCell>
+              {!hideDentist && (
+                 <TableCell>
+                    <Link href={`/doctor/${encodeURIComponent(c.dentistName)}`} className="text-primary hover:underline">
+                    {c.dentistName}
+                    </Link>
+                </TableCell>
+              )}
               <TableCell>{c.toothNumbers}</TableCell>
               <TableCell className="font-medium">
                 {c.toothNumbers.split(',').filter(t => t.trim() !== '').length}
               </TableCell>
               <TableCell>{c.prosthesisType}</TableCell>
               <TableCell>{c.material}</TableCell>
-              <TableCell>{c.shade}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                    {c.source === 'Mobile' ? <Smartphone className="h-4 w-4 text-muted-foreground" /> : <Monitor className="h-4 w-4 text-muted-foreground" />}
-                    {c.source || 'Desktop'}
-                </div>
-              </TableCell>
+              {!hideShade && <TableCell>{c.shade}</TableCell>}
+              {!hideSource && (
+                <TableCell>
+                    <div className="flex items-center gap-2">
+                        {c.source === 'Mobile' ? <Smartphone className="h-4 w-4 text-muted-foreground" /> : <Monitor className="h-4 w-4 text-muted-foreground" />}
+                        {c.source || 'Desktop'}
+                    </div>
+                </TableCell>
+              )}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
               {showActions && (
                 <TableCell className="text-right">
