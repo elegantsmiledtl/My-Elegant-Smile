@@ -64,13 +64,21 @@ export default function DoctorInvoicesPage() {
     if (!timestamp) return 'N/A';
     // Firestore Timestamps or ISO strings from JSON
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
-    return format(date, 'PPP');
+    try {
+        return format(date, 'PPP');
+    } catch (e) {
+        return "Invalid Date";
+    }
   };
   
   const formatDateTime = (timestamp: any) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return format(date, 'PPP p');
+    const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
+    try {
+        return format(date, 'PPP p');
+    } catch(e) {
+        return "Invalid Date";
+    }
   }
 
   return (
