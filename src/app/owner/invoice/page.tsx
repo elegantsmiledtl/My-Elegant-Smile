@@ -163,7 +163,7 @@ export default function InvoicePage() {
         grandTotal += materialInfo.total;
     });
 
-    return { summary, grandTotal };
+    return { summary, grandTotal, cases: filteredCasesByDate };
   }, [doctorCases, materialPrices, selectedDoctor, fromDate, toDate]);
   
    const handleSaveAsPdf = async () => {
@@ -238,6 +238,7 @@ export default function InvoicePage() {
             toDate: toDate || null,
             summary: invoiceSummary.summary,
             grandTotal: invoiceSummary.grandTotal,
+            cases: invoiceSummary.cases, // Include cases in shared data
         };
 
         await saveInvoice(invoiceData);
@@ -361,7 +362,7 @@ export default function InvoicePage() {
             </Card>
         
             {/* The live, interactive invoice for the UI */}
-            {invoiceSummary && selectedDoctor && (
+            {invoiceSummary && selectedDoctor && fromDate && toDate && (
                 <div className="bg-white text-black p-4">
                     <div className="space-y-6">
                         <Card>
@@ -420,11 +421,7 @@ export default function InvoicePage() {
                         <div>
                             <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
                             <CasesTable 
-                                cases={doctorCases.filter(c => {
-                                    if (!c.createdAt || typeof c.createdAt.toDate !== 'function' || !fromDate || !toDate) return false;
-                                    const caseDate = c.createdAt.toDate();
-                                    return caseDate >= startOfDay(fromDate) && caseDate <= endOfDay(toDate);
-                                })} 
+                                cases={invoiceSummary.cases}
                                 hideDentist 
                                 hideDeliveryDate 
                                 hideShade 
@@ -501,11 +498,7 @@ export default function InvoicePage() {
                                     </tr>
                                 </thead>
                                  <tbody>
-                                   {doctorCases.filter(c => {
-                                        if (!c.createdAt || typeof c.createdAt.toDate !== 'function' || !fromDate || !toDate) return false;
-                                        const caseDate = c.createdAt.toDate();
-                                        return caseDate >= startOfDay(fromDate) && caseDate <= endOfDay(toDate);
-                                    }).map(c => (
+                                   {invoiceSummary.cases.map(c => (
                                         <tr key={c.id}>
                                             <td className="border p-2">{format(c.createdAt.toDate(), 'PPP p')}</td>
                                             <td className="border p-2">{c.patientName}</td>
@@ -523,7 +516,7 @@ export default function InvoicePage() {
                 )}
             </div>
 
-            {invoiceSummary && (
+            {invoiceSummary && fromDate && toDate && (
                 <div className="flex justify-end p-6 pt-0 gap-2">
                     <Button onClick={handleShareInvoice} disabled={isSharing || isSavingPdf}>
                         <Send className="mr-2 h-4 w-4" />

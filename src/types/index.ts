@@ -27,4 +27,5 @@ export type Invoice = {
     summary: Record<string, InvoiceSummaryItem>;
     grandTotal: number;
     createdAt: any;
+    cases: DentalCase[]; // Add cases to the invoice type
 };

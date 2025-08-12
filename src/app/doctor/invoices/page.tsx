@@ -19,6 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import CasesTable from '@/components/cases-table';
 
 
 export default function DoctorInvoicesPage() {
@@ -162,6 +163,24 @@ export default function DoctorInvoicesPage() {
                                         </div>
                                     </CardFooter>
                                 </Card>
+
+                                {invoice.cases && invoice.cases.length > 0 && (
+                                  <Card className="m-2 mt-4">
+                                    <CardHeader>
+                                      <CardTitle className="text-lg">Included Cases</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <CasesTable 
+                                        cases={invoice.cases}
+                                        hideDentist
+                                        hideDeliveryDate
+                                        hideShade
+                                        hideSource
+                                      />
+                                    </CardContent>
+                                  </Card>
+                                )}
+
                             </AccordionContent>
                         </AccordionItem>
                     ))}
