@@ -37,6 +37,7 @@ export default function InvoicePage() {
   });
   const { toast } = useToast();
   const invoiceRef = useRef<HTMLDivElement>(null);
+  const printableInvoiceRef = useRef<HTMLDivElement>(null);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
@@ -120,55 +121,92 @@ export default function InvoicePage() {
   
   const handleSaveAsPdf = async () => {
     const invoiceElement = invoiceRef.current;
-    if (!invoiceElement || !selectedDoctor) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Cannot generate PDF. Make sure an invoice is displayed.',
-        });
-        return;
+    if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Cannot generate PDF. Make sure an invoice is displayed.',
+      });
+      return;
+    }
+  
+    setIsSavingPdf(true);
+  
+    // Use a temporary element for rendering to avoid flickering
+    const printableElement = document.createElement('div');
+    printableElement.style.position = 'absolute';
+    printableElement.style.left = '-9999px'; // Move off-screen
+    printableElement.style.width = '800px'; // A fixed width for consistent rendering
+    printableElement.innerHTML = invoiceElement.innerHTML;
+    document.body.appendChild(printableElement);
+
+    // Remove input fields and replace with static text for prices
+    printableElement.querySelectorAll('input[type="number"]').forEach(input => {
+      const priceSpan = document.createElement('span');
+      priceSpan.innerText = (input as HTMLInputElement).value;
+      input.parentNode?.replaceChild(priceSpan, input);
+    });
+
+    // Replace dynamic totals with static text
+    const totalElements = printableElement.querySelectorAll('.dynamic-total');
+    const grandTotalElement = printableElement.querySelector('.dynamic-grand-total');
+
+    if (totalElements.length > 0) {
+      totalElements.forEach((el, index) => {
+        const material = Object.keys(invoiceSummary.summary).filter(m => invoiceSummary.summary[m].toothCount > 0)[index];
+        if (material) {
+           el.innerHTML = `<span>${invoiceSummary.summary[material].total.toFixed(2)}</span>`;
+        }
+      });
     }
 
-    setIsSavingPdf(true);
-
+    if (grandTotalElement) {
+        grandTotalElement.innerHTML = `<span>${invoiceSummary.grandTotal.toFixed(2)} JOD</span>`;
+    }
+  
     try {
-        const canvas = await html2canvas(invoiceElement, { scale: 2 }); // Use higher scale for better quality
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 10;
-
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        
-        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
-        pdf.save(fileName);
-
-        toast({
-            title: 'Success',
-            description: 'Invoice has been saved as a PDF.',
-        });
-
+      const canvas = await html2canvas(printableElement, {
+        scale: 2,
+        useCORS: true,
+      });
+  
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+  
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgWidth = imgProps.width;
+      const imgHeight = imgProps.height;
+      
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+  
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+      pdf.save(fileName);
+  
+      toast({
+        title: 'Success',
+        description: 'Invoice has been saved as a PDF.',
+      });
+  
     } catch (error) {
-        console.error("PDF Generation Error:", error);
-        toast({
-            variant: 'destructive',
-            title: 'PDF Error',
-            description: 'Failed to generate PDF file.',
-        });
+      console.error("PDF Generation Error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'PDF Error',
+        description: 'Failed to generate PDF file.',
+      });
     } finally {
-        setIsSavingPdf(false);
+      document.body.removeChild(printableElement);
+      setIsSavingPdf(false);
     }
   };
 
@@ -272,7 +310,6 @@ export default function InvoicePage() {
             )}
         </Card>
         
-        {/* This is the content that will be captured for the PDF */}
         <div ref={invoiceRef} className="p-4 bg-white text-black">
           {invoiceSummary && selectedDoctor && (
               <div className="space-y-6">
@@ -303,17 +340,14 @@ export default function InvoicePage() {
                                               <TableCell className="font-medium">{material}</TableCell>
                                               <TableCell className="text-right">{data.toothCount}</TableCell>
                                               <TableCell className="text-right">
-                                                  {isSavingPdf ? 
-                                                    data.price.toFixed(2) :
-                                                    <Input
-                                                        type="number"
-                                                        value={data.price}
-                                                        onChange={(e) => handlePriceChange(material, e.target.value)}
-                                                        className="h-8 text-right bg-white"
-                                                    />
-                                                  }
+                                                  <Input
+                                                      type="number"
+                                                      value={data.price}
+                                                      onChange={(e) => handlePriceChange(material, e.target.value)}
+                                                      className="h-8 text-right bg-white"
+                                                  />
                                               </TableCell>
-                                              <TableCell className="text-right font-semibold">
+                                              <TableCell className="text-right font-semibold dynamic-total">
                                                 {data.total.toFixed(2)}
                                               </TableCell>
                                           </TableRow>
@@ -325,7 +359,7 @@ export default function InvoicePage() {
                       <CardFooter className="bg-muted/50 p-4 justify-end">
                           <div className="flex items-center gap-4">
                               <p className="text-lg font-bold">Total:</p>
-                              <p className="text-2xl font-bold text-primary">
+                              <p className="text-2xl font-bold text-primary dynamic-grand-total">
                                 {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
                               </p>
                           </div>
@@ -362,5 +396,4 @@ export default function InvoicePage() {
       </main>
     </div>
   );
-
-    
+}
