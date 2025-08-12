@@ -17,12 +17,14 @@ interface DatePickerProps {
   value?: Date;
   onChange: (date?: Date) => void;
   placeholder?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function DatePicker({ value, onChange, placeholder = "Pick a date"}: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "Pick a date", open, onOpenChange }: DatePickerProps) {
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}

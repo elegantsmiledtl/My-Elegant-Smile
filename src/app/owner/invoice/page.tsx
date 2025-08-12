@@ -61,6 +61,10 @@ export default function InvoicePage() {
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
+  const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
+  const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
+
+
   const timeZone = 'Asia/Amman';
 
   useEffect(() => {
@@ -393,9 +397,24 @@ export default function InvoicePage() {
                      <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg bg-muted/50">
                         <p className="font-semibold text-sm">Filter by creation date:</p>
                         <div className="flex gap-2 items-center">
-                             <DatePicker value={fromDate} onChange={setFromDate} placeholder="From Date" />
+                             <DatePicker 
+                                 value={fromDate} 
+                                 onChange={(date) => {
+                                    setFromDate(date);
+                                    setIsToDatePickerOpen(true);
+                                 }} 
+                                 placeholder="From Date" 
+                                 onOpenChange={setIsFromDatePickerOpen}
+                                 open={isFromDatePickerOpen}
+                             />
                              <span>-</span>
-                             <DatePicker value={toDate} onChange={setToDate} placeholder="To Date" />
+                             <DatePicker 
+                                 value={toDate} 
+                                 onChange={setToDate} 
+                                 placeholder="To Date" 
+                                 onOpenChange={setIsToDatePickerOpen}
+                                 open={isToDatePickerOpen}
+                             />
                         </div>
                      </div>
                 )}
