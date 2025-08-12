@@ -53,7 +53,6 @@ export default function InvoicePage() {
     "MookUp": 10
   });
   const { toast } = useToast();
-  const invoiceRef = useRef<HTMLDivElement>(null);
   const printableInvoiceRef = useRef<HTMLDivElement>(null);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -132,14 +131,22 @@ export default function InvoicePage() {
   };
 
   const invoiceSummary = useMemo(() => {
-    if (doctorCases.length === 0) return null;
+    if (doctorCases.length === 0 || !selectedDoctor || !fromDate || !toDate) return null;
+
+    const filteredCasesByDate = doctorCases.filter(c => {
+       if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
+        const caseDate = c.createdAt.toDate();
+        const isAfterFrom = fromDate ? caseDate >= startOfDay(fromDate) : true;
+        const isBeforeTo = toDate ? caseDate <= endOfDay(toDate) : true;
+        return isAfterFrom && isBeforeTo;
+    });
 
     const summary = materialOptions.reduce((acc, material) => {
         acc[material] = { toothCount: 0, price: materialPrices[material] || 0, total: 0 };
         return acc;
     }, {} as Record<string, { toothCount: number; price: number; total: number }>);
 
-    doctorCases.forEach(c => {
+    filteredCasesByDate.forEach(c => {
         const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const materialsInCase = c.material.split(',').map(m => m.trim());
         materialsInCase.forEach(material => {
@@ -157,10 +164,10 @@ export default function InvoicePage() {
     });
 
     return { summary, grandTotal };
-  }, [doctorCases, materialPrices]);
+  }, [doctorCases, materialPrices, selectedDoctor, fromDate, toDate]);
   
    const handleSaveAsPdf = async () => {
-    const invoiceElement = invoiceRef.current;
+    const invoiceElement = printableInvoiceRef.current;
     if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
         toast({
             variant: 'destructive',
@@ -176,14 +183,6 @@ export default function InvoicePage() {
         const canvas = await html2canvas(invoiceElement, {
             scale: 2,
             useCORS: true,
-            onclone: (document) => {
-                 // On the cloned document, replace inputs with static text
-                 document.querySelectorAll('input[type="number"]').forEach(input => {
-                    const priceSpan = document.createElement('span');
-                    priceSpan.innerText = (input as HTMLInputElement).value;
-                    input.parentNode?.replaceChild(priceSpan, input);
-                });
-            }
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -350,76 +349,175 @@ export default function InvoicePage() {
                         <p>Please select a doctor to view their cases and generate an invoice.</p>
                     </div>
                 )}
+                
+                 {selectedDoctor && !invoiceSummary && (
+                    <div className="m-6 text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                        <p>Please select a 'from' and 'to' date to generate the invoice.</p>
+                    </div>
+                )}
             </Card>
         
-            <div ref={invoiceRef} className="bg-white text-black p-4">
-              {invoiceSummary && selectedDoctor && (
-                  <div className="space-y-6">
-                      <Card>
-                          <CardHeader>
-                              <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
-                               <p className="text-sm text-muted-foreground">
-                                    {fromDate && toDate 
-                                        ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
-                                        : 'All dates'
-                                    }
-                                </p>
-                          </CardHeader>
-                          <CardContent>
-                              <Table>
-                                  <TableHeader>
-                                      <TableRow>
-                                          <TableHead>Material</TableHead>
-                                          <TableHead className="text-right">Tooth Count</TableHead>
-                                          <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
-                                          <TableHead className="text-right">Total (JOD)</TableHead>
-                                      </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                      {Object.entries(invoiceSummary.summary).map(([material, data]) => (
-                                          data.toothCount > 0 && (
-                                              <TableRow key={material}>
-                                                  <TableCell className="font-medium">{material}</TableCell>
-                                                  <TableCell className="text-right">{data.toothCount}</TableCell>
-                                                  <TableCell className="text-right">
-                                                      <Input
-                                                          type="number"
-                                                          value={data.price}
-                                                          onChange={(e) => handlePriceChange(material, e.target.value)}
-                                                          className="h-8 text-right bg-white"
-                                                      />
-                                                  </TableCell>
-                                                  <TableCell className="text-right font-semibold">
-                                                    {data.total.toFixed(2)}
-                                                  </TableCell>
-                                              </TableRow>
-                                          )
-                                      ))}
-                                  </TableBody>
-                              </Table>
-                          </CardContent>
-                          <CardFooter className="bg-muted/50 p-4 justify-end">
-                              <div className="flex items-center gap-4">
-                                  <p className="text-lg font-bold">Total:</p>
-                                  <p className="text-2xl font-bold text-primary">
-                                    {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
-                                  </p>
-                              </div>
-                          </CardFooter>
-                      </Card>
+            {/* The live, interactive invoice for the UI */}
+            {invoiceSummary && selectedDoctor && (
+                <div className="bg-white text-black p-4">
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
+                                <p className="text-sm text-muted-foreground">
+                                        {fromDate && toDate 
+                                            ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
+                                            : 'All dates'
+                                        }
+                                    </p>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Material</TableHead>
+                                            <TableHead className="text-right">Tooth Count</TableHead>
+                                            <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
+                                            <TableHead className="text-right">Total (JOD)</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                            data.toothCount > 0 && (
+                                                <TableRow key={material}>
+                                                    <TableCell className="font-medium">{material}</TableCell>
+                                                    <TableCell className="text-right">{data.toothCount}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Input
+                                                            type="number"
+                                                            value={data.price}
+                                                            onChange={(e) => handlePriceChange(material, e.target.value)}
+                                                            className="h-8 text-right bg-white"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-semibold">
+                                                        {data.total.toFixed(2)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                            <CardFooter className="bg-muted/50 p-4 justify-end">
+                                <div className="flex items-center gap-4">
+                                    <p className="text-lg font-bold">Total:</p>
+                                    <p className="text-2xl font-bold text-primary">
+                                        {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
+                                    </p>
+                                </div>
+                            </CardFooter>
+                        </Card>
 
-                      <div>
-                        <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
-                        <CasesTable 
-                            cases={doctorCases} 
-                            hideDentist 
-                            hideDeliveryDate 
-                            hideShade 
-                            hideSource
-                        />
-                      </div>
-                  </div>
-              )}
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
+                            <CasesTable 
+                                cases={doctorCases.filter(c => {
+                                    if (!c.createdAt || typeof c.createdAt.toDate !== 'function' || !fromDate || !toDate) return false;
+                                    const caseDate = c.createdAt.toDate();
+                                    return caseDate >= startOfDay(fromDate) && caseDate <= endOfDay(toDate);
+                                })} 
+                                hideDentist 
+                                hideDeliveryDate 
+                                hideShade 
+                                hideSource
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+             
+            {/* Hidden, simplified invoice for PDF generation */}
+            <div ref={printableInvoiceRef} className="bg-white text-black p-8 absolute -z-50 -top-[9999px] -left-[9999px] w-[800px]">
+                {invoiceSummary && selectedDoctor && fromDate && toDate && (
+                    <div className="space-y-6">
+                        <div className="text-center mb-8">
+                           <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                           <h2 className="text-2xl">Invoice</h2>
+                        </div>
+                         <div className="flex justify-between mb-6">
+                            <div>
+                                <p className="font-bold">Doctor:</p>
+                                <p>{selectedDoctor}</p>
+                            </div>
+                            <div>
+                                <p className="font-bold">Date Range:</p>
+                                <p>{`From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`}</p>
+                            </div>
+                        </div>
+
+                        <table className="w-full border-collapse text-sm">
+                            <thead>
+                                <tr className="bg-muted/50">
+                                    <th className="border p-2 text-left">Material</th>
+                                    <th className="border p-2 text-right">Tooth Count</th>
+                                    <th className="border p-2 text-right">Price per Tooth (JOD)</th>
+                                    <th className="border p-2 text-right">Total (JOD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                    data.toothCount > 0 && (
+                                        <tr key={material}>
+                                            <td className="border p-2 font-medium">{material}</td>
+                                            <td className="border p-2 text-right">{data.toothCount}</td>
+                                            <td className="border p-2 text-right">{data.price.toFixed(2)}</td>
+                                            <td className="border p-2 text-right font-semibold">{data.total.toFixed(2)}</td>
+                                        </tr>
+                                    )
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        <div className="flex justify-end mt-6">
+                             <div className="w-1/3">
+                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-muted/50">
+                                    <span>Total:</span>
+                                    <span>{`${invoiceSummary.grandTotal.toFixed(2)} JOD`}</span>
+                                </div>
+                             </div>
+                        </div>
+
+                         <div className="mt-8">
+                            <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
+                             <table className="w-full border-collapse text-xs">
+                                <thead>
+                                    <tr className="bg-muted/50">
+                                        <th className="border p-2 text-left">Created At</th>
+                                        <th className="border p-2 text-left">Patient</th>
+                                        <th className="border p-2 text-left">Tooth #(s)</th>
+                                        <th className="border p-2 text-right">Tooth Count</th>
+                                        <th className="border p-2 text-left">Prosthesis</th>
+                                        <th className="border p-2 text-left">Material</th>
+                                        <th className="border p-2 text-left">Notes</th>
+                                    </tr>
+                                </thead>
+                                 <tbody>
+                                   {doctorCases.filter(c => {
+                                        if (!c.createdAt || typeof c.createdAt.toDate !== 'function' || !fromDate || !toDate) return false;
+                                        const caseDate = c.createdAt.toDate();
+                                        return caseDate >= startOfDay(fromDate) && caseDate <= endOfDay(toDate);
+                                    }).map(c => (
+                                        <tr key={c.id}>
+                                            <td className="border p-2">{format(c.createdAt.toDate(), 'PPP p')}</td>
+                                            <td className="border p-2">{c.patientName}</td>
+                                            <td className="border p-2">{c.toothNumbers}</td>
+                                            <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
+                                            <td className="border p-2">{c.prosthesisType}</td>
+                                            <td className="border p-2">{c.material}</td>
+                                            <td className="border p-2">{c.notes}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {invoiceSummary && (
@@ -531,6 +629,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-
-    
