@@ -434,7 +434,7 @@ export default function InvoicePage() {
                 {invoiceSummary && selectedDoctor && fromDate && toDate && (
                     <div className="space-y-6">
                         <div className="text-center mb-8">
-                           <h1 className="text-3xl font-bold text-blue-600">Elegant Smile</h1>
+                           <h1 className="text-3xl font-bold text-primary">Elegant Smile</h1>
                            <h2 className="text-2xl">Invoice</h2>
                         </div>
                          <div className="flex justify-between mb-6">
