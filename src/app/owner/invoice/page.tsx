@@ -447,35 +447,35 @@ export default function InvoicePage() {
                          <Accordion type="single" collapsible className="w-full">
                             {sharedInvoices.map((invoice, index) => (
                                 <AccordionItem value={`item-${index}`} key={invoice.id}>
-                                    <AccordionTrigger>
-                                        <div className="flex justify-between w-full pr-4 items-center">
-                                            <span>Invoice from {format(invoice.createdAt.toDate(), 'PPP p')}</span>
-                                            <div className="flex items-center gap-4">
+                                    <div className="flex items-center w-full">
+                                        <AccordionTrigger className="flex-grow">
+                                            <div className="flex justify-between w-full pr-4">
+                                                <span>Invoice from {format(invoice.createdAt.toDate(), 'PPP p')}</span>
                                                 <span className="font-bold text-primary">{invoice.grandTotal.toFixed(2)} JOD</span>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete this shared invoice. The doctor will no longer be able to see it.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteInvoice(invoice.id)} className="bg-destructive hover:bg-destructive/90">
-                                                            Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
                                             </div>
-                                        </div>
-                                    </AccordionTrigger>
+                                        </AccordionTrigger>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="mr-2 flex-shrink-0">
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete this shared invoice. The doctor will no longer be able to see it.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteInvoice(invoice.id)} className="bg-destructive hover:bg-destructive/90">
+                                                    Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
                                     <AccordionContent>
                                         <Card className="m-2">
                                             <CardHeader>
@@ -531,3 +531,6 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+
+    
