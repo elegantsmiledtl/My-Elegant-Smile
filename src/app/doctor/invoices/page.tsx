@@ -11,7 +11,7 @@ import Logo from '@/components/logo';
 import { getInvoicesByDoctor } from '@/lib/firebase';
 import type { Invoice } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Accordion,
@@ -65,6 +65,7 @@ export default function DoctorInvoicesPage() {
     if (!timestamp) return 'N/A';
     // Firestore Timestamps or ISO strings from JSON
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
+    if (!isValid(date)) return "Invalid Date";
     try {
         return format(date, 'PPP');
     } catch (e) {
@@ -75,6 +76,7 @@ export default function DoctorInvoicesPage() {
   const formatDateTime = (timestamp: any) => {
     if (!timestamp) return 'N/A';
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
+    if (!isValid(date)) return "Invalid Date";
     try {
         return format(date, 'PPP p');
     } catch(e) {
