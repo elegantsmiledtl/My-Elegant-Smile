@@ -103,40 +103,6 @@ export default function InvoicePage() {
     return Array.from(doctorNames).sort((a, b) => a.localeCompare(b));
   }, [allCases]);
 
-  const doctorCases = useMemo(() => {
-    if (!selectedDoctor) return [];
-    
-    return allCases.filter(c => {
-      if (c.dentistName !== selectedDoctor) return false;
-
-      // Handle both Firestore Timestamps and string/Date objects
-      let caseDate;
-      if (!c.createdAt) return false;
-      if (typeof c.createdAt.toDate === 'function') {
-        caseDate = c.createdAt.toDate();
-      } else {
-        caseDate = new Date(c.createdAt);
-      }
-      if (isNaN(caseDate.getTime())) return false;
-      
-      const isAfterFrom = fromDate ? caseDate >= startOfDay(fromDate) : true;
-      const isBeforeTo = toDate ? caseDate <= endOfDay(toDate) : true;
-      
-      return isAfterFrom && isBeforeTo;
-    });
-
-  }, [allCases, selectedDoctor, fromDate, toDate]);
-
-  const handlePriceChange = (material: string, newPrice: string) => {
-    const price = Number(newPrice);
-    if (!isNaN(price)) {
-        setMaterialPrices(prevPrices => ({
-            ...prevPrices,
-            [material]: price
-        }));
-    }
-  };
-
   const invoiceSummary = useMemo(() => {
     if (!selectedDoctor || !fromDate || !toDate) return null;
 
@@ -468,7 +434,7 @@ export default function InvoicePage() {
                 {invoiceSummary && selectedDoctor && fromDate && toDate && (
                     <div className="space-y-6">
                         <div className="text-center mb-8">
-                           <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                           <h1 className="text-3xl font-bold text-blue-600">Elegant Smile</h1>
                            <h2 className="text-2xl">Invoice</h2>
                         </div>
                          <div className="flex justify-between mb-6">
@@ -484,7 +450,7 @@ export default function InvoicePage() {
 
                         <table className="w-full border-collapse text-sm">
                             <thead>
-                                <tr className="bg-muted/50">
+                                <tr className="bg-gray-100">
                                     <th className="border p-2 text-left">Material</th>
                                     <th className="border p-2 text-right">Tooth Count</th>
                                     <th className="border p-2 text-right">Price per Tooth (JOD)</th>
@@ -507,7 +473,7 @@ export default function InvoicePage() {
                         
                         <div className="flex justify-end mt-6">
                              <div className="w-1/3">
-                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-muted/50">
+                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                     <span>Total:</span>
                                     <span>{`${invoiceSummary.grandTotal.toFixed(2)} JOD`}</span>
                                 </div>
@@ -518,7 +484,7 @@ export default function InvoicePage() {
                             <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
                              <table className="w-full border-collapse text-xs">
                                 <thead>
-                                    <tr className="bg-muted/50">
+                                    <tr className="bg-gray-100">
                                         <th className="border p-2 text-left">Created At</th>
                                         <th className="border p-2 text-left">Patient</th>
                                         <th className="border p-2 text-left">Tooth #(s)</th>
@@ -672,4 +638,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
