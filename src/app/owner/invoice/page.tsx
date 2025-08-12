@@ -131,45 +131,8 @@ export default function InvoicePage() {
 
     setIsSavingPdf(true);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const cleanupNodes: { parent: HTMLElement; node: HTMLElement }[] = [];
-    const priceInputs = invoiceElement.querySelectorAll<HTMLInputElement>('input[type="number"]');
-    priceInputs.forEach(input => {
-        const parent = input.parentElement;
-        if (parent) {
-            const textNode = document.createElement('span');
-            textNode.textContent = input.value;
-            parent.insertBefore(textNode, input);
-            cleanupNodes.push({ parent, node: textNode });
-            input.style.display = 'none';
-        }
-    });
-
-    if (invoiceSummary) {
-        Object.entries(invoiceSummary.summary).forEach(([material, data]) => {
-            if (data.toothCount > 0) {
-                const totalCell = invoiceElement.querySelector(`[data-total-for="${material}"]`);
-                if (totalCell) {
-                    const textNode = document.createElement('span');
-                    textNode.textContent = data.total.toFixed(2);
-                    totalCell.appendChild(textNode);
-                    cleanupNodes.push({ parent: totalCell as HTMLElement, node: textNode });
-                }
-            }
-        });
-        const grandTotalCell = invoiceElement.querySelector('[data-grand-total]');
-        if (grandTotalCell) {
-             const textNode = document.createElement('span');
-             textNode.textContent = `${invoiceSummary.grandTotal.toFixed(2)} JOD`;
-             grandTotalCell.appendChild(textNode);
-             cleanupNodes.push({ parent: grandTotalCell as HTMLElement, node: textNode });
-        }
-    }
-
-
     try {
-        const canvas = await html2canvas(invoiceElement, { scale: 1 });
+        const canvas = await html2canvas(invoiceElement, { scale: 2 }); // Use higher scale for better quality
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
@@ -205,15 +168,6 @@ export default function InvoicePage() {
             description: 'Failed to generate PDF file.',
         });
     } finally {
-        priceInputs.forEach(input => {
-            input.style.display = '';
-        });
-        cleanupNodes.forEach(({ parent, node }) => {
-            if (parent.contains(node)) {
-                parent.removeChild(node);
-            }
-        });
-
         setIsSavingPdf(false);
     }
   };
@@ -273,7 +227,7 @@ export default function InvoicePage() {
         </div>
       </header>
       <main className="p-4 sm:p-6 lg:p-8">
-        <div ref={invoiceRef}>
+        <div className="space-y-6">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -308,97 +262,105 @@ export default function InvoicePage() {
                     </div>
                  </div>
             )}
-            
-            <div className="p-4">
-              {invoiceSummary && selectedDoctor && (
-                  <div className="space-y-6">
-                      <Card>
-                          <CardHeader>
-                              <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
-                               {fromDate && toDate 
-                                    ? <p className="text-sm text-muted-foreground">From {format(fromDate, 'PPP')} to {format(toDate, 'PPP')}</p>
-                                    : <p className="text-sm text-muted-foreground">All dates</p>
-                                }
-                          </CardHeader>
-                          <CardContent>
-                              <Table>
-                                  <TableHeader>
-                                      <TableRow>
-                                          <TableHead>Material</TableHead>
-                                          <TableHead className="text-right">Tooth Count</TableHead>
-                                          <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
-                                          <TableHead className="text-right">Total (JOD)</TableHead>
-                                      </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                      {Object.entries(invoiceSummary.summary).map(([material, data]) => (
-                                          data.toothCount > 0 && (
-                                              <TableRow key={material}>
-                                                  <TableCell className="font-medium">{material}</TableCell>
-                                                  <TableCell className="text-right">{data.toothCount}</TableCell>
-                                                  <TableCell className="text-right">
-                                                      <Input
-                                                          type="number"
-                                                          value={data.price}
-                                                          onChange={(e) => handlePriceChange(material, e.target.value)}
-                                                          className="h-8 text-right"
-                                                      />
-                                                  </TableCell>
-                                                  <TableCell className="text-right font-semibold" data-total-for={material}>
-                                                    {isSavingPdf ? null : data.total.toFixed(2)}
-                                                  </TableCell>
-                                              </TableRow>
-                                          )
-                                      ))}
-                                  </TableBody>
-                              </Table>
-                          </CardContent>
-                          <CardFooter className="bg-muted/50 p-4 justify-end">
-                              <div className="flex items-center gap-4">
-                                  <p className="text-lg font-bold">Total:</p>
-                                  <p className="text-2xl font-bold text-primary" data-grand-total>
-                                    {isSavingPdf ? null : `${invoiceSummary.grandTotal.toFixed(2)} JOD`}
-                                  </p>
-                              </div>
-                          </CardFooter>
-                      </Card>
-
-                      <div>
-                        <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
-                        <CasesTable 
-                            cases={doctorCases} 
-                            hideDentist 
-                            hideDeliveryDate 
-                            hideShade 
-                            hideSource
-                        />
-                      </div>
-                  </div>
-              )}
-            </div>
            
           </CardContent>
-           {invoiceSummary && (
-                <div className="flex justify-end p-6 pt-0 gap-2">
-                    <Button onClick={handleShareInvoice} disabled={isSharing}>
-                        <Send className="mr-2 h-4 w-4" />
-                        {isSharing ? 'Sharing...' : 'Save & Share Invoice'}
-                    </Button>
-                    <Button onClick={handleSaveAsPdf} disabled={isSavingPdf}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        {isSavingPdf ? 'Saving...' : 'Save as PDF'}
-                    </Button>
-                </div>
-            )}
-            
+           
             {!selectedDoctor && (
-                 <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                 <div className="m-6 text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
                     <p>Please select a doctor to view their cases and generate an invoice.</p>
                 </div>
             )}
         </Card>
+        
+        {/* This is the content that will be captured for the PDF */}
+        <div ref={invoiceRef} className="p-4 bg-white text-black">
+          {invoiceSummary && selectedDoctor && (
+              <div className="space-y-6">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
+                           <p className="text-sm text-muted-foreground">
+                                {fromDate && toDate 
+                                    ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
+                                    : 'All dates'
+                                }
+                            </p>
+                      </CardHeader>
+                      <CardContent>
+                          <Table>
+                              <TableHeader>
+                                  <TableRow>
+                                      <TableHead>Material</TableHead>
+                                      <TableHead className="text-right">Tooth Count</TableHead>
+                                      <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
+                                      <TableHead className="text-right">Total (JOD)</TableHead>
+                                  </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                  {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                      data.toothCount > 0 && (
+                                          <TableRow key={material}>
+                                              <TableCell className="font-medium">{material}</TableCell>
+                                              <TableCell className="text-right">{data.toothCount}</TableCell>
+                                              <TableCell className="text-right">
+                                                  {isSavingPdf ? 
+                                                    data.price.toFixed(2) :
+                                                    <Input
+                                                        type="number"
+                                                        value={data.price}
+                                                        onChange={(e) => handlePriceChange(material, e.target.value)}
+                                                        className="h-8 text-right bg-white"
+                                                    />
+                                                  }
+                                              </TableCell>
+                                              <TableCell className="text-right font-semibold">
+                                                {data.total.toFixed(2)}
+                                              </TableCell>
+                                          </TableRow>
+                                      )
+                                  ))}
+                              </TableBody>
+                          </Table>
+                      </CardContent>
+                      <CardFooter className="bg-muted/50 p-4 justify-end">
+                          <div className="flex items-center gap-4">
+                              <p className="text-lg font-bold">Total:</p>
+                              <p className="text-2xl font-bold text-primary">
+                                {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
+                              </p>
+                          </div>
+                      </CardFooter>
+                  </Card>
+
+                  <div>
+                    <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
+                    <CasesTable 
+                        cases={doctorCases} 
+                        hideDentist 
+                        hideDeliveryDate 
+                        hideShade 
+                        hideSource
+                    />
+                  </div>
+              </div>
+          )}
+        </div>
+
+        {invoiceSummary && (
+            <div className="flex justify-end p-6 pt-0 gap-2">
+                <Button onClick={handleShareInvoice} disabled={isSharing || isSavingPdf}>
+                    <Send className="mr-2 h-4 w-4" />
+                    {isSharing ? 'Sharing...' : 'Save & Share Invoice'}
+                </Button>
+                <Button onClick={handleSaveAsPdf} disabled={isSavingPdf || isSharing}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    {isSavingPdf ? 'Saving...' : 'Save as PDF'}
+                </Button>
+            </div>
+        )}
         </div>
       </main>
     </div>
   );
-}
+
+    
