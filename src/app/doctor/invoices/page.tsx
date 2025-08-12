@@ -167,7 +167,7 @@ export default function DoctorInvoicesPage() {
                                 {invoice.cases && invoice.cases.length > 0 && (
                                   <Card className="m-2 mt-4">
                                     <CardHeader>
-                                      <CardTitle className="text-lg">Included Cases</CardTitle>
+                                      <CardTitle className="text-lg">Cases Included in Invoice</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                       <CasesTable 
