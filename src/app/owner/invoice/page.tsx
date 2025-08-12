@@ -248,6 +248,9 @@ export default function InvoicePage() {
         });
         // Refresh the shared invoices list
         fetchSharedInvoices(selectedDoctor);
+        
+        // Also download the PDF
+        await handleSaveAsPdf();
 
     } catch (error) {
         console.error("Invoice Sharing Error:", error);
