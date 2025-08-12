@@ -140,3 +140,8 @@ export const getInvoicesByDoctor = async (dentistName: string): Promise<Invoice[
         ...doc.data(),
     } as Invoice));
 }
+
+export const deleteInvoice = async (invoiceId: string) => {
+    const invoiceDoc = doc(db, 'invoices', invoiceId);
+    await deleteDoc(invoiceDoc);
+};
