@@ -294,6 +294,28 @@ export default function InvoicePage() {
         });
     }
   }
+
+  const handleDeleteSelectedInvoices = async () => {
+      try {
+          const deletePromises = selectedInvoices.map(id => deleteInvoice(id));
+          await Promise.all(deletePromises);
+          toast({
+              title: 'Invoices Deleted',
+              description: `${selectedInvoices.length} selected invoices have been successfully deleted.`,
+          });
+          if (selectedDoctor) {
+              fetchSharedInvoices(selectedDoctor);
+          }
+          setSelectedInvoices([]); // Clear selection
+      } catch (error) {
+          console.error("Bulk Deletion Error:", error);
+          toast({
+              variant: 'destructive',
+              title: 'Deletion Failed',
+              description: 'Could not delete the selected invoices. Please try again.',
+          });
+      }
+  };
   
   const handleSelectInvoice = (invoiceId: string, checked: boolean | 'indeterminate') => {
       setSelectedInvoices(prev => 
@@ -378,7 +400,13 @@ export default function InvoicePage() {
                     </div>
                 )}
                 
-                 {selectedDoctor && !invoiceSummary && (
+                 {selectedDoctor && !invoiceSummary && fromDate && toDate && (
+                    <div className="m-6 text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                        <p>No cases found for the selected doctor in this date range.</p>
+                    </div>
+                )}
+
+                 {selectedDoctor && (!fromDate || !toDate) && (
                     <div className="m-6 text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
                         <p>Please select a 'from' and 'to' date to generate the invoice.</p>
                     </div>
@@ -561,12 +589,12 @@ export default function InvoicePage() {
                                 <History className="w-6 h-6 text-primary" />
                                 Shared Invoice History for {selectedDoctor}
                             </CardTitle>
-                            <div className="flex items-center gap-2">
-                                 <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center space-x-2">
                                     <Checkbox 
                                         id="select-all" 
                                         onCheckedChange={handleSelectAllInvoices}
-                                        checked={selectedInvoices.length === sharedInvoices.length}
+                                        checked={selectedInvoices.length === sharedInvoices.length && sharedInvoices.length > 0}
                                         indeterminate={selectedInvoices.length > 0 && selectedInvoices.length < sharedInvoices.length}
                                     />
                                     <label
@@ -576,6 +604,32 @@ export default function InvoicePage() {
                                         Select All
                                     </label>
                                 </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button 
+                                            variant="destructive"
+                                            size="sm"
+                                            disabled={selectedInvoices.length === 0}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete Selected ({selectedInvoices.length})
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete {selectedInvoices.length} selected invoice(s).
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleDeleteSelectedInvoices} className="bg-destructive hover:bg-destructive/90">
+                                                Yes, delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
                     </CardHeader>
@@ -586,7 +640,7 @@ export default function InvoicePage() {
                                     <div className="flex items-center w-full">
                                          <Checkbox
                                             id={`select-invoice-${invoice.id}`}
-                                            className="mr-4"
+                                            className="mx-4"
                                             checked={selectedInvoices.includes(invoice.id)}
                                             onCheckedChange={(checked) => handleSelectInvoice(invoice.id, checked)}
                                         />
@@ -689,5 +743,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-    
