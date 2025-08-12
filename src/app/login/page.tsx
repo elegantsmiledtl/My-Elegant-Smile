@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { verifyUser } from '@/lib/firebase';
+import { verifyUser, addLoginLog } from '@/lib/firebase';
 import Logo from '@/components/logo';
 
 function LoginPageContent() {
@@ -39,6 +39,7 @@ function LoginPageContent() {
           description: `Welcome back, ${name}!`,
         });
         localStorage.setItem('loggedInUser', JSON.stringify({ name: name }));
+        await addLoginLog(name); // Log the successful login
         router.push(`/doctor-portal`);
       } else {
         toast({

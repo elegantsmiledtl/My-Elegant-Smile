@@ -37,3 +37,9 @@ export type Notification = {
     read: boolean;
     createdAt: any;
 };
+
+export type LoginLog = {
+    id: string;
+    dentistName: string;
+    timestamp: any;
+};

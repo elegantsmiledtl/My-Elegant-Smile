@@ -14,7 +14,7 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore';
-import type { DentalCase, Invoice, Notification } from '@/types';
+import type { DentalCase, Invoice, Notification, LoginLog } from '@/types';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -32,6 +32,7 @@ const casesCollection = collection(db, 'dentalCases');
 const usersCollection = collection(db, 'users');
 const invoicesCollection = collection(db, 'invoices');
 const notificationsCollection = collection(db, 'notifications');
+const loginLogsCollection = collection(db, 'loginLogs');
 
 
 // A function to get all cases, sorted by creation time
@@ -172,4 +173,22 @@ export const getUnreadNotifications = async (dentistName: string): Promise<Notif
 export const markNotificationAsRead = async (notificationId: string) => {
     const notificationDoc = doc(db, 'notifications', notificationId);
     await updateDoc(notificationDoc, { read: true });
+};
+
+// --- Login Log Functions ---
+
+export const addLoginLog = async (dentistName: string) => {
+    await addDoc(loginLogsCollection, {
+        dentistName,
+        timestamp: serverTimestamp(),
+    });
+};
+
+export const getLoginLogs = async (): Promise<LoginLog[]> => {
+    const q = query(loginLogsCollection, orderBy('timestamp', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+    } as LoginLog));
 };

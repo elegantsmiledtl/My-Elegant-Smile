@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { DentalCase } from '@/types';
+import type { DentalCase, LoginLog } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Users, Trash2, PlusCircle, Receipt } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser } from '@/lib/firebase';
+import { QrCode, Users, Trash2, PlusCircle, Receipt, History } from 'lucide-react';
+import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import {
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import Logo from '@/components/logo';
+import { format, parseISO, isValid } from 'date-fns';
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -110,6 +111,68 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
                 <Button type="submit">Add Doctor</Button>
             </DialogClose>
         </form>
+    );
+}
+
+function LoginLogsDialog() {
+    const [logs, setLogs] = useState<LoginLog[]>([]);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const fetchedLogs = await getLoginLogs();
+                setLogs(fetchedLogs);
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Database Error',
+                    description: 'Could not fetch login logs.',
+                });
+            }
+        };
+        fetchLogs();
+    }, [toast]);
+
+    const formatDateTime = (timestamp: any) => {
+        if (!timestamp) return 'N/A';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (!isValid(date)) return "Invalid Date";
+        try {
+            return format(date, 'PPP p');
+        } catch(e) {
+            return "Invalid Date";
+        }
+    };
+
+    return (
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>User Login History</DialogTitle>
+                <DialogDescription>
+                    This is a list of all successful logins to the doctor portal.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="rounded-md border mt-4 max-h-[60vh] overflow-y-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>User Name</TableHead>
+                            <TableHead>Login Time</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {logs.map((log) => (
+                            <TableRow key={log.id}>
+                                <TableCell className="font-medium">{log.dentistName}</TableCell>
+                                <TableCell>{formatDateTime(log.timestamp)}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </DialogContent>
     );
 }
 
@@ -343,6 +406,15 @@ export default function OwnerPage() {
                                 </DialogContent>
                             </Dialog>
                         </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                <History className="mr-2" />
+                                Logs
+                            </Button>
+                        </DialogTrigger>
+                        <LoginLogsDialog />
                     </Dialog>
                      <Button asChild variant="outline">
                       <Link href="/owner/invoice">
