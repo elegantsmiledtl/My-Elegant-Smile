@@ -96,10 +96,10 @@ export const getUsers = async () => {
 };
 
 export const addUser = async (user: { name: string; password?: string }) => {
-    // Check if user already exists
-    const q = query(usersCollection, where("name", "==", user.name));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
+    // Check if user already exists (case-insensitive)
+    const allUsers = await getUsers();
+    const userExists = allUsers.some(existingUser => existingUser.name.toLowerCase() === user.name.toLowerCase());
+    if (userExists) {
         throw new Error("User with this name already exists.");
     }
     await addDoc(usersCollection, user);
@@ -110,15 +110,16 @@ export const deleteUser = async (userId: string) => {
     await deleteDoc(userDoc);
 };
 
-export const verifyUser = async (name: string, password?: string) => {
-    let q;
-    if (password) {
-      q = query(usersCollection, where("name", "==", name), where("password", "==", password));
-    } else {
-      q = query(usersCollection, where("name", "==", name));
-    }
-    const snapshot = await getDocs(q);
-    return !snapshot.empty;
+export const verifyUser = async (name: string, password?: string): Promise<{ name: string; password?: string } | null> => {
+    const snapshot = await getDocs(usersCollection);
+    const users = snapshot.docs.map(doc => doc.data() as { name: string; password?: string });
+
+    const matchedUser = users.find(user => 
+        user.name.toLowerCase() === name.toLowerCase() &&
+        (!password || user.password === password)
+    );
+
+    return matchedUser || null;
 };
 
 // --- Invoice Management Functions ---

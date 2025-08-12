@@ -18,8 +18,10 @@ function LoginPageContent() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const prefilledName = searchParams.get('name');
     if (prefilledName) {
       setName(decodeURIComponent(prefilledName));
@@ -28,18 +30,19 @@ function LoginPageContent() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isMounted) return;
     setIsLoading(true);
 
     try {
-      const isValidUser = await verifyUser(name, password);
+      const matchedUser = await verifyUser(name, password);
 
-      if (isValidUser) {
+      if (matchedUser) {
         toast({
           title: 'Login Successful',
-          description: `Welcome back, ${name}!`,
+          description: `Welcome back, ${matchedUser.name}!`,
         });
-        localStorage.setItem('loggedInUser', JSON.stringify({ name: name }));
-        await addLoginLog(name); // Log the successful login
+        localStorage.setItem('loggedInUser', JSON.stringify({ name: matchedUser.name }));
+        await addLoginLog(matchedUser.name); // Log the successful login
         router.push(`/doctor-portal`);
       } else {
         toast({
@@ -59,6 +62,10 @@ function LoginPageContent() {
         setIsLoading(false);
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
