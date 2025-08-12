@@ -555,7 +555,7 @@ export default function InvoicePage() {
                                  <tbody>
                                    {invoiceSummary.cases.map(c => (
                                         <tr key={c.id}>
-                                            <td className="border p-2">{format(c.createdAt.toDate(), 'PPP p')}</td>
+                                            <td className="border p-2">{format(c.createdAt.toDate(), 'PPP')}</td>
                                             <td className="border p-2">{c.patientName}</td>
                                             <td className="border p-2">{c.toothNumbers}</td>
                                             <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
