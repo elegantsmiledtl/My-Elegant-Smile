@@ -29,3 +29,11 @@ export type Invoice = {
     createdAt: any;
     cases: DentalCase[]; // Add cases to the invoice type
 };
+
+export type Notification = {
+    id: string;
+    dentistName: string;
+    message: string;
+    read: boolean;
+    createdAt: any;
+};

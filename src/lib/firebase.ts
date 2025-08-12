@@ -14,7 +14,7 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore';
-import type { DentalCase, Invoice } from '@/types';
+import type { DentalCase, Invoice, Notification } from '@/types';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -31,6 +31,7 @@ const db = getFirestore(app);
 const casesCollection = collection(db, 'dentalCases');
 const usersCollection = collection(db, 'users');
 const invoicesCollection = collection(db, 'invoices');
+const notificationsCollection = collection(db, 'notifications');
 
 
 // A function to get all cases, sorted by creation time
@@ -144,4 +145,31 @@ export const getInvoicesByDoctor = async (dentistName: string): Promise<Invoice[
 export const deleteInvoice = async (invoiceId: string) => {
     const invoiceDoc = doc(db, 'invoices', invoiceId);
     await deleteDoc(invoiceDoc);
+};
+
+// --- Notification Management Functions ---
+
+export const createNotification = async (dentistName: string, message: string) => {
+    await addDoc(notificationsCollection, {
+        dentistName,
+        message,
+        read: false,
+        createdAt: serverTimestamp(),
+    });
+};
+
+export const getUnreadNotifications = async (dentistName: string): Promise<Notification[]> => {
+    const q = query(
+        notificationsCollection,
+        where('dentistName', '==', dentistName),
+        where('read', '==', false),
+        orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
+};
+
+export const markNotificationAsRead = async (notificationId: string) => {
+    const notificationDoc = doc(db, 'notifications', notificationId);
+    await updateDoc(notificationDoc, { read: true });
 };

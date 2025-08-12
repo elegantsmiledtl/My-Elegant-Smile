@@ -8,7 +8,7 @@ import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { addCase, getCasesByDoctor } from '@/lib/firebase';
+import { addCase, getCasesByDoctor, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Logo from '@/components/logo';
@@ -30,6 +30,30 @@ export default function DoctorPortalPage() {
         router.push('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    const checkForNotifications = async () => {
+        if (dentistName) {
+            try {
+                const notifications = await getUnreadNotifications(dentistName);
+                notifications.forEach(notification => {
+                    toast({
+                        title: 'Notification',
+                        description: notification.message,
+                    });
+                    markNotificationAsRead(notification.id);
+                });
+            } catch (error) {
+                console.error("Failed to check for notifications:", error);
+            }
+        }
+    };
+    if (isMounted) {
+        checkForNotifications();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dentistName, isMounted]);
+
 
   const handleFirebaseError = (error: any) => {
     console.error("Firebase Error:", error);

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Home, Receipt, FileDown, Send, Trash2, History } from 'lucide-react';
 import Logo from '@/components/logo';
-import { getCases, saveInvoice, getInvoicesByDoctor, deleteInvoice } from '@/lib/firebase';
+import { getCases, saveInvoice, getInvoicesByDoctor, deleteInvoice, createNotification } from '@/lib/firebase';
 import type { DentalCase, Invoice } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -252,6 +252,9 @@ export default function InvoicePage() {
 
         await saveInvoice(invoiceData);
         
+        // Create a notification for the doctor
+        await createNotification(selectedDoctor, 'Your Invoice Is Ready');
+
         toast({
             title: 'Invoice Shared!',
             description: `An invoice for ${selectedDoctor} has been saved and is now visible in their portal.`,
