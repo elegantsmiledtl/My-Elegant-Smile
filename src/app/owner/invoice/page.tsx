@@ -298,7 +298,7 @@ export default function InvoicePage() {
             description: 'Could not delete the invoice. Please try again.',
         });
     }
-  }
+  };
 
   const handleDeleteSelectedInvoices = async () => {
       try {
@@ -326,7 +326,7 @@ export default function InvoicePage() {
       setSelectedInvoices(prev => 
         checked ? [...prev, invoiceId] : prev.filter(id => id !== invoiceId)
       );
-  }
+  };
 
   const handleSelectAllInvoices = (checked: boolean | 'indeterminate') => {
     if (checked) {
@@ -334,9 +334,9 @@ export default function InvoicePage() {
     } else {
         setSelectedInvoices([]);
     }
-  }
+  };
 
-  const formatDateGeneric = (timestamp: any, dateFormat: string) => {
+  const formatDateGeneric = (timestamp: any, dateFormat: string): string => {
     if (!timestamp) return 'N/A';
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
     if (!isValid(date)) return "Invalid Date";
@@ -580,7 +580,7 @@ export default function InvoicePage() {
                 <div className="flex justify-end p-6 pt-0 gap-2">
                     <Button onClick={handleShareInvoice} disabled={isSharing || isSavingPdf}>
                         <Send className="mr-2 h-4 w-4" />
-                        {isSharing ? 'Sharing...' : 'Save &amp; Share Invoice'}
+                        {isSharing ? 'Sharing...' : 'Save & Share Invoice'}
                     </Button>
                     <Button onClick={handleSaveAsPdf} disabled={isSavingPdf || isSharing}>
                         <FileDown className="mr-2 h-4 w-4" />
@@ -602,8 +602,8 @@ export default function InvoicePage() {
                                     <Checkbox 
                                         id="select-all" 
                                         onCheckedChange={handleSelectAllInvoices}
-                                        checked={selectedInvoices.length === sharedInvoices.length &amp;&amp; sharedInvoices.length > 0}
-                                        indeterminate={selectedInvoices.length > 0 &amp;&amp; selectedInvoices.length < sharedInvoices.length}
+                                        checked={selectedInvoices.length === sharedInvoices.length && sharedInvoices.length > 0}
+                                        indeterminate={selectedInvoices.length > 0 && selectedInvoices.length < sharedInvoices.length}
                                     />
                                     <label
                                         htmlFor="select-all"
@@ -751,5 +751,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-    
