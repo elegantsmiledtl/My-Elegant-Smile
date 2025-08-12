@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dialog"
 import CaseEntryForm from './case-entry-form';
 import { useState } from 'react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface CasesTableProps {
   cases: DentalCase[];
@@ -64,23 +64,29 @@ export default function CasesTable({
     setIsEditDialogOpen(true);
   }
 
-  const formatDate = (timestamp: any) => {
+  const formatDateGeneric = (timestamp: any, dateFormat: string) => {
     if (!timestamp) return 'N/A';
-    if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'PPP');
+    let date;
+    if (timestamp.toDate) { // Firestore Timestamp
+      date = timestamp.toDate();
+    } else if (typeof timestamp === 'string') { // ISO string
+      date = parseISO(timestamp);
+    } else if (timestamp instanceof Date) { // JavaScript Date
+      date = timestamp;
+    } else {
+      return 'Invalid Date';
     }
-    if (timestamp instanceof Date) {
-        return format(timestamp, 'PPP');
+
+    try {
+      return format(date, dateFormat);
+    } catch {
+      return 'Invalid Date';
     }
-    return 'Invalid Date';
-  }
-  
-  const formatDateTime = (timestamp: any) => {
-    if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'PPP p');
-    }
-    return 'N/A';
-  }
+  };
+
+  const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
+  const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
+
 
   if (cases.length === 0) {
     return (
@@ -193,3 +199,4 @@ export default function CasesTable({
     </div>
   );
 }
+

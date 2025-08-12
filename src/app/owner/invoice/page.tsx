@@ -109,8 +109,15 @@ export default function InvoicePage() {
     return allCases.filter(c => {
       if (c.dentistName !== selectedDoctor) return false;
 
-      if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
-      const caseDate = c.createdAt.toDate();
+      // Handle both Firestore Timestamps and string/Date objects
+      let caseDate;
+      if (!c.createdAt) return false;
+      if (typeof c.createdAt.toDate === 'function') {
+        caseDate = c.createdAt.toDate();
+      } else {
+        caseDate = new Date(c.createdAt);
+      }
+      if (isNaN(caseDate.getTime())) return false;
       
       const isAfterFrom = fromDate ? caseDate >= startOfDay(fromDate) : true;
       const isBeforeTo = toDate ? caseDate <= endOfDay(toDate) : true;
@@ -131,15 +138,26 @@ export default function InvoicePage() {
   };
 
   const invoiceSummary = useMemo(() => {
-    if (doctorCases.length === 0 || !selectedDoctor || !fromDate || !toDate) return null;
+    if (!selectedDoctor || !fromDate || !toDate) return null;
 
-    const filteredCasesByDate = doctorCases.filter(c => {
-       if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
-        const caseDate = c.createdAt.toDate();
+     const filteredCasesByDate = allCases.filter(c => {
+       if (c.dentistName !== selectedDoctor) return false;
+       if (!c.createdAt) return false;
+       
+        let caseDate;
+        if (typeof c.createdAt.toDate === 'function') {
+            caseDate = c.createdAt.toDate();
+        } else {
+            caseDate = new Date(c.createdAt);
+        }
+       if (isNaN(caseDate.getTime())) return false;
+       
         const isAfterFrom = fromDate ? caseDate >= startOfDay(fromDate) : true;
         const isBeforeTo = toDate ? caseDate <= endOfDay(toDate) : true;
         return isAfterFrom && isBeforeTo;
     });
+
+    if (filteredCasesByDate.length === 0) return null;
 
     const summary = materialOptions.reduce((acc, material) => {
         acc[material] = { toothCount: 0, price: materialPrices[material] || 0, total: 0 };
@@ -164,7 +182,7 @@ export default function InvoicePage() {
     });
 
     return { summary, grandTotal, cases: filteredCasesByDate };
-  }, [doctorCases, materialPrices, selectedDoctor, fromDate, toDate]);
+  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices]);
   
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
@@ -218,7 +236,6 @@ export default function InvoicePage() {
     }
   };
 
-
   const handleShareInvoice = async () => {
     if (!selectedDoctor || !invoiceSummary) {
         toast({
@@ -232,13 +249,26 @@ export default function InvoicePage() {
     setIsSharing(true);
 
     try {
+        // Sanitize cases data before saving
+        const sanitizedCases = invoiceSummary.cases.map(c => {
+          const sanitizedCase: any = { ...c };
+          if (c.createdAt && typeof c.createdAt.toDate === 'function') {
+            sanitizedCase.createdAt = c.createdAt.toDate().toISOString();
+          }
+          if (c.deliveryDate && typeof c.deliveryDate.toDate === 'function') {
+            sanitizedCase.deliveryDate = c.deliveryDate.toDate().toISOString();
+          }
+          return sanitizedCase as DentalCase;
+        });
+
+
         const invoiceData = {
             dentistName: selectedDoctor,
             fromDate: fromDate || null,
             toDate: toDate || null,
             summary: invoiceSummary.summary,
             grandTotal: invoiceSummary.grandTotal,
-            cases: invoiceSummary.cases, // Include cases in shared data
+            cases: sanitizedCases,
         };
 
         await saveInvoice(invoiceData);
@@ -264,6 +294,7 @@ export default function InvoicePage() {
         setIsSharing(false);
     }
   };
+
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     try {
@@ -613,6 +644,22 @@ export default function InvoicePage() {
                                                 </div>
                                             </CardFooter>
                                         </Card>
+                                        {invoice.cases && invoice.cases.length > 0 && (
+                                        <Card className="m-2 mt-4">
+                                            <CardHeader>
+                                            <CardTitle className="text-lg">Cases Included in Invoice</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                            <CasesTable 
+                                                cases={invoice.cases}
+                                                hideDentist
+                                                hideDeliveryDate
+                                                hideShade
+                                                hideSource
+                                            />
+                                            </CardContent>
+                                        </Card>
+                                        )}
                                     </AccordionContent>
                                 </AccordionItem>
                             ))}
@@ -625,3 +672,4 @@ export default function InvoicePage() {
     </div>
   );
 }
+
