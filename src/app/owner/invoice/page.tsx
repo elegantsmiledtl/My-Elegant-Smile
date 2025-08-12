@@ -255,7 +255,7 @@ export default function InvoicePage() {
         await saveInvoice(invoiceData);
         
         // Create a notification for the doctor
-        await createNotification(selectedDoctor, 'Your Invoice Is Ready');
+        await createNotification(selectedDoctor, `Hello Dr. ${selectedDoctor}, Your Invoice Is Ready`);
 
         toast({
             title: 'Invoice Shared!',
@@ -560,7 +560,7 @@ export default function InvoicePage() {
                                  <tbody>
                                    {invoiceSummary.cases.map(c => (
                                         <tr key={c.id}>
-                                            <td className="border p-2">{formatInTimeZone(c.createdAt.toDate(), timeZone, 'PPP')}</td>
+                                            <td className="border p-2">{formatDate(c.createdAt)}</td>
                                             <td className="border p-2">{c.patientName}</td>
                                             <td className="border p-2">{c.toothNumbers}</td>
                                             <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
@@ -580,7 +580,7 @@ export default function InvoicePage() {
                 <div className="flex justify-end p-6 pt-0 gap-2">
                     <Button onClick={handleShareInvoice} disabled={isSharing || isSavingPdf}>
                         <Send className="mr-2 h-4 w-4" />
-                        {isSharing ? 'Sharing...' : 'Save & Share Invoice'}
+                        {isSharing ? 'Sharing...' : 'Save &amp; Share Invoice'}
                     </Button>
                     <Button onClick={handleSaveAsPdf} disabled={isSavingPdf || isSharing}>
                         <FileDown className="mr-2 h-4 w-4" />
@@ -602,8 +602,8 @@ export default function InvoicePage() {
                                     <Checkbox 
                                         id="select-all" 
                                         onCheckedChange={handleSelectAllInvoices}
-                                        checked={selectedInvoices.length === sharedInvoices.length && sharedInvoices.length > 0}
-                                        indeterminate={selectedInvoices.length > 0 && selectedInvoices.length < sharedInvoices.length}
+                                        checked={selectedInvoices.length === sharedInvoices.length &amp;&amp; sharedInvoices.length > 0}
+                                        indeterminate={selectedInvoices.length > 0 &amp;&amp; selectedInvoices.length < sharedInvoices.length}
                                     />
                                     <label
                                         htmlFor="select-all"
@@ -751,3 +751,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
