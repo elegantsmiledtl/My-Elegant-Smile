@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Users, Trash2, PlusCircle, Receipt, History } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs } from '@/lib/firebase';
+import { QrCode, Users, Trash2, PlusCircle, Receipt, History, Edit } from 'lucide-react';
+import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs, updateUser } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import {
@@ -115,6 +115,72 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
     );
 }
 
+function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () => void }) {
+    const [password, setPassword] = useState('');
+    const { toast } = useToast();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!password) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Please provide a new password.',
+            });
+            return;
+        }
+        try {
+            await updateUser(user.id, { password });
+            toast({
+                title: 'Success',
+                description: `Password for "${user.name}" has been updated.`,
+            });
+            setPassword('');
+            onUserUpdated();
+        } catch (error) {
+            console.error(error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Failed to update password.',
+            });
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name-edit" className="text-right">
+                    User Name
+                </Label>
+                <Input
+                    id="name-edit"
+                    value={user.name}
+                    disabled
+                    className="col-span-3"
+                />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="password-edit" className="text-right">
+                    New Password
+                </Label>
+                <Input
+                    id="password-edit"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="col-span-3"
+                    placeholder="Enter new password"
+                />
+            </div>
+            <DialogClose asChild>
+                 <Button type="submit">Save New Password</Button>
+            </DialogClose>
+        </form>
+    );
+}
+
+
 function LoginLogsDialog() {
     const [logs, setLogs] = useState<LoginLog[]>([]);
     const { toast } = useToast();
@@ -186,6 +252,7 @@ export default function OwnerPage() {
   const { toast } = useToast();
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isAddDoctorDialogOpen, setIsAddDoctorDialogOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<any | null>(null);
   const [allUsers, setAllUsers] = useState<any[]>([]);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -260,6 +327,11 @@ export default function OwnerPage() {
       fetchUsers();
       setIsAddDoctorDialogOpen(false);
   }
+
+    const handleUserUpdated = () => {
+      fetchUsers();
+      setUserToEdit(null);
+  };
 
   const handleDeleteCase = async (id: string) => {
     try {
@@ -381,6 +453,9 @@ export default function OwnerPage() {
                                                 <TableCell className="font-medium">{user.name}</TableCell>
                                                 <TableCell>{user.password}</TableCell>
                                                 <TableCell className="text-right">
+                                                    <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
                                                     <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user.id)}>
                                                         <Trash2 className="h-4 w-4 text-destructive" />
                                                     </Button>
@@ -409,6 +484,20 @@ export default function OwnerPage() {
                             </Dialog>
                         </DialogContent>
                     </Dialog>
+
+                    {/* Edit User Dialog */}
+                    <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Edit User Password</DialogTitle>
+                                <DialogDescription>
+                                    Update the password for {userToEdit?.name}.
+                                </DialogDescription>
+                            </DialogHeader>
+                            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} />}
+                        </DialogContent>
+                    </Dialog>
+
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button variant="outline">

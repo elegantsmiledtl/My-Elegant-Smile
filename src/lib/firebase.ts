@@ -105,6 +105,11 @@ export const addUser = async (user: { name: string; password?: string }) => {
     await addDoc(usersCollection, user);
 };
 
+export const updateUser = async (userId: string, updatedData: Partial<{ name: string; password?: string }>) => {
+    const userDoc = doc(db, 'users', userId);
+    await updateDoc(userDoc, updatedData);
+};
+
 export const deleteUser = async (userId: string) => {
     const userDoc = doc(db, 'users', userId);
     await deleteDoc(userDoc);
