@@ -259,7 +259,7 @@ export default function InvoicePage() {
         await saveInvoice(invoiceData);
         
         // Create a notification for the doctor
-        await createNotification(selectedDoctor, `Hello Dr. ${selectedDoctor}, Your Invoice Is Ready`);
+        await createNotification(selectedDoctor, `Hello ${selectedDoctor}, Your Invoice Is Ready`);
 
         toast({
             title: 'Invoice Shared!',
@@ -401,6 +401,7 @@ export default function InvoicePage() {
                                  value={fromDate} 
                                  onChange={(date) => {
                                     setFromDate(date);
+                                    setIsFromDatePickerOpen(false);
                                     setIsToDatePickerOpen(true);
                                  }} 
                                  placeholder="From Date" 
@@ -770,3 +771,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
