@@ -127,7 +127,7 @@ export default function DoctorPortalPage() {
           <AlertDialogContent>
               <AlertDialogHeader>
                   <AlertDialogTitle>Notification</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogDescription className="font-bold">
                       {notification?.message}
                   </AlertDialogDescription>
               </AlertDialogHeader>
