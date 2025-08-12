@@ -75,14 +75,20 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
   const isEditMode = !!caseToEdit?.id;
 
   function onSubmit(values: CaseFormValues) {
+    // Sanitize data before submitting
+    const caseData: any = { ...values };
+    if (caseData.deliveryDate === undefined) {
+      caseData.deliveryDate = null;
+    }
+
     if (isEditMode && onUpdate && caseToEdit.id && caseToEdit.createdAt) {
-        onUpdate({ ...values, id: caseToEdit.id, createdAt: caseToEdit.createdAt });
+        onUpdate({ ...caseData, id: caseToEdit.id, createdAt: caseToEdit.createdAt });
         toast({
             title: 'Case Updated',
             description: `Case for ${values.patientName} has been successfully updated.`,
         });
     } else if (onAddCase) {
-        onAddCase(values);
+        onAddCase(caseData);
         // The toast and reset are now handled in the page component.
     }
   }
