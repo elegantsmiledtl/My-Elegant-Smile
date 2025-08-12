@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
@@ -57,6 +58,7 @@ export default function InvoicePage() {
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
+  const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -93,6 +95,7 @@ export default function InvoicePage() {
   useEffect(() => {
     if (selectedDoctor) {
         fetchSharedInvoices(selectedDoctor);
+        setSelectedInvoices([]); // Reset selection when doctor changes
     } else {
         setSharedInvoices([]);
     }
@@ -150,6 +153,16 @@ export default function InvoicePage() {
     return { summary, grandTotal, cases: filteredCasesByDate };
   }, [allCases, selectedDoctor, fromDate, toDate, materialPrices]);
   
+   const handlePriceChange = (material: string, value: string) => {
+    const newPrice = parseFloat(value);
+    if (!isNaN(newPrice)) {
+      setMaterialPrices(prev => ({
+        ...prev,
+        [material]: newPrice,
+      }));
+    }
+  };
+
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
     if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
@@ -282,6 +295,20 @@ export default function InvoicePage() {
     }
   }
   
+  const handleSelectInvoice = (invoiceId: string, checked: boolean | 'indeterminate') => {
+      setSelectedInvoices(prev => 
+        checked ? [...prev, invoiceId] : prev.filter(id => id !== invoiceId)
+      );
+  }
+
+  const handleSelectAllInvoices = (checked: boolean | 'indeterminate') => {
+    if (checked) {
+        setSelectedInvoices(sharedInvoices.map(inv => inv.id));
+    } else {
+        setSelectedInvoices([]);
+    }
+  }
+
   const formatDate = (timestamp: any): string => {
     if (!timestamp) return 'N/A';
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
@@ -359,7 +386,7 @@ export default function InvoicePage() {
             </Card>
         
             {/* The live, interactive invoice for the UI */}
-            {invoiceSummary && selectedDoctor && fromDate && toDate && (
+            {invoiceSummary && fromDate && toDate && (
                 <div className="bg-white text-black p-4">
                     <div className="space-y-6">
                         <Card>
@@ -529,16 +556,40 @@ export default function InvoicePage() {
             {selectedDoctor && sharedInvoices.length > 0 && (
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <History className="w-6 h-6 text-primary" />
-                            Shared Invoice History for {selectedDoctor}
-                        </CardTitle>
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="flex items-center gap-2">
+                                <History className="w-6 h-6 text-primary" />
+                                Shared Invoice History for {selectedDoctor}
+                            </CardTitle>
+                            <div className="flex items-center gap-2">
+                                 <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                        id="select-all" 
+                                        onCheckedChange={handleSelectAllInvoices}
+                                        checked={selectedInvoices.length === sharedInvoices.length}
+                                        indeterminate={selectedInvoices.length > 0 && selectedInvoices.length < sharedInvoices.length}
+                                    />
+                                    <label
+                                        htmlFor="select-all"
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                        Select All
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent>
                          <Accordion type="single" collapsible className="w-full">
                             {sharedInvoices.map((invoice, index) => (
                                 <AccordionItem value={`item-${index}`} key={invoice.id}>
                                     <div className="flex items-center w-full">
+                                         <Checkbox
+                                            id={`select-invoice-${invoice.id}`}
+                                            className="mr-4"
+                                            checked={selectedInvoices.includes(invoice.id)}
+                                            onCheckedChange={(checked) => handleSelectInvoice(invoice.id, checked)}
+                                        />
                                         <AccordionTrigger className="flex-grow">
                                             <div className="flex justify-between w-full pr-4">
                                                 <span>Invoice from {format(invoice.createdAt.toDate(), 'PPP p')}</span>
@@ -638,3 +689,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
