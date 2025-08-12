@@ -34,7 +34,8 @@ import {
 } from "@/components/ui/dialog"
 import CaseEntryForm from './case-entry-form';
 import { useState } from 'react';
-import { format, parseISO, isValid } from 'date-fns';
+import { parseISO, isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 interface CasesTableProps {
   cases: DentalCase[];
@@ -58,6 +59,7 @@ export default function CasesTable({
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [caseToEdit, setCaseToEdit] = useState<DentalCase | null>(null);
+  const timeZone = 'Asia/Amman';
 
   const handleEditClick = (caseData: DentalCase) => {
     setCaseToEdit(caseData);
@@ -83,7 +85,7 @@ export default function CasesTable({
     }
 
     try {
-      return format(date, dateFormat);
+      return formatInTimeZone(date, timeZone, dateFormat);
     } catch {
       return 'Invalid Date Format';
     }
@@ -203,6 +205,3 @@ export default function CasesTable({
     </div>
   );
 }
-
-
-

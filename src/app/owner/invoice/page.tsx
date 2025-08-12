@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import CasesTable from '@/components/cases-table';
 import { DatePicker } from '@/components/ui/date-picker';
-import { endOfDay, startOfDay, format, parseISO } from 'date-fns';
+import { endOfDay, startOfDay, parseISO, isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import jsPDF from 'jspdf';
@@ -60,6 +61,7 @@ export default function InvoicePage() {
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
+  const timeZone = 'Asia/Amman';
 
   useEffect(() => {
     const fetchAllCases = async () => {
@@ -195,7 +197,7 @@ export default function InvoicePage() {
         
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
         
-        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
         pdf.save(fileName);
 
         toast({
@@ -334,16 +336,19 @@ export default function InvoicePage() {
     }
   }
 
-  const formatDate = (timestamp: any): string => {
+  const formatDateGeneric = (timestamp: any, dateFormat: string) => {
     if (!timestamp) return 'N/A';
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
+    if (!isValid(date)) return "Invalid Date";
     try {
-        return format(date, 'PPP');
+        return formatInTimeZone(date, timeZone, dateFormat);
     } catch (e) {
         return "Invalid Date";
     }
   };
 
+  const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
+  const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -425,7 +430,7 @@ export default function InvoicePage() {
                                 <CardTitle className="text-xl">Invoice for {selectedDoctor}</CardTitle>
                                 <p className="text-sm text-muted-foreground">
                                         {fromDate && toDate 
-                                            ? `From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`
+                                            ? `From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`
                                             : 'All dates'
                                         }
                                     </p>
@@ -502,7 +507,7 @@ export default function InvoicePage() {
                             </div>
                             <div>
                                 <p className="font-bold">Date Range:</p>
-                                <p>{`From ${format(fromDate, 'PPP')} to ${format(toDate, 'PPP')}`}</p>
+                                <p>{`From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`}</p>
                             </div>
                         </div>
 
@@ -555,7 +560,7 @@ export default function InvoicePage() {
                                  <tbody>
                                    {invoiceSummary.cases.map(c => (
                                         <tr key={c.id}>
-                                            <td className="border p-2">{format(c.createdAt.toDate(), 'PPP')}</td>
+                                            <td className="border p-2">{formatInTimeZone(c.createdAt.toDate(), timeZone, 'PPP')}</td>
                                             <td className="border p-2">{c.patientName}</td>
                                             <td className="border p-2">{c.toothNumbers}</td>
                                             <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
@@ -649,7 +654,7 @@ export default function InvoicePage() {
                                         />
                                         <AccordionTrigger className="flex-grow">
                                             <div className="flex justify-between w-full pr-4">
-                                                <span>Invoice from {format(invoice.createdAt.toDate(), 'PPP p')}</span>
+                                                <span>Invoice from {formatDateTime(invoice.createdAt)}</span>
                                                 <span className="font-bold text-primary">{invoice.grandTotal.toFixed(2)} JOD</span>
                                             </div>
                                         </AccordionTrigger>

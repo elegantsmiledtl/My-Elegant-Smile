@@ -11,7 +11,8 @@ import Logo from '@/components/logo';
 import { getInvoicesByDoctor } from '@/lib/firebase';
 import type { Invoice } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { format, parseISO, isValid } from 'date-fns';
+import { parseISO, isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Accordion,
@@ -28,6 +29,8 @@ export default function DoctorInvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  const timeZone = 'Asia/Amman';
 
   useEffect(() => {
     const savedUser = localStorage.getItem('loggedInUser');
@@ -61,28 +64,20 @@ export default function DoctorInvoicesPage() {
     }
   }, [dentistName, toast]);
 
-  const formatDate = (timestamp: any): string => {
+  const formatDateGeneric = (timestamp: any, dateFormat: string): string => {
     if (!timestamp) return 'N/A';
     // Firestore Timestamps or ISO strings from JSON
     const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
     if (!isValid(date)) return "Invalid Date";
     try {
-        return format(date, 'PPP');
+        return formatInTimeZone(date, timeZone, dateFormat);
     } catch (e) {
         return "Invalid Date";
     }
   };
   
-  const formatDateTime = (timestamp: any) => {
-    if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : typeof timestamp === 'string' ? parseISO(timestamp) : new Date(timestamp);
-    if (!isValid(date)) return "Invalid Date";
-    try {
-        return format(date, 'PPP p');
-    } catch(e) {
-        return "Invalid Date";
-    }
-  }
+  const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
+  const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
 
   return (
     <div className="min-h-screen bg-background text-foreground">

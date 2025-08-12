@@ -24,7 +24,8 @@ import {
 } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import Logo from '@/components/logo';
-import { format, parseISO, isValid } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -117,6 +118,7 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
 function LoginLogsDialog() {
     const [logs, setLogs] = useState<LoginLog[]>([]);
     const { toast } = useToast();
+    const timeZone = 'Asia/Amman';
 
     useEffect(() => {
         const fetchLogs = async () => {
@@ -140,7 +142,7 @@ function LoginLogsDialog() {
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         if (!isValid(date)) return "Invalid Date";
         try {
-            return format(date, 'PPP p');
+            return formatInTimeZone(date, timeZone, 'PPP p');
         } catch(e) {
             return "Invalid Date";
         }
