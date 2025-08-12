@@ -127,7 +127,7 @@ export default function CasesTable({
         <TableBody>
           {cases.map((c) => (
             <TableRow key={c.id}>
-              <TableCell>{formatDate(c.createdAt)}</TableCell>
+              <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
               {!hideDentist && (
