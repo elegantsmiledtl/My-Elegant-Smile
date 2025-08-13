@@ -264,6 +264,7 @@ export default function OwnerPage() {
   const [userToEdit, setUserToEdit] = useState<any | null>(null);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -403,6 +404,21 @@ export default function OwnerPage() {
     }
   };
 
+  const handleDeleteSelectedCases = async () => {
+    try {
+      const deletePromises = selectedCases.map(id => deleteCase(id));
+      await Promise.all(deletePromises);
+      toast({
+        title: 'Cases Deleted',
+        description: `${selectedCases.length} selected case(s) have been successfully deleted.`,
+      });
+      fetchCases(); // Refresh cases from DB
+      setSelectedCases([]); // Clear selection
+    } catch (error) {
+      handleFirebaseError(error);
+    }
+  };
+
   const filteredCases = cases.filter(c => 
     c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -471,12 +487,48 @@ export default function OwnerPage() {
         <Dashboard cases={filteredCases} />
         <Card className="shadow-lg">
           <CardHeader>
-            <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2 font-headline">
-                <ToothIcon className="w-6 h-6 text-primary" />
-                All Recorded Cases
-                </CardTitle>
-                <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex justify-between items-start">
+                <div>
+                    <CardTitle className="flex items-center gap-2 font-headline">
+                        <ToothIcon className="w-6 h-6 text-primary" />
+                        All Recorded Cases
+                    </CardTitle>
+                    <div className="flex items-center gap-2 mt-4">
+                        <Input 
+                            placeholder="Search by dentist or patient..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full max-w-sm"
+                        />
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={selectedCases.length === 0}
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Selected ({selectedCases.length})
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete {selectedCases.length} selected case(s).
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDeleteSelectedCases} className="bg-destructive hover:bg-destructive/90">
+                                        Yes, delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap justify-end">
                     <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
                         <DialogTrigger asChild>
                              <Button variant="outline">
@@ -573,17 +625,16 @@ export default function OwnerPage() {
                       </Link>
                     </Button>
                 </div>
-                <div className="w-1/3">
-                    <Input 
-                        placeholder="Search by dentist or patient..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
             </div>
           </CardHeader>
           <CardContent>
-            <CasesTable cases={filteredCases} onDeleteCase={handleDeleteCase} onUpdateCase={handleUpdateCase}/>
+            <CasesTable 
+                cases={filteredCases} 
+                onDeleteCase={handleDeleteCase} 
+                onUpdateCase={handleUpdateCase}
+                selectedCases={selectedCases}
+                onSelectedCasesChange={setSelectedCases}
+            />
           </CardContent>
         </Card>
       </main>

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit, Smartphone, Monitor } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 import type { DentalCase } from '@/types';
 
 import {
@@ -36,6 +36,7 @@ import CaseEntryForm from './case-entry-form';
 import { useState } from 'react';
 import { parseISO, isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { Checkbox } from './ui/checkbox';
 
 interface CasesTableProps {
   cases: DentalCase[];
@@ -45,6 +46,8 @@ interface CasesTableProps {
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
   hideSource?: boolean;
+  selectedCases?: string[];
+  onSelectedCasesChange?: (selectedIds: string[]) => void;
 }
 
 export default function CasesTable({ 
@@ -54,7 +57,9 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
-    hideSource 
+    hideSource,
+    selectedCases = [],
+    onSelectedCasesChange
 }: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -94,6 +99,20 @@ export default function CasesTable({
   const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
 
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (onSelectedCasesChange) {
+      onSelectedCasesChange(checked ? cases.map(c => c.id) : []);
+    }
+  };
+  
+  const handleSelectRow = (caseId: string, checked: boolean | 'indeterminate') => {
+    if (onSelectedCasesChange) {
+      const newSelected = checked 
+        ? [...selectedCases, caseId]
+        : selectedCases.filter(id => id !== caseId);
+      onSelectedCasesChange(newSelected);
+    }
+  };
 
   if (!cases || cases.length === 0) {
     return (
@@ -104,12 +123,25 @@ export default function CasesTable({
   }
   
   const showActions = onDeleteCase && onUpdateCase;
+  const showCheckboxes = !!onSelectedCasesChange;
+  const numSelected = selectedCases.length;
+  const rowCount = cases.length;
 
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            {showCheckboxes && (
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={numSelected === rowCount && rowCount > 0}
+                  indeterminate={numSelected > 0 && numSelected < rowCount}
+                  onCheckedChange={handleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
+            )}
             <TableHead>Created At</TableHead>
             {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
@@ -126,7 +158,16 @@ export default function CasesTable({
         </TableHeader>
         <TableBody>
           {cases.map((c) => (
-            <TableRow key={c.id}>
+            <TableRow key={c.id} data-state={selectedCases.includes(c.id) && "selected"}>
+              {showCheckboxes && (
+                  <TableCell>
+                      <Checkbox
+                          checked={selectedCases.includes(c.id)}
+                          onCheckedChange={(checked) => handleSelectRow(c.id, checked)}
+                          aria-label={`Select row ${c.id}`}
+                      />
+                  </TableCell>
+              )}
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
