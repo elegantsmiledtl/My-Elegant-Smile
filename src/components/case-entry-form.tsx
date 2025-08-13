@@ -147,11 +147,6 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                                     onChange={(date) => {
                                       field.onChange(date);
                                       setIsDatePickerOpen(false);
-                                      // Timeout to allow state update before focusing
-                                      setTimeout(() => {
-                                          toothSelectorRef.current?.focus();
-                                          toothSelectorRef.current?.click();
-                                      }, 0)
                                     }}
                                     open={isDatePickerOpen}
                                     onOpenChange={setIsDatePickerOpen}
