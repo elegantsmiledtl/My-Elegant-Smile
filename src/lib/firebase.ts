@@ -12,7 +12,9 @@ import {
   query,
   where,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch,
+  Timestamp
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog } from '@/types';
 
@@ -76,7 +78,7 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
   // Create a notification for the owner
   await createNotification(
     'owner', 
-    `${newCase.dentistName} Add A New Case`
+    'User Add A New Case'
   );
 
   return docRef.id;
@@ -198,6 +200,20 @@ export const addLoginLog = async (dentistName: string) => {
 };
 
 export const getLoginLogs = async (): Promise<LoginLog[]> => {
+    // Delete logs older than 24 hours before fetching
+    const twentyFourHoursAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
+    const oldLogsQuery = query(loginLogsCollection, where('timestamp', '<', twentyFourHoursAgo));
+    const oldLogsSnapshot = await getDocs(oldLogsQuery);
+
+    if (!oldLogsSnapshot.empty) {
+        const batch = writeBatch(db);
+        oldLogsSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    }
+    
+    // Fetch remaining (recent) logs
     const q = query(loginLogsCollection, orderBy('timestamp', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({
