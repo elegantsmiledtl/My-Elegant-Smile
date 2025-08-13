@@ -21,9 +21,10 @@ interface DatePickerProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string; // Allow passing a className to the button
+  fromDate?: Date;
 }
 
-export function DatePicker({ value, onChange, placeholder = "Pick a date", open, onOpenChange, className }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "Pick a date", open, onOpenChange, className, fromDate }: DatePickerProps) {
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -46,6 +47,7 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", open,
           selected={value}
           onSelect={onChange}
           initialFocus
+          fromDate={fromDate}
         />
       </PopoverContent>
     </Popover>

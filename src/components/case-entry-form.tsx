@@ -153,6 +153,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                                     }}
                                     placeholder="Select delivery date"
                                     className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300"
+                                    fromDate={new Date()}
                                 />
                             </FormControl>
                             <FormMessage />
