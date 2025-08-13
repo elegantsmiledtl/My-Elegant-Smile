@@ -20,16 +20,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { DentalCase } from '@/types';
 import ToothSelector from './tooth-selector';
-import { Checkbox } from './ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { DatePicker } from './ui/date-picker';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const formSchema = z.object({
   patientName: z.string().min(2, { message: 'Patient name must be at least 2 characters.' }),
   dentistName: z.string().min(2, { message: 'Dentist name must be at least 2 characters.' }),
   toothNumbers: z.string().min(1, { message: 'At least one tooth number is required.' }),
-  prosthesisType: z.string().min(1, { message: 'At least one prosthesis type must be selected.' }),
-  material: z.string().min(1, { message: 'At least one material must be selected.' }),
+  prosthesisType: z.string().min(1, { message: 'A prosthesis type must be selected.' }),
+  material: z.string().min(1, { message: 'A material must be selected.' }),
   shade: z.string().min(1, { message: 'Shade is required.' }),
   deliveryDate: z.date().optional(),
   notes: z.string().optional(),
@@ -167,46 +167,24 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                       control={form.control}
                       name="prosthesisType"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="space-y-3">
                           <FormLabel className="font-bold">Prosthesis Type</FormLabel>
-                           <div className="grid grid-cols-2 gap-2">
-                            {prosthesisTypeOptions.map((item) => (
-                              <FormField
-                                key={item}
-                                control={form.control}
-                                name="prosthesisType"
-                                render={({ field }) => {
-                                  return (
-                                    <FormItem
-                                      key={item}
-                                      className="flex flex-row items-start space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value?.split(', ').includes(item)}
-                                          onCheckedChange={(checked) => {
-                                            const currentValues = field.value ? field.value.split(', ').filter(v => v) : [];
-                                            if (checked) {
-                                              field.onChange([...currentValues, item].join(', '));
-                                            } else {
-                                              field.onChange(
-                                                currentValues.filter(
-                                                  (value) => value !== item
-                                                ).join(', ')
-                                              );
-                                            }
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {item}
-                                      </FormLabel>
-                                    </FormItem>
-                                  );
-                                }}
-                              />
-                            ))}
-                          </div>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-row space-x-4"
+                            >
+                              {prosthesisTypeOptions.map((item) => (
+                                <FormItem key={item} className="flex items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value={item} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">{item}</FormLabel>
+                                </FormItem>
+                               ))}
+                            </RadioGroup>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -217,46 +195,24 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                       control={form.control}
                       name="material"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="space-y-3">
                           <FormLabel className="font-bold">Material</FormLabel>
-                          <div className="grid grid-cols-2 gap-2">
-                            {materialOptions.map((item) => (
-                              <FormField
-                                key={item}
-                                control={form.control}
-                                name="material"
-                                render={({ field }) => {
-                                  return (
-                                    <FormItem
-                                      key={item}
-                                      className="flex flex-row items-start space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value?.split(', ').includes(item)}
-                                          onCheckedChange={(checked) => {
-                                            const currentValues = field.value ? field.value.split(', ').filter(v => v) : [];
-                                            if (checked) {
-                                              field.onChange([...currentValues, item].join(', '));
-                                            } else {
-                                              field.onChange(
-                                                currentValues.filter(
-                                                  (value) => value !== item
-                                                ).join(', ')
-                                              );
-                                            }
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {item}
-                                      </FormLabel>
-                                    </FormItem>
-                                  );
-                                }}
-                              />
-                            ))}
-                          </div>
+                           <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="grid grid-cols-2 gap-2"
+                            >
+                              {materialOptions.map((item) => (
+                                <FormItem key={item} className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value={item} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">{item}</FormLabel>
+                                </FormItem>
+                               ))}
+                            </RadioGroup>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
