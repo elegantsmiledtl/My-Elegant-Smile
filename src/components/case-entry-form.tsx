@@ -23,7 +23,7 @@ import ToothSelector from './tooth-selector';
 import { useRouter } from 'next/navigation';
 import { DatePicker } from './ui/date-picker';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 const formSchema = z.object({
   patientName: z.string().min(2, { message: 'Patient name must be at least 2 characters.' }),
@@ -51,6 +51,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
   const { toast } = useToast();
   const router = useRouter();
   const toothSelectorRef = useRef<HTMLInputElement>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   // Helper to convert Firestore Timestamp to Date
   const toDate = (timestamp: any): Date | undefined => {
@@ -145,12 +146,15 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                                     value={field.value} 
                                     onChange={(date) => {
                                       field.onChange(date);
+                                      setIsDatePickerOpen(false);
                                       // Timeout to allow state update before focusing
                                       setTimeout(() => {
                                           toothSelectorRef.current?.focus();
                                           toothSelectorRef.current?.click();
                                       }, 0)
                                     }}
+                                    open={isDatePickerOpen}
+                                    onOpenChange={setIsDatePickerOpen}
                                     placeholder="Select delivery date"
                                     className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300"
                                     fromDate={new Date()}
