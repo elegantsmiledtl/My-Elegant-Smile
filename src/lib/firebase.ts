@@ -72,6 +72,13 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
     ...newCase,
     createdAt: serverTimestamp()
   });
+  
+  // Create a notification for the owner
+  await createNotification(
+    'owner', 
+    `A new case for patient "${newCase.patientName}" was added by Dr. ${newCase.dentistName}.`
+  );
+
   return docRef.id;
 };
 

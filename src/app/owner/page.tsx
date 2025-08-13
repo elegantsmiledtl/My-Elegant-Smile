@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { DentalCase, LoginLog } from '@/types';
+import type { DentalCase, LoginLog, Notification } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { QrCode, Users, Trash2, PlusCircle, Receipt, History, Edit } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs, updateUser } from '@/lib/firebase';
+import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs, updateUser, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import {
@@ -26,6 +26,15 @@ import { Label } from '@/components/ui/label';
 import Logo from '@/components/logo';
 import { isValid, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -254,6 +263,8 @@ export default function OwnerPage() {
   const [isAddDoctorDialogOpen, setIsAddDoctorDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<any | null>(null);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -274,6 +285,25 @@ export default function OwnerPage() {
         }
     }
   }, [isAuthenticated]);
+  
+  useEffect(() => {
+    const checkForNotifications = async () => {
+        if (isAuthenticated) {
+            try {
+                const notifications = await getUnreadNotifications('owner');
+                if (notifications.length > 0) {
+                    setNotification({ id: notifications[0].id, message: notifications[0].message });
+                }
+            } catch (error) {
+                console.error("Failed to check for owner notifications:", error);
+            }
+        }
+    };
+    if (isMounted) {
+        checkForNotifications();
+    }
+  }, [isAuthenticated, isMounted, cases]); // Also re-check when cases change
+
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -366,6 +396,13 @@ export default function OwnerPage() {
     }
   };
 
+   const handleNotificationAcknowledge = () => {
+    if (notification) {
+      markNotificationAsRead(notification.id);
+      setNotification(null);
+    }
+  };
+
   const filteredCases = cases.filter(c => 
     c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -412,6 +449,22 @@ export default function OwnerPage() {
   }
 
   return (
+    <>
+    <AlertDialog open={!!notification}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>New Case Notification</AlertDialogTitle>
+                <AlertDialogDescription className="font-bold">
+                    {notification?.message}
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogAction onClick={handleNotificationAcknowledge}>
+                    Got It
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
     <div className="min-h-screen bg-background text-foreground">
       <PageHeader cases={cases} setCases={setCases} />
       <main className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -535,5 +588,6 @@ export default function OwnerPage() {
         </Card>
       </main>
     </div>
+    </>
   );
 }
