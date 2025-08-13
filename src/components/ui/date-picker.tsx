@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -19,9 +20,10 @@ interface DatePickerProps {
   placeholder?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  className?: string; // Allow passing a className to the button
 }
 
-export function DatePicker({ value, onChange, placeholder = "Pick a date", open, onOpenChange }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "Pick a date", open, onOpenChange, className }: DatePickerProps) {
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -30,7 +32,8 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", open,
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !value && "text-muted-foreground"
+            !value && "text-muted-foreground",
+            className // Apply the passed className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
