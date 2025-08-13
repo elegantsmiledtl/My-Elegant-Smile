@@ -31,7 +31,7 @@ const formSchema = z.object({
   toothNumbers: z.string().min(1, { message: 'At least one tooth number is required.' }),
   prosthesisType: z.string().min(1, { message: 'A prosthesis type must be selected.' }),
   material: z.string().min(1, { message: 'A material must be selected.' }),
-  shade: z.string().min(1, { message: 'Shade is required.' }),
+  shade: z.string().optional(),
   deliveryDate: z.date().optional(),
   notes: z.string().optional(),
 });
@@ -231,7 +231,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                       name="shade"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-bold">Shade</FormLabel>
+                          <FormLabel className="font-bold">Shade (Optional)</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
