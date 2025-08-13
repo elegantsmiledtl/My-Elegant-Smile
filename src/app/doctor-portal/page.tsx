@@ -143,22 +143,24 @@ export default function DoctorPortalPage() {
           <header className="bg-card border-b shadow-sm p-4">
               <div className="container mx-auto flex justify-between items-center">
                   <Logo />
-                  <div className="flex items-center gap-4">
-                      <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                          <Stethoscope className="w-6 h-6" />
-                          Welcome, {dentistName}
-                      </h2>
-                      <Button asChild variant="outline">
-                          <Link href="/doctor/invoices">
-                              <Receipt className="mr-2 h-4 w-4" />
-                              My Invoices
-                          </Link>
-                      </Button>
-                      <Button onClick={handleLogout} variant="outline">
-                          <LogOut className="mr-2" />
-                          Logout
-                      </Button>
-                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                                <Stethoscope className="w-6 h-6" />
+                                Welcome, {dentistName}
+                            </h2>
+                            <Button onClick={handleLogout} variant="outline">
+                                <LogOut className="mr-2" />
+                                Logout
+                            </Button>
+                        </div>
+                        <Button asChild variant="outline">
+                            <Link href="/doctor/invoices">
+                                <Receipt className="mr-2 h-4 w-4" />
+                                My Invoices
+                            </Link>
+                        </Button>
+                    </div>
               </div>
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
