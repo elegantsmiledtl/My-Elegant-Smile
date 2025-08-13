@@ -76,7 +76,7 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
   // Create a notification for the owner
   await createNotification(
     'owner', 
-    `A new case for patient "${newCase.patientName}" was added by Dr. ${newCase.dentistName}.`
+    `${newCase.dentistName} Add A New Case`
   );
 
   return docRef.id;
