@@ -23,6 +23,7 @@ import ToothSelector from './tooth-selector';
 import { useRouter } from 'next/navigation';
 import { DatePicker } from './ui/date-picker';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { useRef } from 'react';
 
 const formSchema = z.object({
   patientName: z.string().min(2, { message: 'Patient name must be at least 2 characters.' }),
@@ -49,6 +50,7 @@ const prosthesisTypeOptions = ["Separate", "Bridge"];
 export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseEntryFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const toothSelectorRef = useRef<HTMLInputElement>(null);
 
   // Helper to convert Firestore Timestamp to Date
   const toDate = (timestamp: any): Date | undefined => {
@@ -141,7 +143,14 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                             <FormControl>
                                 <DatePicker 
                                     value={field.value} 
-                                    onChange={field.onChange}
+                                    onChange={(date) => {
+                                      field.onChange(date);
+                                      // Timeout to allow state update before focusing
+                                      setTimeout(() => {
+                                          toothSelectorRef.current?.focus();
+                                          toothSelectorRef.current?.click();
+                                      }, 0)
+                                    }}
                                     placeholder="Select delivery date"
                                     className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300"
                                 />
@@ -157,7 +166,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         <FormItem>
                           <FormLabel className="font-bold">Tooth Number(s)</FormLabel>
                           <FormControl>
-                            <ToothSelector value={field.value} onChange={field.onChange} />
+                            <ToothSelector ref={toothSelectorRef} value={field.value} onChange={field.onChange} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

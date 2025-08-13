@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
@@ -41,7 +41,7 @@ interface ToothSelectorProps {
   onChange: (value: string) => void;
 }
 
-export default function ToothSelector({ value, onChange }: ToothSelectorProps) {
+const ToothSelector = forwardRef<HTMLInputElement, ToothSelectorProps>(({ value, onChange }, ref) => {
   const [selectedTeeth, setSelectedTeeth] = useState<number[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -72,6 +72,7 @@ export default function ToothSelector({ value, onChange }: ToothSelectorProps) {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Input
+          ref={ref}
           placeholder="Select tooth/teeth"
           value={value}
           readOnly
@@ -99,4 +100,8 @@ export default function ToothSelector({ value, onChange }: ToothSelectorProps) {
       </PopoverContent>
     </Popover>
   );
-}
+});
+
+ToothSelector.displayName = "ToothSelector";
+
+export default ToothSelector;
