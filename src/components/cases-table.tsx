@@ -146,10 +146,7 @@ export default function CasesTable({
               {!hideShade && <TableCell>{c.shade}</TableCell>}
               {!hideSource && (
                 <TableCell>
-                    <div className="flex items-center gap-2">
-                        {c.source === 'Mobile' ? <Smartphone className="h-4 w-4 text-muted-foreground" /> : <Monitor className="h-4 w-4 text-muted-foreground" />}
-                        {c.source || 'Desktop'}
-                    </div>
+                  {c.source || 'Desktop'}
                 </TableCell>
               )}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
