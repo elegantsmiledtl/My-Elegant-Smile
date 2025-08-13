@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Phone } from 'lucide-react';
 import type { DentalCase } from '@/types';
 
 import {
@@ -126,6 +126,7 @@ export default function CasesTable({
   const showCheckboxes = !!onSelectedCasesChange;
   const numSelected = selectedCases.length;
   const rowCount = cases.length;
+  const showPatientNumber = cases.some(c => c.patientNumber);
 
   return (
     <div className="rounded-md border">
@@ -145,6 +146,7 @@ export default function CasesTable({
             <TableHead>Created At</TableHead>
             {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
+            {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Tooth Count</TableHead>
@@ -171,6 +173,16 @@ export default function CasesTable({
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
+              {showPatientNumber && (
+                <TableCell>
+                  {c.patientNumber ? (
+                    <a href={`tel:${c.patientNumber}`} className="text-primary hover:underline flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      {c.patientNumber}
+                    </a>
+                  ) : 'N/A'}
+                </TableCell>
+              )}
               {!hideDentist && (
                  <TableCell>
                     <Link href={`/doctor/${encodeURIComponent(c.dentistName)}`} className="text-primary hover:underline">
@@ -212,7 +224,7 @@ export default function CasesTable({
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDeleteCase(c.id)} className="bg-destructive hover:bg-destructive/90">
+                        <AlertDialogAction onClick={() => onDeleteCase && onDeleteCase(c.id)} className="bg-destructive hover:bg-destructive/90">
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>

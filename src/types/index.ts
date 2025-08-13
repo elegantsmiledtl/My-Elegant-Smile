@@ -11,6 +11,7 @@ export type DentalCase = {
   deliveryDate?: any; // Can be a Date object or a Firestore Timestamp
   notes?: string;
   source?: 'Mobile' | 'Desktop';
+  patientNumber?: string;
 };
 
 export type InvoiceSummaryItem = {

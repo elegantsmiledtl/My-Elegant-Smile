@@ -34,6 +34,7 @@ const formSchema = z.object({
   shade: z.string().optional(),
   deliveryDate: z.date().optional(),
   notes: z.string().optional(),
+  patientNumber: z.string().optional(),
 });
 
 type CaseFormValues = z.infer<typeof formSchema>;
@@ -72,10 +73,12 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
       shade: caseToEdit?.shade || '',
       deliveryDate: toDate(caseToEdit?.deliveryDate),
       notes: caseToEdit?.notes || '',
+      patientNumber: caseToEdit?.patientNumber || '',
     },
   });
   
   const isEditMode = !!caseToEdit?.id;
+  const currentDentistName = form.watch('dentistName');
 
   function onSubmit(values: CaseFormValues) {
     // Sanitize data before submitting
@@ -135,6 +138,21 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         </FormItem>
                       )}
                     />
+                    {currentDentistName === 'Dr.Ibraheem Omar' && (
+                       <FormField
+                        control={form.control}
+                        name="patientNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-bold">Patient Number (Optional)</FormLabel>
+                            <FormControl>
+                              <Input type="tel" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                      <FormField
                         control={form.control}
                         name="deliveryDate"
