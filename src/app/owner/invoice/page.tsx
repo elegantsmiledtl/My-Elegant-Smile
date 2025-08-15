@@ -506,6 +506,7 @@ export default function InvoicePage() {
                                 hideDeliveryDate 
                                 hideShade 
                                 hideSource
+                                hidePatientNumber
                             />
                         </div>
                     </div>
@@ -755,6 +756,7 @@ export default function InvoicePage() {
                                                 hideDeliveryDate
                                                 hideShade
                                                 hideSource
+                                                hidePatientNumber
                                             />
                                             </CardContent>
                                         </Card>

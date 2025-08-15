@@ -46,6 +46,7 @@ interface CasesTableProps {
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
   hideSource?: boolean;
+  hidePatientNumber?: boolean;
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
 }
@@ -58,6 +59,7 @@ export default function CasesTable({
     hideDeliveryDate,
     hideShade,
     hideSource,
+    hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange
 }: CasesTableProps) {
@@ -126,7 +128,7 @@ export default function CasesTable({
   const showCheckboxes = !!onSelectedCasesChange;
   const numSelected = selectedCases.length;
   const rowCount = cases.length;
-  const showPatientNumber = cases.some(c => c.patientNumber);
+  const showPatientNumber = cases.some(c => c.patientNumber) && !hidePatientNumber;
 
   return (
     <div className="rounded-md border">
