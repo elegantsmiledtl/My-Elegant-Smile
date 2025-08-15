@@ -209,8 +209,6 @@ export default function InvoicePage() {
         pdf.setFontSize(50);
         pdf.setTextColor(200, 200, 200); // Light grey color
         pdf.setGState(new pdf.GState({opacity: 0.5})); // Set transparency
-        const textWidth = pdf.getStringUnitWidth(watermarkText) * pdf.getFontSize() / pdf.internal.scaleFactor;
-        const textHeight = pdf.getFontSize();
         
         // Rotate and place in the center
         pdf.text(watermarkText, pdfWidth / 2, pdfHeight / 2, {
