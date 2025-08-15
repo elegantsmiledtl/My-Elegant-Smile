@@ -201,9 +201,25 @@ export default function InvoicePage() {
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
+        
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight);
         
+        // --- Add Watermark ---
+        const watermarkText = "Elegant Smile";
+        pdf.setFontSize(50);
+        pdf.setTextColor(200, 200, 200); // Light grey color
+        pdf.setGState(new pdf.GState({opacity: 0.5})); // Set transparency
+        const textWidth = pdf.getStringUnitWidth(watermarkText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+        const textHeight = pdf.getFontSize();
+        
+        // Rotate and place in the center
+        pdf.text(watermarkText, pdfWidth / 2, pdfHeight / 2, {
+            angle: -45,
+            align: 'center'
+        });
+        pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
+        // --- End Watermark ---
+
         const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
         pdf.save(fileName);
 
@@ -477,7 +493,7 @@ export default function InvoicePage() {
                                                     <TableCell className="text-right">
                                                         <Input
                                                             type="number"
-                                                            value={materialPrices[material] || 0}
+                                                            value={materialPrices[material] ?? ''}
                                                             onChange={(e) => handlePriceChange(material, e.target.value)}
                                                             className="h-8 text-right bg-white"
                                                         />
@@ -776,6 +792,8 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
 
