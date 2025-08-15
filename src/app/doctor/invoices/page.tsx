@@ -240,9 +240,8 @@ export default function DoctorInvoicesPage() {
                                         <Button
                                             onClick={() => handleSaveAsPdf(invoice)}
                                             disabled={isSavingPdf && invoiceForPdf?.id === invoice.id}
-                                            variant="outline"
                                             size="sm"
-                                            className="mr-auto"
+                                            className="mr-auto bg-green-600 hover:bg-green-700 text-white"
                                         >
                                             <FileDown className="mr-2 h-4 w-4" />
                                             {isSavingPdf && invoiceForPdf?.id === invoice.id ? 'Saving...' : 'Download as PDF'}
