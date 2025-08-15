@@ -67,6 +67,7 @@ export default function InvoicePage() {
 
   const [watermarkX, setWatermarkX] = useState(105);
   const [watermarkY, setWatermarkY] = useState(150);
+  const [watermarkFontSize, setWatermarkFontSize] = useState(80);
 
   const timeZone = 'Asia/Amman';
 
@@ -209,7 +210,7 @@ export default function InvoicePage() {
         
         // --- Add Text Watermark ---
         const watermarkText = "Elegant Smile";
-        pdf.setFontSize(80);
+        pdf.setFontSize(watermarkFontSize);
         pdf.setTextColor(200, 200, 200); // Light grey color
         pdf.setGState(new pdf.GState({opacity: 0.2})); // Set transparency
         
@@ -437,24 +438,38 @@ export default function InvoicePage() {
                         </div>
                      </div>
                       <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg bg-muted/50">
-                        <p className="font-semibold text-sm">Watermark Position (for PDF):</p>
-                         <div className="flex gap-2 items-center">
-                            <Label htmlFor="watermark-x" className="text-sm">X:</Label>
-                            <Input
-                              id="watermark-x"
-                              type="number"
-                              value={watermarkX}
-                              onChange={(e) => setWatermarkX(Number(e.target.value))}
-                              className="w-20 h-8"
-                            />
-                             <Label htmlFor="watermark-y" className="text-sm">Y:</Label>
-                             <Input
-                              id="watermark-y"
-                              type="number"
-                              value={watermarkY}
-                              onChange={(e) => setWatermarkY(Number(e.target.value))}
-                              className="w-20 h-8"
-                            />
+                        <p className="font-semibold text-sm">Watermark Settings (for PDF):</p>
+                         <div className="flex gap-4 items-center">
+                            <div className="flex gap-2 items-center">
+                                <Label htmlFor="watermark-x" className="text-sm">X:</Label>
+                                <Input
+                                id="watermark-x"
+                                type="number"
+                                value={watermarkX}
+                                onChange={(e) => setWatermarkX(Number(e.target.value))}
+                                className="w-20 h-8"
+                                />
+                            </div>
+                             <div className="flex gap-2 items-center">
+                                <Label htmlFor="watermark-y" className="text-sm">Y:</Label>
+                                <Input
+                                id="watermark-y"
+                                type="number"
+                                value={watermarkY}
+                                onChange={(e) => setWatermarkY(Number(e.target.value))}
+                                className="w-20 h-8"
+                                />
+                            </div>
+                            <div className="flex gap-2 items-center">
+                                <Label htmlFor="watermark-fontsize" className="text-sm">Font Size:</Label>
+                                <Input
+                                id="watermark-fontsize"
+                                type="number"
+                                value={watermarkFontSize}
+                                onChange={(e) => setWatermarkFontSize(Number(e.target.value))}
+                                className="w-20 h-8"
+                                />
+                            </div>
                         </div>
                      </div>
                     </>
@@ -813,6 +828,8 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
 
