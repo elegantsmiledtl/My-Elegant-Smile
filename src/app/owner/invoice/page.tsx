@@ -187,6 +187,7 @@ export default function InvoicePage() {
         const canvas = await html2canvas(invoiceElement, {
             scale: 2,
             useCORS: true,
+            backgroundColor: null, // Transparent background for the main content
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -197,18 +198,49 @@ export default function InvoicePage() {
         });
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+        // Add watermark first
+        const watermarkImg = new Image();
+        watermarkImg.src = '/images/watermark.png'; // Path from public directory
         
-        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
-        pdf.save(fileName);
+        watermarkImg.onload = () => {
+            const watermarkWidth = 50; // Adjust size as needed
+            const watermarkHeight = (watermarkImg.height * watermarkWidth) / watermarkImg.width;
+            const x = (pdfWidth - watermarkWidth) / 2;
+            const y = (pdfHeight - watermarkHeight) / 2;
 
-        toast({
-            title: 'Success',
-            description: 'Invoice has been saved as a PDF.',
-        });
+            pdf.setGState(new pdf.GState({opacity: 0.1})); // Set transparency
+            pdf.addImage(watermarkImg, 'PNG', x, y, watermarkWidth, watermarkHeight);
+            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
+
+            // Add invoice content over the watermark
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+            
+            const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
+            pdf.save(fileName);
+
+            toast({
+                title: 'Success',
+                description: 'Invoice has been saved as a PDF.',
+            });
+            setIsSavingPdf(false);
+        };
+        
+        watermarkImg.onerror = () => {
+            console.error("Watermark image failed to load.");
+            // Proceed without watermark if it fails
+             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+             const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
+             pdf.save(fileName);
+            toast({
+                title: 'Success',
+                description: 'Invoice PDF saved (without watermark).',
+            });
+            setIsSavingPdf(false);
+        }
 
     } catch (error) {
         console.error("PDF Generation Error:", error);
@@ -217,7 +249,6 @@ export default function InvoicePage() {
             title: 'PDF Error',
             description: 'Failed to generate PDF file.',
         });
-    } finally {
         setIsSavingPdf(false);
     }
   };
@@ -475,7 +506,7 @@ export default function InvoicePage() {
                                                     <TableCell className="text-right">
                                                         <Input
                                                             type="number"
-                                                            value={data.price}
+                                                            value={materialPrices[material] || 0}
                                                             onChange={(e) => handlePriceChange(material, e.target.value)}
                                                             className="h-8 text-right bg-white"
                                                         />
@@ -774,5 +805,7 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
