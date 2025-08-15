@@ -1,13 +1,14 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { addCase, getCasesByDoctor, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -29,6 +30,9 @@ export default function DoctorPortalPage() {
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  const [isEditingHeader, setIsEditingHeader] = useState(false);
+  const [headerText, setHeaderText] = useState('');
+  const headerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -36,6 +40,8 @@ export default function DoctorPortalPage() {
     if (savedUser) {
         const user = JSON.parse(savedUser);
         setDentistName(user.name);
+        const savedHeaderText = localStorage.getItem(`headerText_${user.name}`);
+        setHeaderText(savedHeaderText || `Welcome, ${user.name}`);
     } else {
         router.push('/login');
     }
@@ -61,6 +67,12 @@ export default function DoctorPortalPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dentistName, isMounted]);
+
+  useEffect(() => {
+    if (isEditingHeader && headerInputRef.current) {
+      headerInputRef.current.focus();
+    }
+  }, [isEditingHeader]);
 
 
   const handleFirebaseError = (error: any) => {
@@ -117,6 +129,25 @@ export default function DoctorPortalPage() {
     }
   };
 
+  const handleHeaderEdit = () => {
+    setIsEditingHeader(true);
+  };
+
+  const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHeaderText(e.target.value);
+  };
+
+  const saveHeaderText = () => {
+    localStorage.setItem(`headerText_${dentistName}`, headerText);
+    setIsEditingHeader(false);
+  };
+
+  const handleHeaderKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      saveHeaderText();
+    }
+  };
+
   if (!isMounted || !dentistName) {
     return null; // Or a loading spinner
   }
@@ -145,10 +176,27 @@ export default function DoctorPortalPage() {
                   <Logo />
                   <div className="flex flex-col items-end gap-2">
                         <div className="flex items-center gap-4">
-                            <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                                <Stethoscope className="w-6 h-6" />
-                                Welcome, {dentistName}
-                            </h2>
+                            <div className="flex items-center gap-2">
+                                <Stethoscope className="w-6 h-6 text-primary" />
+                                {isEditingHeader ? (
+                                    <Input
+                                        ref={headerInputRef}
+                                        type="text"
+                                        value={headerText}
+                                        onChange={handleHeaderChange}
+                                        onBlur={saveHeaderText}
+                                        onKeyDown={handleHeaderKeyDown}
+                                        className="text-xl font-bold"
+                                    />
+                                ) : (
+                                    <h2 className="text-xl font-bold text-primary">
+                                        {headerText}
+                                    </h2>
+                                )}
+                                <Button variant="ghost" size="icon" onClick={handleHeaderEdit}>
+                                    <Edit className="w-4 h-4" />
+                                </Button>
+                            </div>
                             <Button onClick={handleLogout} variant="outline">
                                 <LogOut className="mr-2" />
                                 Logout
