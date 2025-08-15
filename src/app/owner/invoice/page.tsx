@@ -37,6 +37,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
@@ -63,6 +64,10 @@ export default function InvoicePage() {
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
+
+  // Watermark position state
+  const [watermarkX, setWatermarkX] = useState<number>(105); // A4 width/2
+  const [watermarkY, setWatermarkY] = useState<number>(148); // A4 height/2
 
 
   const timeZone = 'Asia/Amman';
@@ -211,7 +216,7 @@ export default function InvoicePage() {
         pdf.setGState(new pdf.GState({opacity: 0.5})); // Set transparency
         
         // Rotate and place in the center
-        pdf.text(watermarkText, pdfWidth / 2, pdfHeight / 2, {
+        pdf.text(watermarkText, watermarkX, watermarkY, {
             angle: -45,
             align: 'center'
         });
@@ -411,6 +416,7 @@ export default function InvoicePage() {
                 </div>
                 
                  {selectedDoctor && (
+                    <>
                      <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg bg-muted/50">
                         <p className="font-semibold text-sm">Filter by creation date:</p>
                         <div className="flex gap-2 items-center">
@@ -435,6 +441,32 @@ export default function InvoicePage() {
                              />
                         </div>
                      </div>
+                     <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg">
+                        <p className="font-semibold text-sm">Watermark Position (PDF):</p>
+                        <div className="flex gap-4 items-center">
+                             <div className="grid w-full max-w-xs items-center gap-1.5">
+                                <Label htmlFor="watermark-x">Watermark X (mm)</Label>
+                                <Input 
+                                    type="number" 
+                                    id="watermark-x" 
+                                    value={watermarkX}
+                                    onChange={(e) => setWatermarkX(Number(e.target.value))}
+                                    className="w-full"
+                                />
+                             </div>
+                             <div className="grid w-full max-w-xs items-center gap-1.5">
+                                <Label htmlFor="watermark-y">Watermark Y (mm)</Label>
+                                <Input 
+                                    type="number" 
+                                    id="watermark-y" 
+                                    value={watermarkY}
+                                    onChange={(e) => setWatermarkY(Number(e.target.value))}
+                                    className="w-full"
+                                />
+                             </div>
+                        </div>
+                     </div>
+                    </>
                 )}
                
               </CardContent>
