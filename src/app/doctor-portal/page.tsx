@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, Edit, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addCase, getCasesByDoctor, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Input } from '@/components/ui/input';
+
 
 export default function DoctorPortalPage() {
   const router = useRouter();
@@ -29,6 +31,12 @@ export default function DoctorPortalPage() {
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  
+  const [isEditingHeader, setIsEditingHeader] = useState(false);
+  const [headerText, setHeaderText] = useState('');
+  const headerInputRef = useRef<HTMLInputElement>(null);
+  const defaultHeaderText = `Welcome, ${dentistName}`;
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -40,6 +48,20 @@ export default function DoctorPortalPage() {
         router.push('/login');
     }
   }, [router]);
+  
+  useEffect(() => {
+    if (dentistName) {
+      const savedHeaderText = localStorage.getItem(`headerText_${dentistName}`);
+      setHeaderText(savedHeaderText || `Welcome, ${dentistName}`);
+    }
+  }, [dentistName]);
+
+  useEffect(() => {
+    if (isEditingHeader && headerInputRef.current) {
+        headerInputRef.current.focus();
+    }
+  }, [isEditingHeader]);
+
 
   useEffect(() => {
     const checkForNotifications = async () => {
@@ -116,6 +138,21 @@ export default function DoctorPortalPage() {
       setNotification(null);
     }
   };
+  
+  const handleHeaderEdit = () => {
+      setIsEditingHeader(true);
+  }
+
+  const handleHeaderSave = () => {
+      setIsEditingHeader(false);
+      localStorage.setItem(`headerText_${dentistName}`, headerText);
+  }
+
+  const handleHeaderReset = () => {
+      setHeaderText(defaultHeaderText);
+      localStorage.removeItem(`headerText_${dentistName}`);
+  }
+
 
   if (!isMounted || !dentistName) {
     return null; // Or a loading spinner
@@ -147,9 +184,28 @@ export default function DoctorPortalPage() {
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <Stethoscope className="w-6 h-6 text-primary" />
-                                <h2 className="text-xl font-bold text-primary">
-                                    Welcome, {dentistName}
-                                </h2>
+                                {isEditingHeader ? (
+                                    <Input
+                                        ref={headerInputRef}
+                                        value={headerText}
+                                        onChange={(e) => setHeaderText(e.target.value)}
+                                        onBlur={handleHeaderSave}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleHeaderSave()}
+                                        className="text-xl font-bold text-primary"
+                                    />
+                                ) : (
+                                    <h2 className="text-xl font-bold text-primary">
+                                        {headerText}
+                                    </h2>
+                                )}
+                                <Button onClick={handleHeaderEdit} variant="ghost" size="icon" className="h-6 w-6">
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                                {headerText !== defaultHeaderText && (
+                                     <Button onClick={handleHeaderReset} variant="ghost" size="icon" className="h-6 w-6">
+                                        <Undo2 className="h-4 w-4" />
+                                    </Button>
+                                )}
                             </div>
                             <Button onClick={handleLogout} variant="outline">
                                 <LogOut className="mr-2" />
