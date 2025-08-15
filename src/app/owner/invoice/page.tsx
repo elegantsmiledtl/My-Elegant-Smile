@@ -202,16 +202,6 @@ export default function InvoicePage() {
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-        // Add text watermark
-        pdf.setFontSize(80);
-        pdf.setTextColor(200, 200, 200); // Light gray color
-        pdf.text("Elegant Smile", pdfWidth / 2, pdfHeight / 2, {
-            angle: -45,
-            align: 'center',
-        });
-        pdf.setTextColor(0,0,0); // Reset text color
-
-        // Add invoice content over the watermark
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight);
         
         const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
@@ -786,6 +776,8 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
 
