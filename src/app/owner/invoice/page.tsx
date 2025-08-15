@@ -204,32 +204,25 @@ export default function InvoicePage() {
         
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight);
         
-        // --- Add Watermark ---
-        const watermarkImg = new Image();
-        watermarkImg.src = '/watermark.png'; // Path to the image in the public folder
-
-        watermarkImg.onload = () => {
-            const watermarkWidth = 80;
-            const watermarkHeight = (watermarkImg.height * watermarkWidth) / watermarkImg.width;
-            const watermarkX = (pdfWidth - watermarkWidth) / 2;
-            const watermarkY = (pdfHeight - watermarkHeight) / 2;
-            
-            pdf.setGState(new pdf.GState({opacity: 0.15})); // Set transparency
-            pdf.addImage(watermarkImg, 'PNG', watermarkX, watermarkY, watermarkWidth, watermarkHeight);
-            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
-            
-            const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
-            pdf.save(fileName);
-        };
-
-        watermarkImg.onerror = () => {
-            console.error("Watermark image failed to load.");
-            // Proceed without watermark if it fails
-             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-             const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
-             pdf.save(fileName);
-        };
+        // --- Add Text Watermark ---
+        const watermarkText = "Elegant Smile";
+        pdf.setFontSize(80);
+        pdf.setTextColor(200, 200, 200); // Light grey color
+        pdf.setGState(new pdf.GState({opacity: 0.2})); // Set transparency
+        
+        const textWidth = pdf.getStringUnitWidth(watermarkText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+        const textHeight = pdf.getFontSize();
+        
+        const centerX = (pdfWidth - textWidth) / 2;
+        const centerY = (pdfHeight + textHeight / 2) / 2;
+        
+        pdf.text(watermarkText, centerX, centerY, { angle: -45, align: 'center' });
+        
+        pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
         // --- End Watermark ---
+
+        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
+        pdf.save(fileName);
 
         toast({
             title: 'Success',
@@ -802,3 +795,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
