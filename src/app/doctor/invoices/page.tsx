@@ -244,7 +244,7 @@ export default function DoctorInvoicesPage() {
                                             className="mr-auto bg-green-600 hover:bg-green-700 text-white"
                                         >
                                             <FileDown className="mr-2 h-4 w-4" />
-                                            {isSavingPdf && invoiceForPdf?.id === invoice.id ? 'Saving...' : 'Download as PDF'}
+                                            {isSavingPdf && invoiceForPdf?.id === invoice.id ? 'Saving...' : 'Download Invoice'}
                                         </Button>
                                         <div className="flex items-center gap-4">
                                             <p className="text-lg font-bold">Total:</p>
