@@ -65,6 +65,9 @@ export default function InvoicePage() {
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
 
+  const [watermarkX, setWatermarkX] = useState(105);
+  const [watermarkY, setWatermarkY] = useState(150);
+
   const timeZone = 'Asia/Amman';
 
   useEffect(() => {
@@ -210,13 +213,7 @@ export default function InvoicePage() {
         pdf.setTextColor(200, 200, 200); // Light grey color
         pdf.setGState(new pdf.GState({opacity: 0.2})); // Set transparency
         
-        const textWidth = pdf.getStringUnitWidth(watermarkText) * pdf.getFontSize() / pdf.internal.scaleFactor;
-        const textHeight = pdf.getFontSize();
-        
-        const centerX = (pdfWidth - textWidth) / 2;
-        const centerY = (pdfHeight + textHeight / 2) / 2;
-        
-        pdf.text(watermarkText, centerX, centerY, { angle: -45, align: 'center' });
+        pdf.text(watermarkText, watermarkX, watermarkY, { angle: -45, align: 'center' });
         
         pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
         // --- End Watermark ---
@@ -437,6 +434,27 @@ export default function InvoicePage() {
                                  onOpenChange={setIsToDatePickerOpen}
                                  open={isToDatePickerOpen}
                              />
+                        </div>
+                     </div>
+                      <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg bg-muted/50">
+                        <p className="font-semibold text-sm">Watermark Position (for PDF):</p>
+                         <div className="flex gap-2 items-center">
+                            <Label htmlFor="watermark-x" className="text-sm">X:</Label>
+                            <Input
+                              id="watermark-x"
+                              type="number"
+                              value={watermarkX}
+                              onChange={(e) => setWatermarkX(Number(e.target.value))}
+                              className="w-20 h-8"
+                            />
+                             <Label htmlFor="watermark-y" className="text-sm">Y:</Label>
+                             <Input
+                              id="watermark-y"
+                              type="number"
+                              value={watermarkY}
+                              onChange={(e) => setWatermarkY(Number(e.target.value))}
+                              className="w-20 h-8"
+                            />
                         </div>
                      </div>
                     </>
@@ -795,5 +813,7 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
