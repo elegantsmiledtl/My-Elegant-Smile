@@ -1,20 +1,12 @@
 
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Upload, FileText, FileJson, FileUp, Sparkles, QrCode, PlusCircle, User, LogIn } from 'lucide-react';
 import type { DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { convertJsonToCsv, downloadFile, generateReport } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import QRCode from "react-qr-code";
 import Link from 'next/link';
 import { Toaster } from '@/components/ui/toaster';
 import Logo from './logo';
@@ -28,16 +20,6 @@ interface PageHeaderProps {
 export default function PageHeader({ cases, setCases }: PageHeaderProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [addCaseUrl, setAddCaseUrl] = useState('');
-
-  useEffect(() => {
-    // Ensure this runs only on the client
-    if (typeof window !== 'undefined') {
-      const url = new URL('/add-case', window.location.origin);
-      url.searchParams.set('source', 'Mobile');
-      setAddCaseUrl(url.toString());
-    }
-  }, []);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -159,11 +141,6 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
                     <LogIn className="mr-2 h-4 w-4" /> Doctor Portal
                 </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-                <a href="/add-case">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Case
-                </a>
-            </Button>
           <input
             type="file"
             ref={fileInputRef}
@@ -171,28 +148,6 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
             accept=".json"
             className="hidden"
           />
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <QrCode className="mr-2 h-4 w-4" /> Add Case (Mobile)
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Case via QR Code</DialogTitle>
-              </DialogHeader>
-              <div className="flex items-center space-x-2 mt-4 justify-center">
-                {addCaseUrl ? (
-                    <div style={{ background: 'white', padding: '16px' }}>
-                        <QRCode value={addCaseUrl} />
-                    </div>
-                ) : <p>Generating QR code...</p>}
-              </div>
-              <p className="text-center text-sm text-muted-foreground mt-2">
-                Scan this with a mobile device to add a new case.
-              </p>
-            </DialogContent>
-          </Dialog>
           <Button variant="outline" size="sm" onClick={handleImportClick}>
             <FileUp className="mr-2 h-4 w-4" /> Import JSON
           </Button>
