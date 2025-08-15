@@ -152,6 +152,7 @@ export default function InvoicePage() {
     let grandTotal = 0;
     Object.keys(summary).forEach(material => {
         const materialInfo = summary[material];
+        materialInfo.price = materialPrices[material] || 0; // Ensure price is always up-to-date
         materialInfo.total = materialInfo.toothCount * materialInfo.price;
         grandTotal += materialInfo.total;
     });
