@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, Edit, Save, RefreshCw } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, Edit, Save, RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addCase, getCasesByDoctor, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -330,5 +330,3 @@ export default function DoctorPortalPage() {
     </>
   );
 }
-
-    
