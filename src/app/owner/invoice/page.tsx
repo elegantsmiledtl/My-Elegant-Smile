@@ -65,12 +65,6 @@ export default function InvoicePage() {
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
 
-  // Watermark state
-  const [watermarkText, setWatermarkText] = useState<string>("Elegant Smile");
-  const [watermarkX, setWatermarkX] = useState<number>(105); // A4 width/2
-  const [watermarkY, setWatermarkY] = useState<number>(148); // A4 height/2
-
-
   const timeZone = 'Asia/Amman';
 
   useEffect(() => {
@@ -211,22 +205,31 @@ export default function InvoicePage() {
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight);
         
         // --- Add Watermark ---
-        if (watermarkText) {
-            pdf.setFontSize(50);
-            pdf.setTextColor(200, 200, 200); // Light grey color
-            pdf.setGState(new pdf.GState({opacity: 0.5})); // Set transparency
-            
-            // Rotate and place in the center
-            pdf.text(watermarkText, watermarkX, watermarkY, {
-                angle: -45,
-                align: 'center'
-            });
-            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
-        }
-        // --- End Watermark ---
+        const watermarkImg = new Image();
+        watermarkImg.src = '/watermark.png'; // Path to the image in the public folder
 
-        const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
-        pdf.save(fileName);
+        watermarkImg.onload = () => {
+            const watermarkWidth = 80;
+            const watermarkHeight = (watermarkImg.height * watermarkWidth) / watermarkImg.width;
+            const watermarkX = (pdfWidth - watermarkWidth) / 2;
+            const watermarkY = (pdfHeight - watermarkHeight) / 2;
+            
+            pdf.setGState(new pdf.GState({opacity: 0.15})); // Set transparency
+            pdf.addImage(watermarkImg, 'PNG', watermarkX, watermarkY, watermarkWidth, watermarkHeight);
+            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
+            
+            const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
+            pdf.save(fileName);
+        };
+
+        watermarkImg.onerror = () => {
+            console.error("Watermark image failed to load.");
+            // Proceed without watermark if it fails
+             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+             const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
+             pdf.save(fileName);
+        };
+        // --- End Watermark ---
 
         toast({
             title: 'Success',
@@ -441,41 +444,6 @@ export default function InvoicePage() {
                                  onOpenChange={setIsToDatePickerOpen}
                                  open={isToDatePickerOpen}
                              />
-                        </div>
-                     </div>
-                     <div className="flex flex-col sm:flex-row gap-4 sm:items-center p-4 border rounded-lg">
-                        <p className="font-semibold text-sm">Watermark Settings (PDF):</p>
-                        <div className="flex flex-wrap gap-4 items-center">
-                             <div className="grid w-full max-w-xs items-center gap-1.5">
-                                <Label htmlFor="watermark-text">Watermark Text</Label>
-                                <Input 
-                                    id="watermark-text"
-                                    value={watermarkText}
-                                    onChange={(e) => setWatermarkText(e.target.value)}
-                                    className="w-full"
-                                    placeholder="e.g., Elegant Smile"
-                                />
-                             </div>
-                             <div className="grid w-full max-w-[150px] items-center gap-1.5">
-                                <Label htmlFor="watermark-x">Watermark X (mm)</Label>
-                                <Input 
-                                    type="number" 
-                                    id="watermark-x" 
-                                    value={watermarkX}
-                                    onChange={(e) => setWatermarkX(Number(e.target.value))}
-                                    className="w-full"
-                                />
-                             </div>
-                             <div className="grid w-full max-w-[150px] items-center gap-1.5">
-                                <Label htmlFor="watermark-y">Watermark Y (mm)</Label>
-                                <Input 
-                                    type="number" 
-                                    id="watermark-y" 
-                                    value={watermarkY}
-                                    onChange={(e) => setWatermarkY(Number(e.target.value))}
-                                    className="w-full"
-                                />
-                             </div>
                         </div>
                      </div>
                     </>
@@ -834,13 +802,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
