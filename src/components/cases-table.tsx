@@ -58,7 +58,7 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
-    hideSource,
+    hideSource = true,
     hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange
