@@ -139,20 +139,24 @@ export default function DoctorPortalPage() {
                          <Stethoscope className="w-6 h-6 text-primary" />
                          <h2 className="text-xl font-bold text-primary">Welcome, {dentistName}</h2>
                     </div>
-                    <Button asChild variant="outline">
-                        <Link href="/doctor/invoices">
-                            <Receipt className="mr-2 h-4 w-4" /> My Invoices
-                        </Link>
-                    </Button>
-                    <Button onClick={handleLogout} variant="outline">
-                        <LogOut className="mr-2" /> Logout
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/doctor/invoices">
+                                <Receipt className="mr-2 h-4 w-4" /> My Invoices
+                            </Link>
+                        </Button>
+                        <Button onClick={handleLogout} variant="outline" size="sm">
+                            <LogOut className="mr-2" /> Logout
+                        </Button>
+                    </div>
                 </div>
             </div>
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <Card className="w-full max-w-6xl mx-auto shadow-lg">
-            <CardContent className="pt-6">
+            <CardHeader>
+            </CardHeader>
+            <CardContent>
               <CaseEntryForm 
                   key={key} 
                   onAddCase={handleAddCase} 
