@@ -148,14 +148,13 @@ export default function CasesTable({
             <TableHead>Created At</TableHead>
             {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
-            {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Tooth Count</TableHead>
             <TableHead>Prosthesis</TableHead>
             <TableHead>Material</TableHead>
+            {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideShade && <TableHead>Shade</TableHead>}
-            {!hideSource && <TableHead>Source</TableHead>}
             <TableHead>Notes</TableHead>
             {showActions && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
@@ -175,16 +174,6 @@ export default function CasesTable({
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
-              {showPatientNumber && (
-                <TableCell>
-                  {c.patientNumber ? (
-                    <a href={`tel:${c.patientNumber}`} className="text-primary hover:underline flex items-center gap-1">
-                      <Phone className="h-3 w-3" />
-                      {c.patientNumber}
-                    </a>
-                  ) : 'N/A'}
-                </TableCell>
-              )}
               {!hideDentist && (
                  <TableCell>
                     <Link href={`/doctor/${encodeURIComponent(c.dentistName)}`} className="text-primary hover:underline">
@@ -198,12 +187,17 @@ export default function CasesTable({
               </TableCell>
               <TableCell>{c.prosthesisType}</TableCell>
               <TableCell>{c.material}</TableCell>
-              {!hideShade && <TableCell>{c.shade}</TableCell>}
-              {!hideSource && (
+              {showPatientNumber && (
                 <TableCell>
-                  {c.source || 'Desktop'}
+                  {c.patientNumber ? (
+                    <a href={`tel:${c.patientNumber}`} className="text-primary hover:underline flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      {c.patientNumber}
+                    </a>
+                  ) : 'N/A'}
                 </TableCell>
               )}
+              {!hideShade && <TableCell>{c.shade}</TableCell>}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
               {showActions && (
                 <TableCell className="text-right">
