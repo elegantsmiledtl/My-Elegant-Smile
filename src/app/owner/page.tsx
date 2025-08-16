@@ -127,24 +127,36 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
 }
 
 function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () => void }) {
+    const [name, setName] = useState(user.name);
     const [password, setPassword] = useState('');
     const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!password) {
+        const updatedData: { name?: string; password?: string } = {};
+
+        if (name && name !== user.name) {
+            updatedData.name = name;
+        }
+
+        if (password) {
+            updatedData.password = password;
+        }
+        
+        if (Object.keys(updatedData).length === 0) {
             toast({
                 variant: 'destructive',
-                title: 'Error',
-                description: 'Please provide a new password.',
+                title: 'No Changes',
+                description: 'Please provide a new username or password.',
             });
             return;
         }
+        
         try {
-            await updateUser(user.id, { password });
+            await updateUser(user.id, updatedData);
             toast({
                 title: 'Success',
-                description: `Password for "${user.name}" has been updated.`,
+                description: `User "${user.name}" has been updated.`,
             });
             setPassword('');
             onUserUpdated();
@@ -153,7 +165,7 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Failed to update password.',
+                description: 'Failed to update user.',
             });
         }
     };
@@ -166,8 +178,8 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
                 </Label>
                 <Input
                     id="name-edit"
-                    value={user.name}
-                    disabled
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="col-span-3"
                 />
             </div>
@@ -181,11 +193,11 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="col-span-3"
-                    placeholder="Enter new password"
+                    placeholder="Leave blank to keep current"
                 />
             </div>
             <DialogClose asChild>
-                 <Button type="submit">Save New Password</Button>
+                 <Button type="submit">Save Changes</Button>
             </DialogClose>
         </form>
     );
@@ -563,9 +575,27 @@ export default function OwnerPage() {
                                                     <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user.id)}>
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="ghost" size="icon">
+                                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This action cannot be undone. This will permanently delete the user "{user.name}".
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">
+                                                                    Delete
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -596,9 +626,9 @@ export default function OwnerPage() {
                     <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Edit User Password</DialogTitle>
+                                <DialogTitle>Edit User</DialogTitle>
                                 <DialogDescription>
-                                    Update the password for {userToEdit?.name}.
+                                    Update the username or password for {userToEdit?.name}.
                                 </DialogDescription>
                             </DialogHeader>
                             {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} />}
