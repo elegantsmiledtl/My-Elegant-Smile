@@ -152,13 +152,7 @@ export default function DoctorPortalPage() {
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <Card className="w-full max-w-6xl mx-auto shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-headline">
-                <PlusCircle className="w-6 h-6 text-primary" />
-                Add New Case
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <CaseEntryForm 
                   key={key} 
                   onAddCase={handleAddCase} 
