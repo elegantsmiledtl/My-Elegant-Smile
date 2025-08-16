@@ -58,7 +58,7 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
-    hideSource = true,
+    hideSource,
     hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange
@@ -151,11 +151,12 @@ export default function CasesTable({
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Tooth Count</TableHead>
-            <TableHead>Prosthesis</TableHead>
             <TableHead>Material</TableHead>
+            <TableHead>Prosthesis</TableHead>
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideShade && <TableHead>Shade</TableHead>}
             <TableHead>Notes</TableHead>
+            {!hideSource && <TableHead>Source</TableHead>}
             {showActions && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
@@ -185,8 +186,8 @@ export default function CasesTable({
               <TableCell className="font-medium">
                 {c.toothNumbers.split(',').filter(t => t.trim() !== '').length}
               </TableCell>
-              <TableCell>{c.prosthesisType}</TableCell>
               <TableCell>{c.material}</TableCell>
+              <TableCell>{c.prosthesisType}</TableCell>
               {showPatientNumber && (
                 <TableCell>
                   {c.patientNumber ? (
@@ -199,6 +200,7 @@ export default function CasesTable({
               )}
               {!hideShade && <TableCell>{c.shade}</TableCell>}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
+              {!hideSource && <TableCell>{c.source}</TableCell>}
               {showActions && (
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
