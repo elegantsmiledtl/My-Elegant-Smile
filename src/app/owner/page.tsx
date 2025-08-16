@@ -507,12 +507,12 @@ export default function OwnerPage() {
                         <ToothIcon className="w-6 h-6 text-primary" />
                         All Recorded Cases
                     </CardTitle>
-                    <div className="flex items-center gap-2 mt-4">
+                     <div className="flex items-center gap-2 mt-4 flex-wrap">
                         <Input 
                             placeholder="Search by dentist or patient..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full max-w-sm"
+                            className="w-full max-w-xs"
                         />
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -540,123 +540,108 @@ export default function OwnerPage() {
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
+                        <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
+                            <DialogTrigger asChild>
+                                 <Button variant="outline" size="sm">
+                                    <Users className="mr-2 h-4 w-4" />
+                                    Manage Users
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>All Registered Users</DialogTitle>
+                                     <DialogDescription>
+                                        This is a list of all users who can log in to the doctor portal.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="rounded-md border mt-4">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                            <TableHead>User Name</TableHead>
+                                            <TableHead>Password</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {allUsers.map((user) => (
+                                                <TableRow key={user.id}>
+                                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                                    <TableCell>{user.password}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button variant="ghost" size="icon">
+                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        This action cannot be undone. This will permanently delete the user "{user.name}".
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">
+                                                                        Delete
+                                                                    </AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                 <Dialog open={isAddDoctorDialogOpen} onOpenChange={setIsAddDoctorDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button className="mt-4">
+                                            <PlusCircle className="mr-2" />
+                                            Add New Doctor
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Add a New Doctor</DialogTitle>
+                                            <DialogDescription>
+                                                Create a new user account for the doctor portal.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <AddDoctorForm onDoctorAdded={handleDoctorAdded} />
+                                    </DialogContent>
+                                </Dialog>
+                            </DialogContent>
+                        </Dialog>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <History className="mr-2 h-4 w-4" />
+                                    Logs
+                                </Button>
+                            </DialogTrigger>
+                            <LoginLogsDialog />
+                        </Dialog>
+                         <Button asChild variant="outline" size="sm">
+                          <Link href="/owner/invoice">
+                            <Receipt className="mr-2 h-4 w-4" />
+                            Invoices
+                          </Link>
+                        </Button>
+                         <Button asChild variant="outline" size="sm">
+                          <Link href="/owner/qr">
+                            <QrCode className="mr-2 h-4 w-4" />
+                            QR Code
+                          </Link>
+                        </Button>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap justify-end">
-                    <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
-                        <DialogTrigger asChild>
-                             <Button variant="outline">
-                                <Users className="mr-2" />
-                                Manage Users
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>All Registered Users</DialogTitle>
-                                 <DialogDescription>
-                                    This is a list of all users who can log in to the doctor portal.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="rounded-md border mt-4">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                        <TableHead>User Name</TableHead>
-                                        <TableHead>Password</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {allUsers.map((user) => (
-                                            <TableRow key={user.id}>
-                                                <TableCell className="font-medium">{user.name}</TableCell>
-                                                <TableCell>{user.password}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="ghost" size="icon">
-                                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    This action cannot be undone. This will permanently delete the user "{user.name}".
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">
-                                                                    Delete
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                             <Dialog open={isAddDoctorDialogOpen} onOpenChange={setIsAddDoctorDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="mt-4">
-                                        <PlusCircle className="mr-2" />
-                                        Add New Doctor
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Add a New Doctor</DialogTitle>
-                                        <DialogDescription>
-                                            Create a new user account for the doctor portal.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <AddDoctorForm onDoctorAdded={handleDoctorAdded} />
-                                </DialogContent>
-                            </Dialog>
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* Edit User Dialog */}
-                    <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Edit User</DialogTitle>
-                                <DialogDescription>
-                                    Update the username or password for {userToEdit?.name}.
-                                </DialogDescription>
-                            </DialogHeader>
-                            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} />}
-                        </DialogContent>
-                    </Dialog>
-
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <History className="mr-2" />
-                                Logs
-                            </Button>
-                        </DialogTrigger>
-                        <LoginLogsDialog />
-                    </Dialog>
-                     <Button asChild variant="outline">
-                      <Link href="/owner/invoice">
-                        <Receipt className="mr-2" />
-                        Invoices
-                      </Link>
-                    </Button>
-                     <Button asChild variant="outline">
-                      <Link href="/owner/qr">
-                        <QrCode className="mr-2" />
-                        Doctor Portal QR Code
-                      </Link>
-                    </Button>
-                </div>
+                <div></div>
             </div>
           </CardHeader>
           <CardContent>
@@ -671,6 +656,19 @@ export default function OwnerPage() {
         </Card>
       </main>
     </div>
+    
+    {/* Edit User Dialog outside the main flow */}
+    <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
+                <DialogDescription>
+                    Update the username or password for {userToEdit?.name}.
+                </DialogDescription>
+            </DialogHeader>
+            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} />}
+        </DialogContent>
+    </Dialog>
     </>
   );
 }
