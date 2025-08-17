@@ -120,21 +120,30 @@ export const addUser = async (user: Partial<User>) => {
       }
     }
     
-    await addDoc(usersCollection, user);
+    await addDoc(usersCollection, {
+        ...user,
+        welcomeMessage: user.welcomeMessage || `Welcome, ${user.name}`
+    });
 };
 
 export const updateUser = async (userId: string, updatedData: Partial<User>) => {
     const userDocRef = doc(db, 'users', userId);
 
     await runTransaction(db, async (transaction) => {
-        if (updatedData.name) {
+        const userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists()) {
+            throw new Error("User not found.");
+        }
+        
+        const currentUserData = userDoc.data() as User;
+
+        if (updatedData.name && updatedData.name.toLowerCase() !== currentUserData.name.toLowerCase()) {
             // Check if another user already has the new name (case-insensitive)
             const q = query(usersCollection, where('name', '==', updatedData.name));
             const querySnapshot = await getDocs(q);
             const existingUserDoc = querySnapshot.docs.find(doc => doc.id !== userId);
 
             if (existingUserDoc) {
-                // To be extra sure, check case-insensitively
                  const existingUserData = existingUserDoc.data();
                  if (existingUserData.name.toLowerCase() === updatedData.name.toLowerCase()) {
                     throw new Error("This username is already taken.");
@@ -247,5 +256,7 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
         ...doc.data(),
     } as LoginLog));
 };
+
+    
 
     
