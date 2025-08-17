@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import type { DentalCase, LoginLog, Notification } from '@/types';
+import type { DentalCase, LoginLog, Notification, User } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -63,6 +63,7 @@ const AUTH_KEY = "owner_app_auth";
 function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [welcomeMessage, setWelcomeMessage] = useState('');
     const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -76,13 +77,14 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
             return;
         }
         try {
-            await addUser({ name, password });
+            await addUser({ name, password, welcomeMessage: welcomeMessage || `Welcome, ${name}` });
             toast({
                 title: 'Success',
                 description: `Doctor "${name}" has been added.`,
             });
             setName('');
             setPassword('');
+            setWelcomeMessage('');
             onDoctorAdded();
         } catch (error: any) {
             console.error(error);
@@ -119,6 +121,18 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
                     className="col-span-3"
                 />
             </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="welcomeMessage-add" className="text-right">
+                    Welcome Message
+                </Label>
+                <Input
+                    id="welcomeMessage-add"
+                    value={welcomeMessage}
+                    onChange={(e) => setWelcomeMessage(e.target.value)}
+                    className="col-span-3"
+                    placeholder="e.g., Welcome back, Dr. Smith!"
+                />
+            </div>
             <DialogClose asChild>
                 <Button type="submit">Add Doctor</Button>
             </DialogClose>
@@ -126,14 +140,15 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
     );
 }
 
-const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated }: { user: any; allUsers: any[]; onUserUpdated: () => void }) {
+const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated }: { user: User; allUsers: User[]; onUserUpdated: () => void }) {
     const [name, setName] = useState(user.name);
     const [password, setPassword] = useState('');
+    const [welcomeMessage, setWelcomeMessage] = useState(user.welcomeMessage || '');
     const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const updatedData: { name?: string; password?: string } = {};
+        const updatedData: Partial<User> = {};
         
         const nameChanged = name.trim().toLowerCase() !== user.name.toLowerCase();
 
@@ -153,6 +168,10 @@ const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated 
 
         if (password) {
             updatedData.password = password;
+        }
+
+        if (welcomeMessage !== (user.welcomeMessage || '')) {
+            updatedData.welcomeMessage = welcomeMessage.trim() || `Welcome, ${name.trim()}`;
         }
         
         if (Object.keys(updatedData).length === 0) {
@@ -205,6 +224,18 @@ const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated 
                     onChange={(e) => setPassword(e.target.value)}
                     className="col-span-3"
                     placeholder="Leave blank to keep current"
+                />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="welcomeMessage-edit" className="text-right">
+                    Welcome Message
+                </Label>
+                <Input
+                    id="welcomeMessage-edit"
+                    value={welcomeMessage}
+                    onChange={(e) => setWelcomeMessage(e.target.value)}
+                    className="col-span-3"
+                    placeholder={`e.g., Welcome, ${name}`}
                 />
             </div>
             <DialogClose asChild>
@@ -286,8 +317,8 @@ export default function OwnerPage() {
   const { toast } = useToast();
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isAddDoctorDialogOpen, setIsAddDoctorDialogOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<any | null>(null);
-  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
@@ -571,6 +602,7 @@ export default function OwnerPage() {
                                             <TableRow>
                                             <TableHead>User Name</TableHead>
                                             <TableHead>Password</TableHead>
+                                            <TableHead>Welcome Message</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -579,6 +611,7 @@ export default function OwnerPage() {
                                                 <TableRow key={user.id}>
                                                     <TableCell className="font-medium">{user.name}</TableCell>
                                                     <TableCell>{user.password}</TableCell>
+                                                     <TableCell className="max-w-[200px] truncate">{user.welcomeMessage}</TableCell>
                                                     <TableCell className="text-right">
                                                         <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
                                                             <Edit className="h-4 w-4" />

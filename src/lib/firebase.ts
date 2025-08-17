@@ -17,7 +17,7 @@ import {
   Timestamp,
   runTransaction
 } from 'firebase/firestore';
-import type { DentalCase, Invoice, Notification, LoginLog } from '@/types';
+import type { DentalCase, Invoice, Notification, LoginLog, User } from '@/types';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -100,28 +100,30 @@ export const deleteCase = async (caseId: string) => {
 // --- User Management Functions ---
 
 // In a real app, you would have more secure user management, this is for prototyping.
-export const getUsers = async () => {
+export const getUsers = async (): Promise<User[]> => {
     const snapshot = await getDocs(usersCollection);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 };
 
-export const addUser = async (user: { name: string; password?: string }) => {
+export const addUser = async (user: Partial<User>) => {
     // Check if user already exists (case-insensitive)
-    const q = query(usersCollection, where('name', '==', user.name));
-    const querySnapshot = await getDocs(q);
+    if (user.name) {
+      const q = query(usersCollection, where('name', '==', user.name));
+      const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-        // A more precise check for case-insensitivity
-        const users = querySnapshot.docs.map(d => d.data());
-        if (users.some(u => u.name.toLowerCase() === user.name.toLowerCase())) {
-            throw new Error("User with this name already exists.");
-        }
+      if (!querySnapshot.empty) {
+          // A more precise check for case-insensitivity
+          const users = querySnapshot.docs.map(d => d.data());
+          if (users.some(u => u.name.toLowerCase() === user.name?.toLowerCase())) {
+              throw new Error("User with this name already exists.");
+          }
+      }
     }
     
     await addDoc(usersCollection, user);
 };
 
-export const updateUser = async (userId: string, updatedData: Partial<{ name: string; password?: string }>) => {
+export const updateUser = async (userId: string, updatedData: Partial<User>) => {
     const userDocRef = doc(db, 'users', userId);
 
     await runTransaction(db, async (transaction) => {
@@ -144,9 +146,9 @@ export const deleteUser = async (userId: string) => {
     await deleteDoc(userDoc);
 };
 
-export const verifyUser = async (name: string, password?: string): Promise<{ name: string; password?: string } | null> => {
+export const verifyUser = async (name: string, password?: string): Promise<User | null> => {
     const snapshot = await getDocs(usersCollection);
-    const users = snapshot.docs.map(doc => doc.data() as { name: string; password?: string });
+    const users = snapshot.docs.map(doc => doc.data() as User);
 
     const matchedUser = users.find(user => 
         user.name.toLowerCase() === name.toLowerCase() &&

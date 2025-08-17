@@ -41,7 +41,7 @@ function LoginPageContent() {
           title: 'Login Successful',
           description: `Welcome back, ${matchedUser.name}!`,
         });
-        localStorage.setItem('loggedInUser', JSON.stringify({ name: matchedUser.name }));
+        localStorage.setItem('loggedInUser', JSON.stringify(matchedUser));
         await addLoginLog(matchedUser.name); // Log the successful login
         router.push(`/doctor-portal`);
       } else {

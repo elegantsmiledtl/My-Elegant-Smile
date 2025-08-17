@@ -26,6 +26,7 @@ import {
 export default function DoctorPortalPage() {
   const router = useRouter();
   const [dentistName, setDentistName] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
@@ -37,6 +38,7 @@ export default function DoctorPortalPage() {
     if (savedUser) {
         const user = JSON.parse(savedUser);
         setDentistName(user.name);
+        setWelcomeMessage(user.welcomeMessage || `Welcome, ${user.name}`);
     } else {
         router.push('/login');
     }
@@ -135,9 +137,7 @@ export default function DoctorPortalPage() {
             <div className="container mx-auto flex justify-between items-center">
                 <Logo />
                 <div className="flex-1 flex justify-center">
-                    <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-primary">Welcome, {dentistName}</h2>
-                    </div>
+                    <h2 className="text-xl font-bold text-primary">{welcomeMessage}</h2>
                 </div>
                 <div className="flex flex-col gap-2">
                     <Button asChild variant="outline" size="sm">

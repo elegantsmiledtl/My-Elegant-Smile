@@ -1,4 +1,5 @@
 
+
 export type DentalCase = {
   id: string;
   patientName: string;
@@ -12,6 +13,13 @@ export type DentalCase = {
   notes?: string;
   source?: 'Mobile' | 'Desktop';
   patientNumber?: string;
+};
+
+export type User = {
+  id: string;
+  name: string;
+  password?: string;
+  welcomeMessage?: string;
 };
 
 export type InvoiceSummaryItem = {
