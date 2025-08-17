@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import type { DentalCase, LoginLog } from '@/types';
+import type { DentalCase, LoginLog, User } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Trash2, Receipt, History, X } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
+import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus } from 'lucide-react';
+import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
@@ -37,6 +37,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -122,6 +123,101 @@ function LoginLogsDialog() {
     );
 }
 
+// --- User Management Components ---
+type UserFormData = Omit<User, 'id'>;
+
+function EditUserForm({ user, onUserUpdated, onCancel }: { user: User; onUserUpdated: () => void; onCancel: () => void; }) {
+    const { register, handleSubmit, formState: { errors } } = useForm<UserFormData>({
+        defaultValues: {
+            name: user.name,
+            password: '', // Password is not pre-filled for security
+            welcomeMessage: user.welcomeMessage,
+        },
+    });
+    const { toast } = useToast();
+    const [isSaving, setIsSaving] = useState(false);
+
+    const onSubmit: SubmitHandler<UserFormData> = async (data) => {
+        setIsSaving(true);
+        try {
+            const updatedData: Partial<User> = { name: data.name, welcomeMessage: data.welcomeMessage };
+            if (data.password) {
+                updatedData.password = data.password;
+            }
+            await updateUser(user.id, updatedData);
+            toast({ title: 'Success', description: 'User has been updated.' });
+            onUserUpdated();
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+                <Label htmlFor="name">User Name</Label>
+                <Input id="name" {...register('name', { required: 'Name is required' })} />
+                {errors.name && <p className="text-destructive text-sm mt-1">{errors.name.message}</p>}
+            </div>
+            <div>
+                <Label htmlFor="password">New Password (optional)</Label>
+                <Input id="password" type="password" {...register('password')} placeholder="Leave blank to keep unchanged" />
+            </div>
+            <div>
+                <Label htmlFor="welcomeMessage">Welcome Message</Label>
+                <Input id="welcomeMessage" {...register('welcomeMessage')} />
+            </div>
+            <DialogFooter>
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button type="submit" disabled={isSaving}>{isSaving ? 'Saving...' : 'Save Changes'}</Button>
+            </DialogFooter>
+        </form>
+    );
+}
+
+function AddUserForm({ onUserAdded, onCancel }: { onUserAdded: () => void; onCancel: () => void; }) {
+    const { register, handleSubmit, formState: { errors } } = useForm<UserFormData>();
+    const { toast } = useToast();
+    const [isSaving, setIsSaving] = useState(false);
+
+    const onSubmit: SubmitHandler<UserFormData> = async (data) => {
+        setIsSaving(true);
+        try {
+            await addUser(data);
+            toast({ title: 'Success', description: 'New doctor has been added.' });
+            onUserAdded();
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+                <Label htmlFor="add-name">User Name</Label>
+                <Input id="add-name" {...register('name', { required: 'Name is required' })} />
+                {errors.name && <p className="text-destructive text-sm mt-1">{errors.name.message}</p>}
+            </div>
+            <div>
+                <Label htmlFor="add-password">Password</Label>
+                <Input id="add-password" type="password" {...register('password', { required: 'Password is required' })} />
+                {errors.password && <p className="text-destructive text-sm mt-1">{errors.password.message}</p>}
+            </div>
+            <div>
+                <Label htmlFor="add-welcomeMessage">Welcome Message (optional)</Label>
+                <Input id="add-welcomeMessage" {...register('welcomeMessage')} placeholder="e.g. Welcome, Dr. Smith" />
+            </div>
+            <DialogFooter>
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button type="submit" disabled={isSaving}>{isSaving ? 'Adding...' : 'Add Doctor'}</Button>
+            </DialogFooter>
+        </form>
+    );
+}
 
 export default function OwnerPage() {
   const [cases, setCases] = useState<DentalCase[]>([]);
@@ -133,7 +229,51 @@ export default function OwnerPage() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const [error, setError] = useState('');
+  const [authError, setAuthError] = useState('');
+
+  // User Management State
+  const [users, setUsers] = useState<User[]>([]);
+  const [isManageUsersOpen, setIsManageUsersOpen] = useState(false);
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const isEditUserOpen = !!userToEdit;
+
+
+  const fetchUsers = async () => {
+    try {
+        const usersFromDb = await getUsers();
+        setUsers(usersFromDb);
+    } catch (error) {
+        handleFirebaseError(error);
+    }
+  };
+
+  useEffect(() => {
+    if (isManageUsersOpen) {
+        fetchUsers();
+    }
+  }, [isManageUsersOpen]);
+
+  const handleUserAdded = () => {
+      setIsAddUserOpen(false);
+      fetchUsers();
+  };
+
+  const handleUserUpdated = () => {
+      setUserToEdit(null);
+      fetchUsers();
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+        await deleteUser(userId);
+        toast({ title: 'Success', description: 'User has been deleted.' });
+        fetchUsers();
+    } catch (error) {
+        handleFirebaseError(error);
+    }
+  };
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -174,9 +314,9 @@ export default function OwnerPage() {
     if (passwordInput === APP_PASSWORD) {
       localStorage.setItem(AUTH_KEY, 'true');
       setIsAuthenticated(true);
-      setError('');
+      setAuthError('');
     } else {
-      setError('Incorrect password. Please try again.');
+      setAuthError('Incorrect password. Please try again.');
     }
   };
 
@@ -184,7 +324,7 @@ export default function OwnerPage() {
   const handleFirebaseError = (error: any) => {
     console.error("Firebase Error:", error);
     let description = 'An unexpected error occurred.';
-    if (error.code === 'permission-denied' || error.message.includes('permission-denied')) {
+    if (error.code === 'permission-denied' || (error.message && error.message.includes('permission-denied'))) {
         description = 'You have insufficient permissions to access the database. Please update your Firestore security rules in the Firebase console.';
     } else if (error.message) {
         description = error.message;
@@ -286,7 +426,7 @@ export default function OwnerPage() {
                                 onChange={(e) => setPasswordInput(e.target.value)}
                             />
                         </div>
-                        {error && <p className="text-sm text-destructive">{error}</p>}
+                        {authError && <p className="text-sm text-destructive">{authError}</p>}
                         <Button type="submit" className="w-full">
                             Enter
                         </Button>
@@ -314,6 +454,83 @@ export default function OwnerPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+    
+    {/* User Management Dialog */}
+    <Dialog open={isManageUsersOpen} onOpenChange={setIsManageUsersOpen}>
+        <DialogContent className="max-w-3xl">
+            <DialogHeader>
+                <DialogTitle>Manage Users</DialogTitle>
+                <DialogDescription>Add, edit, or delete doctor accounts.</DialogDescription>
+            </DialogHeader>
+            <div className="my-4">
+                <Button onClick={() => setIsAddUserOpen(true)}>
+                    <UserPlus className="mr-2 h-4 w-4" /> Add New Doctor
+                </Button>
+            </div>
+            <div className="rounded-md border max-h-[50vh] overflow-y-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>User Name</TableHead>
+                            <TableHead>Welcome Message</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {users.map((user) => (
+                            <TableRow key={user.id}>
+                                <TableCell className="font-medium">{user.name}</TableCell>
+                                <TableCell>{user.welcomeMessage}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>This will permanently delete {user.name}'s account.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </DialogContent>
+    </Dialog>
+
+    {/* Add User Dialog */}
+    <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Add New Doctor</DialogTitle>
+            </DialogHeader>
+            <AddUserForm onUserAdded={handleUserAdded} onCancel={() => setIsAddUserOpen(false)} />
+        </DialogContent>
+    </Dialog>
+
+    {/* Edit User Dialog */}
+    <Dialog open={isEditUserOpen} onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Edit User: {userToEdit?.name}</DialogTitle>
+            </DialogHeader>
+            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} onCancel={() => setUserToEdit(null)} />}
+        </DialogContent>
+    </Dialog>
+
 
     <div className="min-h-screen bg-background text-foreground">
       <PageHeader cases={cases} setCases={setCases} />
@@ -381,6 +598,10 @@ export default function OwnerPage() {
                             QR Code
                           </Link>
                         </Button>
+                        <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
+                            <Users className="mr-2 h-4 w-4" />
+                            Manage Users
+                        </Button>
                     </div>
                 </div>
                 <div></div>
@@ -393,7 +614,6 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
-                hideSource
             />
           </CardContent>
         </Card>
@@ -402,3 +622,5 @@ export default function OwnerPage() {
     </>
   );
 }
+
+    
