@@ -215,8 +215,8 @@ export default function DoctorInvoicesPage() {
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead>Material</TableHead>
-                                                    <TableHead className="text-right">Tooth Count</TableHead>
-                                                    <TableHead className="text-right">Price per Tooth (JOD)</TableHead>
+                                                    <TableHead className="text-right">Unit(s)</TableHead>
+                                                    <TableHead className="text-right">Price per Unit (JOD)</TableHead>
                                                     <TableHead className="text-right">Total (JOD)</TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -304,8 +304,8 @@ export default function DoctorInvoicesPage() {
                     <thead>
                         <tr className="bg-gray-100">
                             <th className="border p-2 text-left">Material</th>
-                            <th className="border p-2 text-right">Tooth Count</th>
-                            <th className="border p-2 text-right">Price per Tooth (JOD)</th>
+                            <th className="border p-2 text-right">Unit(s)</th>
+                            <th className="border p-2 text-right">Price per Unit (JOD)</th>
                             <th className="border p-2 text-right">Total (JOD)</th>
                         </tr>
                     </thead>
@@ -340,7 +340,7 @@ export default function DoctorInvoicesPage() {
                                 <th className="border p-2 text-left">Created At</th>
                                 <th className="border p-2 text-left">Patient</th>
                                 <th className="border p-2 text-left">Tooth #(s)</th>
-                                <th className="border p-2 text-right">Tooth Count</th>
+                                <th className="border p-2 text-right">Unit(s)</th>
                                 <th className="border p-2 text-left">Prosthesis</th>
                                 <th className="border p-2 text-left">Material</th>
                                 <th className="border p-2 text-left">Notes</th>

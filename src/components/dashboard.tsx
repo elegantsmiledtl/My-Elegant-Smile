@@ -54,10 +54,10 @@ export default function Dashboard({ cases }: DashboardProps) {
     }, {} as Record<string, number>);
 
     const teethByMaterial = cases.reduce((acc, c) => {
-        const toothCount = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
+        const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const materials = c.material.split(',').map(m => m.trim()).filter(m => m);
         materials.forEach(material => {
-            acc[material] = (acc[material] || 0) + toothCount;
+            acc[material] = (acc[material] || 0) + toothCountInCase;
         });
         return acc;
     }, {} as Record<string, number>);
@@ -72,7 +72,7 @@ export default function Dashboard({ cases }: DashboardProps) {
         totalTeeth,
         casesByDentist: Object.entries(casesByDentist).map(([name, value]) => ({ name, cases: value })),
         materialUsage: Object.entries(materialUsage).map(([name, value]) => ({ name, count: value })),
-        teethByMaterial: Object.entries(teethByMaterial).map(([name, value]) => ({ name, teeth: value })),
+        teethByMaterial: Object.entries(teethByMaterial).map(([name, value]) => ({ name, units: value })),
     }
 
   }, [cases]);
@@ -86,7 +86,7 @@ export default function Dashboard({ cases }: DashboardProps) {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Teeth</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Units</CardTitle>
                 <ToothIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -128,7 +128,7 @@ export default function Dashboard({ cases }: DashboardProps) {
         </Card>
          <Card className="lg:col-span-1">
             <CardHeader>
-                <CardTitle>Teeth Count by Material</CardTitle>
+                <CardTitle>Unit Count by Material</CardTitle>
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -137,7 +137,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={80} fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip />
-                        <Bar dataKey="teeth" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]}/>
+                        <Bar dataKey="units" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]}/>
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>

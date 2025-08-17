@@ -150,7 +150,7 @@ export default function CasesTable({
             <TableHead>Patient</TableHead>
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
-            <TableHead>Tooth Count</TableHead>
+            <TableHead>Unit(s)</TableHead>
             <TableHead>Material</TableHead>
             <TableHead>Prosthesis</TableHead>
             {showPatientNumber && <TableHead>Patient Number</TableHead>}

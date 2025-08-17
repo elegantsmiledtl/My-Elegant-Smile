@@ -476,8 +476,8 @@ export default function InvoicePage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Material</TableHead>
-                                            <TableHead className="text-right">Tooth Count</TableHead>
-                                            <TableHead className="text-right w-[150px]">Price per Tooth (JOD)</TableHead>
+                                            <TableHead className="text-right">Unit(s)</TableHead>
+                                            <TableHead className="text-right w-[150px]">Price per Unit (JOD)</TableHead>
                                             <TableHead className="text-right">Total (JOD)</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -552,8 +552,8 @@ export default function InvoicePage() {
                             <thead>
                                 <tr className="bg-gray-100">
                                     <th className="border p-2 text-left">Material</th>
-                                    <th className="border p-2 text-right">Tooth Count</th>
-                                    <th className="border p-2 text-right">Price per Tooth (JOD)</th>
+                                    <th className="border p-2 text-right">Unit(s)</th>
+                                    <th className="border p-2 text-right">Price per Unit (JOD)</th>
                                     <th className="border p-2 text-right">Total (JOD)</th>
                                 </tr>
                             </thead>
@@ -588,7 +588,7 @@ export default function InvoicePage() {
                                         <th className="border p-2 text-left">Created At</th>
                                         <th className="border p-2 text-left">Patient</th>
                                         <th className="border p-2 text-left">Tooth #(s)</th>
-                                        <th className="border p-2 text-right">Tooth Count</th>
+                                        <th className="border p-2 text-right">Unit(s)</th>
                                         <th className="border p-2 text-left">Prosthesis</th>
                                         <th className="border p-2 text-left">Material</th>
                                         <th className="border p-2 text-left">Notes</th>
@@ -730,8 +730,8 @@ export default function InvoicePage() {
                                                     <TableHeader>
                                                         <TableRow>
                                                             <TableHead>Material</TableHead>
-                                                            <TableHead className="text-right">Tooth Count</TableHead>
-                                                            <TableHead className="text-right">Price per Tooth (JOD)</TableHead>
+                                                            <TableHead className="text-right">Unit(s)</TableHead>
+                                                            <TableHead className="text-right">Price per Unit (JOD)</TableHead>
                                                             <TableHead className="text-right">Total (JOD)</TableHead>
                                                         </TableRow>
                                                     </TableHeader>

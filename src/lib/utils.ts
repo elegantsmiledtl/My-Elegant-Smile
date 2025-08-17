@@ -32,7 +32,7 @@ export function convertJsonToCsv(jsonData: DentalCase[]): string {
             patientName: caseItem.patientName,
             dentistName: caseItem.dentistName,
             toothNumbers: caseItem.toothNumbers,
-            toothCount: toothCount,
+            units: toothCount,
             prosthesisType: caseItem.prosthesisType,
             material: caseItem.material,
             shade: caseItem.shade,
