@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import type { DentalCase, LoginLog, Notification } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
@@ -126,7 +126,7 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
     );
 }
 
-function EditUserForm({ user, allUsers, onUserUpdated }: { user: any; allUsers: any[]; onUserUpdated: () => void }) {
+const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated }: { user: any; allUsers: any[]; onUserUpdated: () => void }) {
     const [name, setName] = useState(user.name);
     const [password, setPassword] = useState('');
     const { toast } = useToast();
@@ -212,7 +212,7 @@ function EditUserForm({ user, allUsers, onUserUpdated }: { user: any; allUsers: 
             </DialogClose>
         </form>
     );
-}
+});
 
 
 function LoginLogsDialog() {
