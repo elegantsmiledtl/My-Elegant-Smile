@@ -131,10 +131,14 @@ export const updateUser = async (userId: string, updatedData: Partial<User>) => 
             // Check if another user already has the new name (case-insensitive)
             const q = query(usersCollection, where('name', '==', updatedData.name));
             const querySnapshot = await getDocs(q);
-            const existingUser = querySnapshot.docs.find(doc => doc.id !== userId);
+            const existingUserDoc = querySnapshot.docs.find(doc => doc.id !== userId);
 
-            if (existingUser) {
-                throw new Error("This username is already taken.");
+            if (existingUserDoc) {
+                // To be extra sure, check case-insensitively
+                 const existingUserData = existingUserDoc.data();
+                 if (existingUserData.name.toLowerCase() === updatedData.name.toLowerCase()) {
+                    throw new Error("This username is already taken.");
+                 }
             }
         }
         transaction.update(userDocRef, updatedData);
@@ -148,7 +152,7 @@ export const deleteUser = async (userId: string) => {
 
 export const verifyUser = async (name: string, password?: string): Promise<User | null> => {
     const snapshot = await getDocs(usersCollection);
-    const users = snapshot.docs.map(doc => doc.data() as User);
+    const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 
     const matchedUser = users.find(user => 
         user.name.toLowerCase() === name.toLowerCase() &&
@@ -243,3 +247,5 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
         ...doc.data(),
     } as LoginLog));
 };
+
+    

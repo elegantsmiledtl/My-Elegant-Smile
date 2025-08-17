@@ -695,7 +695,6 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
-                hideSource
             />
           </CardContent>
         </Card>
@@ -708,7 +707,7 @@ export default function OwnerPage() {
             <DialogHeader>
                 <DialogTitle>Edit User</DialogTitle>
                 <DialogDescription>
-                    Update the username or password for {userToEdit?.name}.
+                    Update the username, password, or welcome message for {userToEdit?.name}.
                 </DialogDescription>
             </DialogHeader>
             {userToEdit && <EditUserForm user={userToEdit} allUsers={allUsers} onUserUpdated={handleUserUpdated} />}
