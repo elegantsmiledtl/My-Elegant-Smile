@@ -136,7 +136,6 @@ export default function DoctorPortalPage() {
                 <Logo />
                 <div className="flex-1 flex justify-center">
                     <div className="flex items-center gap-2">
-                        <Stethoscope className="w-6 h-6 text-primary" />
                         <h2 className="text-xl font-bold text-primary">Welcome, {dentistName}</h2>
                     </div>
                 </div>
