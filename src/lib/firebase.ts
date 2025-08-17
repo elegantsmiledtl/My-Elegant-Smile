@@ -14,7 +14,8 @@ import {
   orderBy,
   serverTimestamp,
   writeBatch,
-  Timestamp
+  Timestamp,
+  runTransaction
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog } from '@/types';
 
@@ -106,17 +107,36 @@ export const getUsers = async () => {
 
 export const addUser = async (user: { name: string; password?: string }) => {
     // Check if user already exists (case-insensitive)
-    const allUsers = await getUsers();
-    const userExists = allUsers.some(existingUser => existingUser.name.toLowerCase() === user.name.toLowerCase());
-    if (userExists) {
-        throw new Error("User with this name already exists.");
+    const q = query(usersCollection, where('name', '==', user.name));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        // A more precise check for case-insensitivity
+        const users = querySnapshot.docs.map(d => d.data());
+        if (users.some(u => u.name.toLowerCase() === user.name.toLowerCase())) {
+            throw new Error("User with this name already exists.");
+        }
     }
+    
     await addDoc(usersCollection, user);
 };
 
 export const updateUser = async (userId: string, updatedData: Partial<{ name: string; password?: string }>) => {
-    const userDoc = doc(db, 'users', userId);
-    await updateDoc(userDoc, updatedData);
+    const userDocRef = doc(db, 'users', userId);
+
+    await runTransaction(db, async (transaction) => {
+        if (updatedData.name) {
+            // Check if another user already has the new name (case-insensitive)
+            const q = query(usersCollection, where('name', '==', updatedData.name));
+            const querySnapshot = await getDocs(q);
+            const existingUser = querySnapshot.docs.find(doc => doc.id !== userId);
+
+            if (existingUser) {
+                throw new Error("This username is already taken.");
+            }
+        }
+        transaction.update(userDocRef, updatedData);
+    });
 };
 
 export const deleteUser = async (userId: string) => {

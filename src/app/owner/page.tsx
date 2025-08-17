@@ -84,12 +84,12 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
             setName('');
             setPassword('');
             onDoctorAdded();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Failed to add doctor. They may already exist.',
+                description: error.message || 'Failed to add doctor. They may already exist.',
             });
         }
     };
@@ -126,7 +126,7 @@ function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
     );
 }
 
-function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () => void }) {
+function EditUserForm({ user, allUsers, onUserUpdated }: { user: any; allUsers: any[]; onUserUpdated: () => void }) {
     const [name, setName] = useState(user.name);
     const [password, setPassword] = useState('');
     const { toast } = useToast();
@@ -134,9 +134,21 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const updatedData: { name?: string; password?: string } = {};
+        
+        const nameChanged = name.trim().toLowerCase() !== user.name.toLowerCase();
 
-        if (name && name !== user.name) {
-            updatedData.name = name;
+        if (nameChanged) {
+            // Check if the new username already exists among other users
+            const otherUsers = allUsers.filter(u => u.id !== user.id);
+            if (otherUsers.some(u => u.name.toLowerCase() === name.trim().toLowerCase())) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Username Exists',
+                    description: 'This username is already taken. Please choose another one.',
+                });
+                return;
+            }
+            updatedData.name = name.trim();
         }
 
         if (password) {
@@ -145,9 +157,8 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
         
         if (Object.keys(updatedData).length === 0) {
             toast({
-                variant: 'destructive',
                 title: 'No Changes',
-                description: 'Please provide a new username or password.',
+                description: 'You haven\'t made any changes.',
             });
             return;
         }
@@ -160,12 +171,12 @@ function EditUserForm({ user, onUserUpdated }: { user: any; onUserUpdated: () =>
             });
             setPassword('');
             onUserUpdated();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Failed to update user.',
+                description: error.message || 'Failed to update user.',
             });
         }
     };
@@ -667,7 +678,7 @@ export default function OwnerPage() {
                     Update the username or password for {userToEdit?.name}.
                 </DialogDescription>
             </DialogHeader>
-            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} />}
+            {userToEdit && <EditUserForm user={userToEdit} allUsers={allUsers} onUserUpdated={handleUserUpdated} />}
         </DialogContent>
     </Dialog>
     </>
