@@ -703,7 +703,7 @@ export default function OwnerPage() {
     </div>
     
     {/* Edit User Dialog outside the main flow */}
-    <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
+    <Dialog open={!!userToEdit} onOpenChange={(open) => { if (!open) setUserToEdit(null); }}>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Edit User</DialogTitle>
@@ -717,3 +717,5 @@ export default function OwnerPage() {
     </>
   );
 }
+
+    
