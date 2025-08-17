@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import type { DentalCase, LoginLog, Notification, User } from '@/types';
+import type { DentalCase, LoginLog } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -10,10 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Users, Trash2, PlusCircle, Receipt, History, Edit } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getUsers, deleteUser, addUser, getLoginLogs, updateUser, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
+import { QrCode, Trash2, Receipt, History } from 'lucide-react';
+import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -58,194 +58,6 @@ const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const APP_PASSWORD = "Ahmad0903"; 
 const AUTH_KEY = "owner_app_auth";
-
-// A simple form component for adding a doctor
-function AddDoctorForm({ onDoctorAdded }: { onDoctorAdded: () => void }) {
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
-    const [welcomeMessage, setWelcomeMessage] = useState('');
-    const { toast } = useToast();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!name || !password) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Please provide both user name and password.',
-            });
-            return;
-        }
-        try {
-            await addUser({ name, password, welcomeMessage: welcomeMessage || `Welcome, ${name}` });
-            toast({
-                title: 'Success',
-                description: `Doctor "${name}" has been added.`,
-            });
-            setName('');
-            setPassword('');
-            setWelcomeMessage('');
-            onDoctorAdded();
-        } catch (error: any) {
-            console.error(error);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: error.message || 'Failed to add doctor. They may already exist.',
-            });
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                    User Name
-                </Label>
-                <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="col-span-3"
-                />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password-add" className="text-right">
-                    Password
-                </Label>
-                <Input
-                    id="password-add"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="col-span-3"
-                />
-            </div>
-             <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="welcomeMessage-add" className="text-right">
-                    Welcome Message
-                </Label>
-                <Input
-                    id="welcomeMessage-add"
-                    value={welcomeMessage}
-                    onChange={(e) => setWelcomeMessage(e.target.value)}
-                    className="col-span-3"
-                    placeholder="e.g., Welcome back, Dr. Smith!"
-                />
-            </div>
-            <DialogClose asChild>
-                <Button type="submit">Add Doctor</Button>
-            </DialogClose>
-        </form>
-    );
-}
-
-const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated }: { user: User; allUsers: User[]; onUserUpdated: () => void }) {
-    const [name, setName] = useState(user.name);
-    const [password, setPassword] = useState('');
-    const [welcomeMessage, setWelcomeMessage] = useState(user.welcomeMessage || '');
-    const { toast } = useToast();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        const updatedData: Partial<User> = {};
-        
-        const nameChanged = name.trim().toLowerCase() !== user.name.toLowerCase();
-
-        if (nameChanged && name.trim()) {
-            // Check if the new username already exists among other users
-            const otherUsers = allUsers.filter(u => u.id !== user.id);
-            if (otherUsers.some(u => u.name.toLowerCase() === name.trim().toLowerCase())) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Username Exists',
-                    description: 'This username is already taken. Please choose another one.',
-                });
-                return;
-            }
-            updatedData.name = name.trim();
-        }
-
-        if (password) {
-            updatedData.password = password;
-        }
-
-        if (welcomeMessage.trim() !== (user.welcomeMessage || '')) {
-            updatedData.welcomeMessage = welcomeMessage.trim() || `Welcome, ${name.trim()}`;
-        }
-        
-        if (Object.keys(updatedData).length === 0) {
-            toast({
-                title: 'No Changes',
-                description: 'You haven\'t made any changes.',
-            });
-            return;
-        }
-        
-        try {
-            await updateUser(user.id, updatedData);
-            toast({
-                title: 'Success',
-                description: `User "${user.name}" has been updated.`,
-            });
-            setPassword('');
-            onUserUpdated();
-        } catch (error: any) {
-            console.error(error);
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: error.message || 'Failed to update user.',
-            });
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name-edit" className="text-right">
-                    User Name
-                </Label>
-                <Input
-                    id="name-edit"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="col-span-3"
-                />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password-edit" className="text-right">
-                    New Password
-                </Label>
-                <Input
-                    id="password-edit"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="col-span-3"
-                    placeholder="Leave blank to keep current"
-                />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="welcomeMessage-edit" className="text-right">
-                    Welcome Message
-                </Label>
-                <Input
-                    id="welcomeMessage-edit"
-                    value={welcomeMessage}
-                    onChange={(e) => setWelcomeMessage(e.target.value)}
-                    className="col-span-3"
-                    placeholder={`e.g., Welcome, ${name}`}
-                />
-            </div>
-            <DialogClose asChild>
-                 <Button type="submit">Save Changes</Button>
-            </DialogClose>
-        </form>
-    );
-});
-
 
 function LoginLogsDialog() {
     const [logs, setLogs] = useState<LoginLog[]>([]);
@@ -316,10 +128,6 @@ export default function OwnerPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
-  const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
-  const [isAddDoctorDialogOpen, setIsAddDoctorDialogOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
@@ -339,7 +147,6 @@ export default function OwnerPage() {
     if (isAuthenticated) {
         if (typeof window !== 'undefined') {
             fetchCases();
-            fetchUsers();
         }
     }
   }, [isAuthenticated]);
@@ -402,25 +209,6 @@ export default function OwnerPage() {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-        const usersFromDb = await getUsers();
-        setAllUsers(usersFromDb);
-    } catch(error) {
-        handleFirebaseError(error);
-    }
-  }
-
-  const handleDoctorAdded = () => {
-      fetchUsers();
-      setIsAddDoctorDialogOpen(false);
-  }
-
-    const handleUserUpdated = () => {
-      fetchUsers();
-      setUserToEdit(null);
-  };
-
   const handleDeleteCase = async (id: string) => {
     try {
         await deleteCase(id);
@@ -440,19 +228,6 @@ export default function OwnerPage() {
         handleFirebaseError(error);
     }
   }
-
-  const handleDeleteUser = async (userId: string) => {
-    try {
-        await deleteUser(userId);
-        toast({
-            title: 'Doctor Deleted',
-            description: `The user has been deleted.`,
-        });
-        fetchUsers();
-    } catch(error) {
-        handleFirebaseError(error);
-    }
-  };
 
    const handleNotificationAcknowledge = () => {
     if (notification) {
@@ -583,86 +358,6 @@ export default function OwnerPage() {
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
-                        <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
-                            <DialogTrigger asChild>
-                                 <Button variant="outline" size="sm">
-                                    <Users className="mr-2 h-4 w-4" />
-                                    Manage Users
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>All Registered Users</DialogTitle>
-                                     <DialogDescription>
-                                        This is a list of all users who can log in to the doctor portal.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="rounded-md border mt-4">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                            <TableHead>User Name</TableHead>
-                                            <TableHead>Password</TableHead>
-                                            <TableHead>Welcome Message</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {allUsers.map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell className="font-medium">{user.name}</TableCell>
-                                                    <TableCell>{user.password}</TableCell>
-                                                     <TableCell className="max-w-[200px] truncate">{user.welcomeMessage}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                        <AlertDialog>
-                                                            <AlertDialogTrigger asChild>
-                                                                <Button variant="ghost" size="icon">
-                                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                                </Button>
-                                                            </AlertDialogTrigger>
-                                                            <AlertDialogContent>
-                                                                <AlertDialogHeader>
-                                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                                    <AlertDialogDescription>
-                                                                        This action cannot be undone. This will permanently delete the user "{user.name}".
-                                                                    </AlertDialogDescription>
-                                                                </AlertDialogHeader>
-                                                                <AlertDialogFooter>
-                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                    <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">
-                                                                        Delete
-                                                                    </AlertDialogAction>
-                                                                </AlertDialogFooter>
-                                                            </AlertDialogContent>
-                                                        </AlertDialog>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                                 <Dialog open={isAddDoctorDialogOpen} onOpenChange={setIsAddDoctorDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="mt-4">
-                                            <PlusCircle className="mr-2" />
-                                            Add New Doctor
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>Add a New Doctor</DialogTitle>
-                                            <DialogDescription>
-                                                Create a new user account for the doctor portal.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <AddDoctorForm onDoctorAdded={handleDoctorAdded} />
-                                    </DialogContent>
-                                </Dialog>
-                            </DialogContent>
-                        </Dialog>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm">
@@ -702,19 +397,6 @@ export default function OwnerPage() {
         </Card>
       </main>
     </div>
-    
-    {/* Edit User Dialog outside the main flow */}
-    <Dialog open={!!userToEdit} onOpenChange={(open) => { if (!open) setUserToEdit(null); }}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit User</DialogTitle>
-                <DialogDescription>
-                    Update the username, password, or welcome message for {userToEdit?.name}.
-                </DialogDescription>
-            </DialogHeader>
-            {userToEdit && <EditUserForm user={userToEdit} allUsers={allUsers} onUserUpdated={handleUserUpdated} />}
-        </DialogContent>
-    </Dialog>
     </>
   );
 }
