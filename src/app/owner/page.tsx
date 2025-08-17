@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import type { DentalCase, LoginLog } from '@/types';
+import type { DentalCase, LoginLog, User } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
 import Dashboard from '@/components/dashboard';
@@ -10,10 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Trash2, Receipt, History } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
+import { QrCode, Trash2, Receipt, History, UserCog, Edit, UserPlus, X } from 'lucide-react';
+import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser as deleteUserFromDb } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -130,7 +130,9 @@ export default function OwnerPage() {
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [isManageUsersOpen, setIsManageUsersOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -187,6 +189,8 @@ export default function OwnerPage() {
     let description = 'An unexpected error occurred.';
     if (error.code === 'permission-denied' || error.message.includes('permission-denied')) {
         description = 'You have insufficient permissions to access the database. Please update your Firestore security rules in the Firebase console.';
+    } else if (error.message) {
+        description = error.message;
     }
     toast({
         variant: 'destructive',
@@ -204,6 +208,15 @@ export default function OwnerPage() {
     try {
         const casesFromDb = await getCases();
         setCases(casesFromDb);
+    } catch (error) {
+        handleFirebaseError(error);
+    }
+  };
+  
+  const fetchUsers = async () => {
+    try {
+        const usersFromDb = await getUsers();
+        setUsers(usersFromDb);
     } catch (error) {
         handleFirebaseError(error);
     }
@@ -255,6 +268,178 @@ export default function OwnerPage() {
     c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const EditUserForm = ({ user, onFinished }: { user: User, onFinished: () => void }) => {
+    const [name, setName] = useState(user.name);
+    const [password, setPassword] = useState('');
+    const [welcomeMessage, setWelcomeMessage] = useState(user.welcomeMessage || '');
+    const { toast } = useToast();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const updatedData: Partial<User> = { name, welcomeMessage };
+            if (password) {
+                updatedData.password = password;
+            }
+            await updateUser(user.id, updatedData);
+            toast({ title: "User Updated", description: "User details saved successfully." });
+            fetchUsers();
+            onFinished();
+        } catch (error) {
+            handleFirebaseError(error);
+        }
+    };
+
+    return (
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Edit User: {user.name}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">Name</Label>
+                    <Input id="name" value={name} onChange={e => setName(e.target.value)} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="password" className="text-right">New Password</Label>
+                    <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="col-span-3" placeholder="Leave blank to keep unchanged" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="welcome" className="text-right">Welcome Message</Label>
+                    <Input id="welcome" value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className="col-span-3" placeholder={`Defaults to 'Welcome, ${name}'`} />
+                </div>
+                <DialogFooter>
+                    <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+    );
+};
+
+  const AddUserForm = ({ onFinished }: { onFinished: () => void }) => {
+        const [name, setName] = useState('');
+        const [password, setPassword] = useState('');
+        const [welcomeMessage, setWelcomeMessage] = useState('');
+        const { toast } = useToast();
+
+        const handleSubmit = async (e: React.FormEvent) => {
+            e.preventDefault();
+            if (!name || !password) {
+                toast({ variant: "destructive", title: "Missing Fields", description: "Name and password are required." });
+                return;
+            }
+            try {
+                await addUser({ name, password, welcomeMessage });
+                toast({ title: "User Added", description: `${name} has been added successfully.` });
+                fetchUsers();
+                onFinished();
+            } catch (error) {
+                handleFirebaseError(error);
+            }
+        };
+
+        return (
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add New Doctor</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="add-name" className="text-right">Name</Label>
+                        <Input id="add-name" value={name} onChange={e => setName(e.target.value)} className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="add-password" className="text-right">Password</Label>
+                        <Input id="add-password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="add-welcome" className="text-right">Welcome Message</Label>
+                        <Input id="add-welcome" value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className="col-span-3" placeholder={`Defaults to 'Welcome, ${name}'`} />
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Add User</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        );
+    };
+
+    const ManageUsersDialog = () => {
+        const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+
+        useEffect(() => {
+            if (isManageUsersOpen) {
+                fetchUsers();
+            }
+        }, [isManageUsersOpen]);
+        
+        const handleDeleteUser = async (userId: string) => {
+            try {
+                await deleteUserFromDb(userId);
+                toast({ title: "User Deleted" });
+                fetchUsers();
+            } catch (error) {
+                handleFirebaseError(error);
+            }
+        };
+
+
+        return (
+            <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle>All Registered Users</DialogTitle>
+                </DialogHeader>
+                <div className="flex justify-end">
+                    <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
+                        <DialogTrigger asChild>
+                             <Button size="sm"><UserPlus className="mr-2 h-4 w-4" /> Add New Doctor</Button>
+                        </DialogTrigger>
+                        <AddUserForm onFinished={() => setIsAddUserDialogOpen(false)} />
+                    </Dialog>
+                </div>
+                <div className="rounded-md border mt-4 max-h-[60vh] overflow-y-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>User Name</TableHead>
+                                <TableHead>Welcome Message</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="font-medium">{user.name}</TableCell>
+                                    <TableCell>{user.welcomeMessage || `Welcome, ${user.name}`}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                 <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>This will permanently delete the user {user.name}.</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </DialogContent>
+        );
+    };
 
   if (!isMounted) {
     return null;
@@ -313,6 +498,16 @@ export default function OwnerPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+
+    {/* User Management Dialogs */}
+    <Dialog open={isManageUsersOpen} onOpenChange={setIsManageUsersOpen}>
+        <ManageUsersDialog />
+    </Dialog>
+    <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
+        {userToEdit && <EditUserForm user={userToEdit} onFinished={() => setUserToEdit(null)} />}
+    </Dialog>
+
+
     <div className="min-h-screen bg-background text-foreground">
       <PageHeader cases={cases} setCases={setCases} />
       <main className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -358,6 +553,10 @@ export default function OwnerPage() {
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
+                        <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
+                            <UserCog className="mr-2 h-4 w-4" />
+                            Manage Users
+                        </Button>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm">
@@ -391,7 +590,6 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
-                hideSource
             />
           </CardContent>
         </Card>
@@ -400,3 +598,5 @@ export default function OwnerPage() {
     </>
   );
 }
+
+    
