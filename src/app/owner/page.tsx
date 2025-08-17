@@ -148,11 +148,12 @@ const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
         const updatedData: Partial<User> = {};
         
         const nameChanged = name.trim().toLowerCase() !== user.name.toLowerCase();
 
-        if (nameChanged) {
+        if (nameChanged && name.trim()) {
             // Check if the new username already exists among other users
             const otherUsers = allUsers.filter(u => u.id !== user.id);
             if (otherUsers.some(u => u.name.toLowerCase() === name.trim().toLowerCase())) {
@@ -170,7 +171,7 @@ const EditUserForm = memo(function EditUserForm({ user, allUsers, onUserUpdated 
             updatedData.password = password;
         }
 
-        if (welcomeMessage !== (user.welcomeMessage || '')) {
+        if (welcomeMessage.trim() !== (user.welcomeMessage || '')) {
             updatedData.welcomeMessage = welcomeMessage.trim() || `Welcome, ${name.trim()}`;
         }
         
@@ -695,6 +696,7 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
+                hideSource
             />
           </CardContent>
         </Card>
@@ -716,5 +718,3 @@ export default function OwnerPage() {
     </>
   );
 }
-
-    
