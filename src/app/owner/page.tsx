@@ -472,6 +472,7 @@ export default function OwnerPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>User Name</TableHead>
+                            <TableHead>Password</TableHead>
                             <TableHead>Welcome Message</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -480,6 +481,7 @@ export default function OwnerPage() {
                         {users.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
+                                <TableCell>{user.password}</TableCell>
                                 <TableCell>{user.welcomeMessage}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
@@ -614,6 +616,7 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
+                hideSource={true}
             />
           </CardContent>
         </Card>
@@ -622,5 +625,3 @@ export default function OwnerPage() {
     </>
   );
 }
-
-    
