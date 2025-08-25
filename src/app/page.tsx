@@ -24,12 +24,9 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex-grow container mx-auto flex flex-col items-center justify-center p-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-8">
           Welcome To Elegant Smile Dental Lab
         </h1>
-        <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
-          Your central application for managing dental lab cases. Access the owner dashboard for analytics, add new cases, or log in to the doctor portal.
-        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
           <Card className="shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader>
@@ -75,3 +72,4 @@ export default function HomePage() {
     </div>
   );
 }
+
