@@ -1,3 +1,4 @@
+
 'use server';
 
 import twilio from 'twilio';
@@ -8,6 +9,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const fromNumber = process.env.TWILIO_WHATSAPP_FROM;
 const toNumber = process.env.WHATSAPP_RECIPIENT_NUMBER;
+const contentSid = 'HX350d429d32e64a552466cafecbe95f3c';
 
 let client: twilio.Twilio | null = null;
 if (accountSid && authToken) {
@@ -22,22 +24,28 @@ export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | '
 
     try {
         const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
-        const messageBody = `*New Case Added to Elegant Smile*
-
-*Patient:* ${newCase.patientName}
-*Dentist:* ${newCase.dentistName}
-*Units:* ${toothCount} (${newCase.toothNumbers})
-*Material:* ${newCase.material}
-*Prosthesis:* ${newCase.prosthesisType}
-*Source:* ${newCase.source || 'Desktop'}`;
+        
+        // Construct the detailed message for the template variable
+        const caseDetails = `
+Patient: ${newCase.patientName}
+Dentist: ${newCase.dentistName}
+Units: ${toothCount} (${newCase.toothNumbers})
+Material: ${newCase.material}
+Prosthesis: ${newCase.prosthesisType}
+Source: ${newCase.source || 'Desktop'}
+Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleDateString() : 'N/A'}`;
 
         const message = await client.messages.create({
-            body: messageBody,
+            contentSid: contentSid,
+            contentVariables: JSON.stringify({
+                '1': `New case added for ${newCase.patientName}`, // Example for template placeholder {{1}}
+                '2': caseDetails,                             // Example for template placeholder {{2}}
+            }),
             from: `whatsapp:${fromNumber}`,
             to: `whatsapp:${toNumber}`
         });
-        console.log('WhatsApp notification sent successfully, SID:', message.sid);
+        console.log('WhatsApp notification sent successfully using Content Template, SID:', message.sid);
     } catch (error) {
-        console.error('Failed to send WhatsApp notification:', error);
+        console.error('Failed to send WhatsApp notification using Content Template:', error);
     }
 };
