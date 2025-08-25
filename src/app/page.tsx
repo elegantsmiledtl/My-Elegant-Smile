@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, UserCog, PlusCircle } from 'lucide-react';
+import { ArrowRight, UserCog } from 'lucide-react';
 import Logo from '@/components/logo';
 
 export default function HomePage() {
@@ -27,8 +27,8 @@ export default function HomePage() {
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-8">
           Welcome To Elegant Smile Dental Lab
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+        <div className="flex justify-center w-full max-w-4xl">
+          <Card className="shadow-lg hover:shadow-xl transition-shadow max-w-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserCog className="w-6 h-6 text-primary" />
@@ -46,24 +46,6 @@ export default function HomePage() {
               </Button>
             </CardContent>
           </Card>
-          <Card className="shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PlusCircle className="w-6 h-6 text-primary" />
-                Add a New Case
-              </CardTitle>
-              <CardDescription>
-                Quickly enter details for a new dental case for any doctor.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <Link href="/add-case">
-                  Add Case <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </main>
       <footer className="py-4 text-center text-muted-foreground text-sm">
@@ -72,4 +54,3 @@ export default function HomePage() {
     </div>
   );
 }
-
