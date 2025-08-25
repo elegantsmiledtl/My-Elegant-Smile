@@ -1,4 +1,3 @@
-
 // src/lib/firebase.ts
 import { initializeApp } from 'firebase/app';
 import { 
@@ -18,7 +17,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog, User } from '@/types';
-import { sendNewCaseNotification } from './whatsapp';
+import { sendNewCaseNotification } from '@/app/actions';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",

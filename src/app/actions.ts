@@ -1,4 +1,5 @@
-// src/lib/whatsapp.ts
+'use server';
+
 import twilio from 'twilio';
 import type { DentalCase } from '@/types';
 
