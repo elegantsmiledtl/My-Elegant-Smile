@@ -25,7 +25,7 @@ export default function HomePage() {
       </header>
       <main className="flex-grow container mx-auto flex flex-col items-center justify-center p-8 text-center">
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-4">
-          Welcome to Elegant Smile Data Hub
+          Welcome To Elegant Smile Dental Lab
         </h1>
         <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
           Your central application for managing dental lab cases. Access the owner dashboard for analytics, add new cases, or log in to the doctor portal.
