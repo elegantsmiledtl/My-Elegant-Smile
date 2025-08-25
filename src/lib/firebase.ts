@@ -18,6 +18,7 @@ import {
   runTransaction
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog, User } from '@/types';
+import { sendNewCaseNotification } from './whatsapp';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -81,6 +82,10 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
     'owner', 
     `New Case From ${newCase.dentistName}`
   );
+
+  // Send WhatsApp notification
+  // This is non-blocking and won't delay the user's request
+  sendNewCaseNotification(newCase).catch(console.error);
 
   return docRef.id;
 };
@@ -256,7 +261,3 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
         ...doc.data(),
     } as LoginLog));
 };
-
-    
-
-    
