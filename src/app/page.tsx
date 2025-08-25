@@ -34,9 +34,6 @@ export default function HomePage() {
                 <UserCog className="w-6 h-6 text-primary" />
                 Owner Dashboard
               </CardTitle>
-              <CardDescription>
-                View analytics, manage all cases, and handle user accounts.
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
