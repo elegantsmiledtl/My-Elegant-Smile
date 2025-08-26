@@ -9,7 +9,6 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const fromNumber = process.env.TWILIO_WHATSAPP_FROM;
 const toNumber = process.env.WHATSAPP_RECIPIENT_NUMBER;
-const contentSid = 'HX350d429d32e64a552466cafecbe95f3c';
 
 let client: twilio.Twilio | null = null;
 
@@ -37,7 +36,7 @@ export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | '
     try {
         const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
         
-        // Construct the detailed message for the template variable
+        // Construct the detailed message for the simple text body
         const caseDetails = `
 Patient: ${newCase.patientName}
 Dentist: ${newCase.dentistName}
@@ -47,14 +46,12 @@ Prosthesis: ${newCase.prosthesisType}
 Source: ${newCase.source || 'Desktop'}
 Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleDateString() : 'N/A'}`;
 
+        const messageBody = `*New Elegant Smile Case* ${caseDetails}`;
+
         console.log(`Attempting to send WhatsApp message from: ${fromNumber} to: ${toNumber}`);
 
         const message = await client.messages.create({
-            contentSid: contentSid,
-            contentVariables: JSON.stringify({
-                '1': `New case added for ${newCase.patientName}`,
-                '2': caseDetails,
-            }),
+            body: messageBody, // Using 'body' instead of 'contentSid'
             from: fromNumber,
             to: toNumber
         });
