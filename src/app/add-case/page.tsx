@@ -32,12 +32,29 @@ function AddCasePageContent() {
           ...newCase, 
           source: source === 'Mobile' ? 'Mobile' : 'Desktop'
       };
-      await addCase(caseWithSource);
+      
+      const { notificationResult } = await addCase(caseWithSource);
       
       toast({
         title: 'GOT IT',
         description: `Case for ${newCase.patientName} has been successfully added.`,
       });
+
+      // Display notification status
+      if (notificationResult.success) {
+        toast({
+            title: 'Notification Sent!',
+            description: `WhatsApp message sent. SID: ${notificationResult.sid}`,
+        });
+      } else {
+         toast({
+            variant: 'destructive',
+            title: 'Notification Failed',
+            description: `Error: ${notificationResult.error}`,
+            duration: 9000 // Show for longer so it can be read
+        });
+      }
+
 
       // Reset the form by changing the key, which forces a re-render
       setKey(Date.now());

@@ -1,3 +1,4 @@
+
 // src/lib/firebase.ts
 import { initializeApp } from 'firebase/app';
 import { 
@@ -82,11 +83,10 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
     `New Case From ${newCase.dentistName}`
   );
 
-  // Send WhatsApp notification
-  // This is non-blocking and won't delay the user's request
-  sendNewCaseNotification(newCase).catch(console.error);
+  // Send WhatsApp notification and wait for the result
+  const notificationResult = await sendNewCaseNotification(newCase);
 
-  return docRef.id;
+  return { caseId: docRef.id, notificationResult };
 };
 
 // A function to update a case

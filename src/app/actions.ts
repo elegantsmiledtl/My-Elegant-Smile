@@ -21,17 +21,19 @@ if (accountSid && authToken) {
 }
 
 export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
-    if (!client || !fromNumber || !toNumber) {
-        console.error('Twilio client is not available or phone numbers are missing in .env file. Skipping WhatsApp notification.');
-        console.log({
-            isClientInitialized: !!client,
-            fromNumber: fromNumber,
-            toNumber: toNumber
-        });
-        return;
-    }
-
     try {
+        if (!client || !fromNumber || !toNumber) {
+            const missingVars = [
+                !client && "Twilio Client (check SID/Token)",
+                !fromNumber && "From Number",
+                !toNumber && "To Number"
+            ].filter(Boolean).join(', ');
+
+            const errorMsg = `Twilio client is not available or phone numbers are missing. Missing: ${missingVars}.`;
+            console.error(errorMsg);
+            return { success: false, error: errorMsg };
+        }
+
         const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
         
         // Construct the detailed message for the template variable
@@ -49,15 +51,19 @@ Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleD
         const message = await client.messages.create({
             contentSid: contentSid,
             contentVariables: JSON.stringify({
-                '1': `New case added for ${newCase.patientName}`, // Example for template placeholder {{1}}
-                '2': caseDetails,                             // Example for template placeholder {{2}}
+                '1': `New case added for ${newCase.patientName}`,
+                '2': caseDetails,
             }),
             from: fromNumber,
             to: toNumber
         });
+
         console.log('WhatsApp notification sent successfully! SID:', message.sid);
-    } catch (error) {
+        return { success: true, sid: message.sid };
+
+    } catch (error: any) {
         console.error('Failed to send WhatsApp notification. Error:', error);
+        // Return a user-friendly error message
+        return { success: false, error: error.message || "An unknown error occurred" };
     }
 };
-
