@@ -21,19 +21,20 @@ if (accountSid && authToken) {
 }
 
 export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
+    // Explicitly check for all required configuration first.
+    if (!client || !fromNumber || !toNumber) {
+        const missingVars = [
+            !client && "Twilio Client (check .env for TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN)",
+            !fromNumber && "Twilio From Number (check .env for TWILIO_WHATSAPP_FROM)",
+            !toNumber && "Recipient Number (check .env for WHATSAPP_RECIPIENT_NUMBER)"
+        ].filter(Boolean).join(', ');
+
+        const errorMsg = `Cannot send notification because of missing configuration: ${missingVars}.`;
+        console.error(errorMsg);
+        return { success: false, error: errorMsg };
+    }
+
     try {
-        if (!client || !fromNumber || !toNumber) {
-            const missingVars = [
-                !client && "Twilio Client (check SID/Token)",
-                !fromNumber && "From Number",
-                !toNumber && "To Number"
-            ].filter(Boolean).join(', ');
-
-            const errorMsg = `Twilio client is not available or phone numbers are missing. Missing: ${missingVars}.`;
-            console.error(errorMsg);
-            return { success: false, error: errorMsg };
-        }
-
         const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
         
         // Construct the detailed message for the template variable
@@ -62,8 +63,8 @@ Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleD
         return { success: true, sid: message.sid };
 
     } catch (error: any) {
-        console.error('Failed to send WhatsApp notification. Error:', error);
-        // Return a user-friendly error message
-        return { success: false, error: error.message || "An unknown error occurred" };
+        const errorMessage = error.message || "An unknown Twilio error occurred";
+        console.error('Failed to send WhatsApp notification. Error:', errorMessage);
+        return { success: false, error: errorMessage };
     }
 };
