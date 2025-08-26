@@ -28,7 +28,7 @@ function AddCasePageContent() {
 
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
-    setNotificationDebugMessage("Sending notification...");
+    setNotificationDebugMessage("Sending notification(s)...");
 
     try {
       const caseWithSource = { 
@@ -43,12 +43,17 @@ function AddCasePageContent() {
         description: `Case for ${newCase.patientName} has been successfully added.`,
       });
 
-      // Display notification status directly on the page
-      if (notificationResult.success) {
-        setNotificationDebugMessage(`SUCCESS! Message SID: ${notificationResult.sid}`);
+      // Construct a detailed debug message from the notification result
+      let debugMessage = `Notification Status: ${notificationResult.message}\n\n--- Details ---\n`;
+      if (notificationResult.details && notificationResult.details.length > 0) {
+        debugMessage += notificationResult.details.map((detail: any) => 
+          `To: ${detail.number}\nStatus: ${detail.success ? 'Success' : 'FAILED'}\n${detail.success ? `SID: ${detail.sid}` : `Error: ${detail.error}`}`
+        ).join('\n\n');
       } else {
-        setNotificationDebugMessage(`FAILED! Error: ${notificationResult.error}`);
+        debugMessage = `Notification system returned an error: ${notificationResult.error}`;
       }
+      
+      setNotificationDebugMessage(debugMessage);
 
       // Reset the form by changing the key, which forces a re-render
       setKey(Date.now());
