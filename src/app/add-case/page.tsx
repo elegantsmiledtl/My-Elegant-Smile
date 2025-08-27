@@ -28,7 +28,9 @@ function AddCasePageContent() {
 
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
-    setNotificationResult({ message: "Adding case and sending notification(s)..." });
+    
+    // Immediately show a "sending" message
+    setNotificationResult({ message: "Adding case and sending notification(s)... Please wait." });
 
     try {
       const caseWithSource = { 
@@ -36,26 +38,31 @@ function AddCasePageContent() {
           source: source === 'Mobile' ? 'Mobile' : 'Desktop'
       };
       
+      // The addCase function from firebase.ts returns an object like { caseId, notificationResult }
       const result = await addCase(caseWithSource);
       
+      // Update the state with the actual result from the server action
+      setNotificationResult(result.notificationResult);
+
       toast({
         title: 'GOT IT',
         description: `Case for ${newCase.patientName} has been successfully added.`,
       });
 
-      // Set the full result object for detailed display
-      setNotificationResult(result.notificationResult);
-
       // Reset the form by changing the key, which forces a re-render
       setKey(Date.now());
 
     } catch (error: any) {
-       console.error("Firebase Error:", error);
-       setNotificationResult({ error: `CRITICAL ERROR! Could not add case to database. Error: ${error.message}` });
+       console.error("Error during case addition or notification:", error);
+       // Ensure any critical error is displayed
+       setNotificationResult({ 
+           success: false, 
+           error: `A critical error occurred: ${error.message}` 
+        });
         toast({
             variant: 'destructive',
-            title: 'Database Error',
-            description: 'Could not add the case. Please check your connection and permissions.',
+            title: 'Operation Failed',
+            description: 'Could not add the case or send notification. Check the server response.',
         });
     }
   };
