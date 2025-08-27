@@ -1,4 +1,3 @@
-
 // src/lib/firebase.ts
 import { initializeApp } from 'firebase/app';
 import { 
@@ -82,11 +81,9 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
     'owner', 
     `New Case From ${newCase.dentistName}`
   );
-
-  // Send WhatsApp notification and wait for the result
-  const notificationResult = await sendNewCaseNotification(newCase);
-
-  return { caseId: docRef.id, notificationResult };
+  
+  // The notification is now sent from the page component after this function resolves
+  return docRef.id;
 };
 
 // A function to update a case

@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { Home, Smartphone, ServerIcon } from 'lucide-react';
 import { addCase } from '@/lib/firebase';
 import Logo from '@/components/logo';
+import { sendNewCaseNotification } from '@/app/actions';
 
 function AddCasePageContent() {
   const router = useRouter();
@@ -29,32 +30,38 @@ function AddCasePageContent() {
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
     
-    // Immediately show a "sending" message
-    setNotificationResult({ message: "Adding case and sending notification(s)... Please wait." });
+    setNotificationResult(null);
+
+    const caseWithSource = { 
+        ...newCase, 
+        source: source === 'Mobile' ? 'Mobile' : 'Desktop'
+    };
 
     try {
-      const caseWithSource = { 
-          ...newCase, 
-          source: source === 'Mobile' ? 'Mobile' : 'Desktop'
-      };
-      
-      // The addCase function from firebase.ts returns an object like { caseId, notificationResult }
-      const result = await addCase(caseWithSource);
-      
-      // Update the state with the actual result from the server action
-      setNotificationResult(result.notificationResult);
-
+      // Step 1: Add the case to the database
       toast({
-        title: 'GOT IT',
-        description: `Case for ${newCase.patientName} has been successfully added.`,
+        title: 'Saving...',
+        description: `Adding case for ${newCase.patientName}.`,
       });
 
-      // Reset the form by changing the key, which forces a re-render
+      await addCase(caseWithSource);
+      
+      toast({
+        title: 'Case Added!',
+        description: `Case for ${newCase.patientName} has been successfully saved. Now sending notification...`,
+      });
+      
+      // Reset the form by changing the key
       setKey(Date.now());
+
+      // Step 2: Send the notification and get the result
+      setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
+      const result = await sendNewCaseNotification(caseWithSource);
+      setNotificationResult(result);
+
 
     } catch (error: any) {
        console.error("Error during case addition or notification:", error);
-       // Ensure any critical error is displayed
        setNotificationResult({ 
            success: false, 
            error: `A critical error occurred: ${error.message}` 
@@ -62,7 +69,7 @@ function AddCasePageContent() {
         toast({
             variant: 'destructive',
             title: 'Operation Failed',
-            description: 'Could not add the case or send notification. Check the server response.',
+            description: 'Could not add the case. Please check the error message and try again.',
         });
     }
   };
