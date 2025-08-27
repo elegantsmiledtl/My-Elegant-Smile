@@ -38,7 +38,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -223,6 +225,7 @@ export default function OwnerPage() {
   const [cases, setCases] = useState<DentalCase[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [materialFilter, setMaterialFilter] = useState('');
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
@@ -392,10 +395,14 @@ export default function OwnerPage() {
     }
   };
 
-  const filteredCases = cases.filter(c => 
-    c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.patientName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCases = cases.filter(c => {
+    const searchMatch = c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const materialMatch = materialFilter ? c.material.includes(materialFilter) : true;
+
+    return searchMatch && materialMatch;
+  });
 
   if (!isMounted) {
     return null;
@@ -553,6 +560,19 @@ export default function OwnerPage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full sm:w-auto max-w-xs"
                         />
+                        <Select value={materialFilter} onValueChange={setMaterialFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by material..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="">All Materials</SelectItem>
+                                {materialOptions.map(material => (
+                                    <SelectItem key={material} value={material}>
+                                        {material}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                      </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4 flex-wrap">
