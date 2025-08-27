@@ -227,7 +227,7 @@ export default function OwnerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [materialFilter, setMaterialFilter] = useState('all');
   const { toast } = useToast();
-  const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -297,9 +297,9 @@ export default function OwnerPage() {
     const checkForNotifications = async () => {
         if (isAuthenticated) {
             try {
-                const notifications = await getUnreadNotifications('owner');
-                if (notifications.length > 0) {
-                    setNotification({ id: notifications[0].id, message: notifications[0].message });
+                const unreadNotifications = await getUnreadNotifications('owner');
+                if (unreadNotifications.length > 0) {
+                    setNotifications(unreadNotifications);
                 }
             } catch (error) {
                 console.error("Failed to check for owner notifications:", error);
@@ -374,9 +374,11 @@ export default function OwnerPage() {
   }
 
    const handleNotificationAcknowledge = () => {
-    if (notification) {
-      markNotificationAsRead(notification.id);
-      setNotification(null);
+    if (notifications.length > 0) {
+      notifications.forEach(notif => {
+        markNotificationAsRead(notif.id);
+      });
+      setNotifications([]);
     }
   };
 
@@ -446,12 +448,18 @@ export default function OwnerPage() {
 
   return (
     <>
-    <AlertDialog open={!!notification}>
+    <AlertDialog open={notifications.length > 0}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>New Case Notification</AlertDialogTitle>
-                <AlertDialogDescription className="font-bold">
-                    {notification?.message}
+                <AlertDialogTitle>You have {notifications.length} new case notification(s)</AlertDialogTitle>
+                <AlertDialogDescription asChild>
+                    <ul className="list-disc pl-5 space-y-2 mt-2 max-h-60 overflow-y-auto">
+                      {notifications.map(notif => (
+                        <li key={notif.id} className="font-bold text-foreground">
+                          {notif.message}
+                        </li>
+                      ))}
+                    </ul>
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
