@@ -31,7 +31,8 @@ export default function DoctorPortalPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
-  const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
+  const [notificationResult, setNotificationResult] = useState<any>(null);
 
 
   useEffect(() => {
@@ -51,11 +52,9 @@ export default function DoctorPortalPage() {
     const checkForNotifications = async () => {
         if (dentistName) {
             try {
-                const notifications = await getUnreadNotifications(dentistName);
-                if (notifications.length > 0) {
-                    // Show one notification at a time
-                    const firstUnread = notifications[0];
-                    setNotification({ id: firstUnread.id, message: firstUnread.message });
+                const unreadNotifications = await getUnreadNotifications(dentistName);
+                if (unreadNotifications.length > 0) {
+                    setNotifications(unreadNotifications);
                 }
             } catch (error) {
                 console.error("Failed to check for notifications:", error);
@@ -90,6 +89,7 @@ export default function DoctorPortalPage() {
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
 
+    setNotificationResult(null);
     const caseData = { ...newCase, dentistName };
 
     try {
@@ -109,22 +109,27 @@ export default function DoctorPortalPage() {
       setKey(Date.now()); // Reset form
 
       // Step 2: Send the notification and get the result
+      setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
       const result = await sendNewCaseNotification(caseData);
+      setNotificationResult(result);
 
       if (!result.success) {
-          // If sending fails, show a specific error toast.
-          // The detailed response is logged on the server, not shown to the doctor.
           const firstError = result.details.find(d => !d.success)?.error || 'An unknown error occurred.';
            toast({
                 variant: 'destructive',
                 title: 'WhatsApp Notification Failed',
                 description: `Could not send notification. Reason: ${firstError}`,
+                duration: 9000,
             });
       }
 
 
     } catch (error: any) {
-      console.error("Error during case addition or notification:", error);
+       console.error("Error during case addition or notification:", error);
+       setNotificationResult({ 
+           success: false, 
+           error: `A critical error occurred: ${error.message}` 
+        });
         toast({
             variant: 'destructive',
             title: 'Operation Failed',
@@ -139,9 +144,11 @@ export default function DoctorPortalPage() {
   };
 
   const handleNotificationAcknowledge = () => {
-    if (notification) {
-      markNotificationAsRead(notification.id);
-      setNotification(null);
+    if (notifications.length > 0) {
+      notifications.forEach(notif => {
+        markNotificationAsRead(notif.id);
+      });
+      setNotifications([]);
     }
   };
 
@@ -151,12 +158,18 @@ export default function DoctorPortalPage() {
 
   return (
     <>
-      <AlertDialog open={!!notification}>
+      <AlertDialog open={notifications.length > 0}>
           <AlertDialogContent>
               <AlertDialogHeader>
-                  <AlertDialogTitle>Notification</AlertDialogTitle>
-                  <AlertDialogDescription className="font-bold">
-                      {notification?.message}
+                  <AlertDialogTitle>You have {notifications.length} new notification(s)</AlertDialogTitle>
+                  <AlertDialogDescription asChild>
+                      <ul className="list-disc pl-5 space-y-2 mt-2">
+                        {notifications.map(notif => (
+                          <li key={notif.id} className="font-bold text-foreground">
+                            {notif.message}
+                          </li>
+                        ))}
+                      </ul>
                   </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
