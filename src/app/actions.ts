@@ -13,18 +13,19 @@ export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | '
     const toNumbers = process.env.WHATSAPP_RECIPIENT_NUMBER;
 
     // Detailed logging of environment variables as seen by the server
-    console.log(`TWILIO_ACCOUNT_SID: ${accountSid ? 'Loaded' : 'MISSING!'}`);
-    console.log(`TWILIO_AUTH_TOKEN: ${authToken ? 'Loaded' : 'MISSING!'}`);
-    console.log(`TWILIO_WHATSAPP_FROM: ${fromNumber || 'MISSING!'}`);
-    console.log(`WHATSAPP_RECIPIENT_NUMBER: ${toNumbers || 'MISSING!'}`);
+    const envCheck = {
+        TWILIO_ACCOUNT_SID: accountSid ? 'Loaded' : 'MISSING!',
+        TWILIO_AUTH_TOKEN: authToken ? 'Loaded' : 'MISSING!',
+        TWILIO_WHATSAPP_FROM: fromNumber || 'MISSING!',
+        WHATSAPP_RECIPIENT_NUMBER: toNumbers || 'MISSING!',
+    };
+    console.log("Environment Variable Status:", envCheck);
 
     if (!accountSid || !authToken || !fromNumber || !toNumbers) {
-        const missingVars = [
-            !accountSid && "TWILIO_ACCOUNT_SID",
-            !authToken && "TWILIO_AUTH_TOKEN",
-            !fromNumber && "TWILIO_WHATSAPP_FROM",
-            !toNumbers && "WHATSAPP_RECIPIENT_NUMBER"
-        ].filter(Boolean).join(', ');
+        const missingVars = Object.entries(envCheck)
+            .filter(([, status]) => status === 'MISSING!')
+            .map(([key]) => key)
+            .join(', ');
 
         const errorMsg = `Cannot send notification. Server is missing environment variables: ${missingVars}. Please check your .env file and restart the server.`;
         console.error(errorMsg);
@@ -47,19 +48,23 @@ Source: ${newCase.source || 'Desktop'}
 Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleDateString() : 'N/A'}`;
 
         const messageBody = `*New Elegant Smile Case*\n${caseDetails}`;
-        const fromNumberFormatted = `whatsapp:${fromNumber}`;
+        const fromNumberFormatted = `whatsapp:${fromNumber.trim()}`;
         const recipientList = toNumbers.split(',').map(num => num.trim()).filter(Boolean);
         
         console.log("Message Body:", messageBody);
-        console.log("From Number:", fromNumberFormatted);
-        console.log("Recipient List:", recipientList);
+        console.log("Sending From:", fromNumberFormatted);
+        console.log("Attempting to send to Recipient List:", recipientList);
+
+        if(recipientList.length === 0) {
+             return { success: false, error: "No recipient numbers found after trimming and filtering.", details: [] };
+        }
 
         const results = [];
         
         for (const toNumber of recipientList) {
             const toNumberFormatted = `whatsapp:${toNumber}`;
             try {
-                console.log(`Attempting to send message to: ${toNumberFormatted}`);
+                console.log(`Sending to: ${toNumberFormatted}`);
                 const message = await client.messages.create({
                     body: messageBody,
                     from: fromNumberFormatted,
@@ -69,7 +74,7 @@ Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleD
                 results.push({ number: toNumber, success: true, sid: message.sid });
             } catch (error: any) {
                 const errorMessage = error.message || "An unknown Twilio error occurred";
-                console.error(`Failed to send message to ${toNumber}. Error Code: ${error.code}. Message: ${errorMessage}`);
+                console.error(`Failed to send to ${toNumber}. Error Code: ${error.code}. Message: ${errorMessage}`);
                 results.push({ number: toNumber, success: false, error: `Code ${error.code || 'N/A'}: ${errorMessage}` });
             }
         }
@@ -88,6 +93,6 @@ Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleD
 
     } catch (error: any) {
         console.error("A critical error occurred in sendNewCaseNotification:", error);
-        return { success: false, error: error.message, details: [] };
+        return { success: false, error: error.message || "An unknown critical error", details: [] };
     }
 };

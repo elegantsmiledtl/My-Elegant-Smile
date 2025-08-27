@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, ServerIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addCase, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { sendNewCaseNotification } from '@/app/actions';
 
 
 export default function DoctorPortalPage() {
@@ -31,6 +32,8 @@ export default function DoctorPortalPage() {
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
+  const [notificationResult, setNotificationResult] = useState<any>(null);
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -86,15 +89,44 @@ export default function DoctorPortalPage() {
   };
   
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
+    if (!isMounted) return;
+    
+    setNotificationResult(null);
+
+    const caseData = { ...newCase, dentistName };
+
     try {
-      await addCase({ ...newCase, dentistName });
-      toast({
-        title: 'Case Added',
-        description: `Case for ${newCase.patientName} has been successfully added.`,
+      // Step 1: Add the case to the database
+       toast({
+        title: 'Saving...',
+        description: `Adding case for ${newCase.patientName}.`,
       });
+
+      await addCase(caseData);
+      
+      toast({
+        title: 'Case Added!',
+        description: `Case for ${newCase.patientName} has been successfully saved. Now sending notification...`,
+      });
+      
       setKey(Date.now()); // Reset form
-    } catch (error) {
-      handleFirebaseError(error);
+
+      // Step 2: Send the notification and get the result
+      setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
+      const result = await sendNewCaseNotification(caseData);
+      setNotificationResult(result);
+
+    } catch (error: any) {
+      console.error("Error during case addition or notification:", error);
+       setNotificationResult({ 
+           success: false, 
+           error: `A critical error occurred: ${error.message}` 
+        });
+        toast({
+            variant: 'destructive',
+            title: 'Operation Failed',
+            description: 'Could not add the case. Please check the error message and try again.',
+        });
     }
   };
   
@@ -152,15 +184,25 @@ export default function DoctorPortalPage() {
             </div>
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
-          <Card className="w-full max-w-6xl mx-auto shadow-lg">
-            <CardContent className="pt-6">
-              <CaseEntryForm 
-                  key={key} 
-                  onAddCase={handleAddCase} 
-                  caseToEdit={{ dentistName: dentistName }} // Pre-fill dentist name
-              />
-            </CardContent>
-          </Card>
+          <div className="w-full max-w-6xl mx-auto">
+             {notificationResult && (
+                <div className="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
+                    <h3 className="font-bold flex items-center gap-2"><ServerIcon className="h-5 w-5"/>Server Response:</h3>
+                    <pre className="whitespace-pre-wrap break-words text-sm">
+                      {JSON.stringify(notificationResult, null, 2)}
+                    </pre>
+                </div>
+            )}
+            <Card className="shadow-lg">
+                <CardContent className="pt-6">
+                <CaseEntryForm 
+                    key={key} 
+                    onAddCase={handleAddCase} 
+                    caseToEdit={{ dentistName: dentistName }} // Pre-fill dentist name
+                />
+                </CardContent>
+            </Card>
+          </div>
           <div className="w-full max-w-6xl mx-auto flex justify-center">
               <Button asChild>
                   <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
