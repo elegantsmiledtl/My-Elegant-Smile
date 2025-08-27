@@ -18,7 +18,7 @@ function AddCasePageContent() {
   const { toast } = useToast();
   const [isMounted, setIsMounted] = useState(false);
   const [key, setKey] = useState(Date.now()); // Add key state to re-mount the form
-  const [notificationDebugMessage, setNotificationDebugMessage] = useState<string | null>(null);
+  const [notificationResult, setNotificationResult] = useState<any>(null);
   
   const source = searchParams.get('source') as 'Mobile' | 'Desktop' | null;
 
@@ -28,7 +28,7 @@ function AddCasePageContent() {
 
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
-    setNotificationDebugMessage("Sending notification(s)...");
+    setNotificationResult({ message: "Adding case and sending notification(s)..." });
 
     try {
       const caseWithSource = { 
@@ -36,31 +36,22 @@ function AddCasePageContent() {
           source: source === 'Mobile' ? 'Mobile' : 'Desktop'
       };
       
-      const { notificationResult } = await addCase(caseWithSource);
+      const result = await addCase(caseWithSource);
       
       toast({
         title: 'GOT IT',
         description: `Case for ${newCase.patientName} has been successfully added.`,
       });
 
-      // Construct a detailed debug message from the notification result
-      let debugMessage = `Notification Status: ${notificationResult.message}\n\n--- Details ---\n`;
-      if (notificationResult.details && notificationResult.details.length > 0) {
-        debugMessage += notificationResult.details.map((detail: any) => 
-          `To: ${detail.number}\nStatus: ${detail.success ? 'Success' : 'FAILED'}\n${detail.success ? `SID: ${detail.sid}` : `Error: ${detail.error}`}`
-        ).join('\n\n');
-      } else {
-        debugMessage = `Notification system returned an error: ${notificationResult.error}`;
-      }
-      
-      setNotificationDebugMessage(debugMessage);
+      // Set the full result object for detailed display
+      setNotificationResult(result.notificationResult);
 
       // Reset the form by changing the key, which forces a re-render
       setKey(Date.now());
 
-    } catch (error) {
+    } catch (error: any) {
        console.error("Firebase Error:", error);
-       setNotificationDebugMessage(`CRITICAL ERROR! Could not add case to database. Error: ${error}`);
+       setNotificationResult({ error: `CRITICAL ERROR! Could not add case to database. Error: ${error.message}` });
         toast({
             variant: 'destructive',
             title: 'Database Error',
@@ -102,10 +93,12 @@ function AddCasePageContent() {
       </header>
       <main className="p-4 sm:p-6 lg:p-8 flex justify-center">
         <div className="w-full max-w-2xl">
-            {notificationDebugMessage && (
+            {notificationResult && (
                 <div className="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
                     <h3 className="font-bold flex items-center gap-2"><ServerIcon className="h-5 w-5"/>Server Response:</h3>
-                    <pre className="whitespace-pre-wrap break-words">{notificationDebugMessage}</pre>
+                    <pre className="whitespace-pre-wrap break-words text-sm">
+                      {JSON.stringify(notificationResult, null, 2)}
+                    </pre>
                 </div>
             )}
             <CaseEntryForm key={key} onAddCase={handleAddCase} onUpdate={handleUpdate} />
