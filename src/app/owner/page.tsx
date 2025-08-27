@@ -225,7 +225,7 @@ export default function OwnerPage() {
   const [cases, setCases] = useState<DentalCase[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [materialFilter, setMaterialFilter] = useState('');
+  const [materialFilter, setMaterialFilter] = useState('all');
   const { toast } = useToast();
   const [notification, setNotification] = useState<{ id: string; message: string } | null>(null);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
@@ -399,7 +399,7 @@ export default function OwnerPage() {
     const searchMatch = c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const materialMatch = materialFilter ? c.material.includes(materialFilter) : true;
+    const materialMatch = materialFilter !== 'all' ? c.material.includes(materialFilter) : true;
 
     return searchMatch && materialMatch;
   });
@@ -565,7 +565,7 @@ export default function OwnerPage() {
                                 <SelectValue placeholder="Filter by material..." />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Materials</SelectItem>
+                                <SelectItem value="all">All Materials</SelectItem>
                                 {materialOptions.map(material => (
                                     <SelectItem key={material} value={material}>
                                         {material}
