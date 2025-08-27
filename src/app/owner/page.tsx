@@ -547,21 +547,21 @@ export default function OwnerPage() {
         <Dashboard cases={filteredCases} />
         <Card className="shadow-lg">
           <CardHeader>
-            <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
+            <div className="flex justify-between items-start">
                 <div>
                     <CardTitle className="flex items-center gap-2 font-headline">
                         <ToothIcon className="w-6 h-6 text-primary" />
                         All Recorded Cases
                     </CardTitle>
-                     <div className="flex items-center gap-2 mt-4 flex-wrap">
+                     <div className="flex items-center gap-2 mt-4">
                         <Input 
                             placeholder="Search by dentist or patient..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full sm:w-auto max-w-xs"
+                            className="max-w-xs"
                         />
                         <Select value={materialFilter} onValueChange={setMaterialFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Filter by material..." />
                             </SelectTrigger>
                             <SelectContent>
@@ -575,7 +575,7 @@ export default function OwnerPage() {
                         </Select>
                      </div>
                 </div>
-                <div className="flex items-center gap-2 mt-4 flex-wrap">
+                <div className="flex items-center gap-2">
                      <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button 
