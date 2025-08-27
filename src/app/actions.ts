@@ -12,7 +12,7 @@ export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | '
     const fromNumber = process.env.TWILIO_WHATSAPP_FROM;
     const toNumbers = process.env.WHATSAPP_RECIPIENT_NUMBER;
 
-    // Detailed logging of environment variables
+    // Detailed logging of environment variables as seen by the server
     console.log(`TWILIO_ACCOUNT_SID: ${accountSid ? 'Loaded' : 'MISSING!'}`);
     console.log(`TWILIO_AUTH_TOKEN: ${authToken ? 'Loaded' : 'MISSING!'}`);
     console.log(`TWILIO_WHATSAPP_FROM: ${fromNumber || 'MISSING!'}`);
@@ -33,7 +33,7 @@ export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | '
 
     try {
         const client = twilio(accountSid, authToken);
-        console.log("Twilio client initialized successfully inside the function.");
+        console.log("Twilio client initialized successfully.");
 
         const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
         
