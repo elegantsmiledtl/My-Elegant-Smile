@@ -24,7 +24,7 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex-grow container mx-auto flex flex-col items-center justify-center p-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-8">
+        <h1 className="text-4xl md:text-5xl font-bold font-headline mb-8 bg-black text-yellow-500 px-4 py-2 rounded-md">
           Welcome To Elegant Smile Dental Lab
         </h1>
         <div className="flex justify-center w-full max-w-4xl">
