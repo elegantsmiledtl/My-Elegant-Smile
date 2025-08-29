@@ -262,7 +262,7 @@ export default function DoctorInvoicesPage() {
                                             </div>
                                              <div className="flex items-center gap-4 justify-end">
                                                 <p className="font-semibold">Paid Amount:</p>
-                                                <p className="text-lg font-semibold w-[120px] text-left text-green-600">
+                                                <p className="text-lg font-bold w-[120px] text-left text-destructive">
                                                     - {formatAmount(invoice.paidAmount)} JOD
                                                 </p>
                                             </div>
@@ -352,7 +352,7 @@ export default function DoctorInvoicesPage() {
                         </div>
                          <div className="flex justify-between items-center text-lg p-2">
                             <span className="font-bold">Paid Amount:</span>
-                            <span>{`${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
+                            <span className="font-bold text-red-600">{`- ${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
                         </div>
                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                             <span>Total Due:</span>

@@ -531,8 +531,8 @@ export default function InvoicePage() {
                                             type="number"
                                             value={paidAmount}
                                             onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
-                                            className="h-8 text-right bg-white w-[120px]"
-                                            placeholder="0.00"
+                                            className="h-8 text-left bg-white w-[120px] font-bold text-destructive"
+                                            placeholder="0"
                                         />
                                     </div>
                                      <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
@@ -610,7 +610,7 @@ export default function InvoicePage() {
                                 </div>
                                  <div className="flex justify-between items-center text-lg p-2">
                                     <span className="font-bold">Paid Amount:</span>
-                                    <span>{`${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
+                                    <span className="font-bold text-red-600">{`- ${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                     <span>Total Due:</span>
@@ -800,7 +800,7 @@ export default function InvoicePage() {
                                                     </div>
                                                     <div className="flex items-center gap-4 justify-end">
                                                         <p className="font-semibold">Paid Amount:</p>
-                                                        <p className="text-lg font-semibold w-[120px] text-left text-green-600">
+                                                        <p className="text-lg font-bold w-[120px] text-left text-destructive">
                                                             - {formatAmount(invoice.paidAmount)} JOD
                                                         </p>
                                                     </div>
