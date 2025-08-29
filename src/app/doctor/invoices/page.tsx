@@ -84,8 +84,11 @@ export default function DoctorInvoicesPage() {
   const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
   
-  const formatGrandTotal = (total: number) => {
-    return total.toFixed(total % 1 === 0 ? 0 : 2);
+  const formatAmount = (amount: number) => {
+    return amount.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
   };
 
   const handleSaveAsPdf = async (invoice: Invoice) => {
@@ -203,7 +206,7 @@ export default function DoctorInvoicesPage() {
                             <AccordionTrigger>
                                 <div className="flex justify-between w-full pr-4">
                                     <span>Invoice from {formatDateTime(invoice.createdAt)}</span>
-                                    <span className="font-bold text-primary">{formatGrandTotal(invoice.grandTotal)} JOD</span>
+                                    <span className="font-bold text-primary">{formatAmount(invoice.grandTotal)} JOD</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
@@ -230,9 +233,9 @@ export default function DoctorInvoicesPage() {
                                                         <TableRow key={material}>
                                                             <TableCell className="font-medium">{material}</TableCell>
                                                             <TableCell className="text-right">{data.toothCount}</TableCell>
-                                                            <TableCell className="text-right">{data.price.toFixed(2)}</TableCell>
+                                                            <TableCell className="text-right">{formatAmount(data.price)}</TableCell>
                                                             <TableCell className="text-right font-semibold">
-                                                                {data.total.toFixed(2)}
+                                                                {formatAmount(data.total)}
                                                             </TableCell>
                                                         </TableRow>
                                                     )
@@ -254,19 +257,19 @@ export default function DoctorInvoicesPage() {
                                             <div className="flex items-center gap-4 justify-end">
                                                 <p className="font-semibold">Subtotal:</p>
                                                 <p className="text-lg font-semibold w-[120px] text-left">
-                                                    {invoice.subtotal.toFixed(2)} JOD
+                                                    {formatAmount(invoice.subtotal)} JOD
                                                 </p>
                                             </div>
                                              <div className="flex items-center gap-4 justify-end">
                                                 <p className="font-semibold">Paid Amount:</p>
                                                 <p className="text-lg font-semibold w-[120px] text-left text-green-600">
-                                                    - {invoice.paidAmount.toFixed(2)} JOD
+                                                    - {formatAmount(invoice.paidAmount)} JOD
                                                 </p>
                                             </div>
                                              <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
                                                 <p className="text-lg font-bold">Total Due:</p>
                                                 <p className="text-2xl font-bold text-primary w-[120px] text-left">
-                                                    {formatGrandTotal(invoice.grandTotal)} JOD
+                                                    {formatAmount(invoice.grandTotal)} JOD
                                                 </p>
                                             </div>
                                         </div>
@@ -333,8 +336,8 @@ export default function DoctorInvoicesPage() {
                                 <tr key={material}>
                                     <td className="border p-2 font-medium">{material}</td>
                                     <td className="border p-2 text-right">{data.toothCount}</td>
-                                    <td className="border p-2 text-right">{data.price.toFixed(2)}</td>
-                                    <td className="border p-2 text-right font-semibold">{data.total.toFixed(2)}</td>
+                                    <td className="border p-2 text-right">{formatAmount(data.price)}</td>
+                                    <td className="border p-2 text-right font-semibold">{formatAmount(data.total)}</td>
                                 </tr>
                             )
                         ))}
@@ -345,15 +348,15 @@ export default function DoctorInvoicesPage() {
                     <div className="w-2/5 space-y-2">
                         <div className="flex justify-between items-center text-lg p-2">
                             <span className="font-bold">Subtotal:</span>
-                            <span>{`${invoiceForPdf.subtotal.toFixed(2)} JOD`}</span>
+                            <span>{`${formatAmount(invoiceForPdf.subtotal)} JOD`}</span>
                         </div>
                          <div className="flex justify-between items-center text-lg p-2">
                             <span className="font-bold">Paid Amount:</span>
-                            <span>{`${invoiceForPdf.paidAmount.toFixed(2)} JOD`}</span>
+                            <span>{`${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
                         </div>
                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                             <span>Total Due:</span>
-                            <span>{`${formatGrandTotal(invoiceForPdf.grandTotal)} JOD`}</span>
+                            <span>{`${formatAmount(invoiceForPdf.grandTotal)} JOD`}</span>
                         </div>
                     </div>
                 </div>
