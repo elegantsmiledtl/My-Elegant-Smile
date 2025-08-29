@@ -378,6 +378,9 @@ export default function InvoicePage() {
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
   
   const formatAmount = (amount: number) => {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return '0';
+    }
     return amount.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
@@ -460,7 +463,7 @@ export default function InvoicePage() {
                     </div>
                 )}
                 
-                 {selectedDoctor && !invoiceSummary && fromDate && toDate && (
+                 {selectedDoctor && !invoiceSummary && fromDate && toDate && !isLoading && (
                     <div className="m-6 text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
                         <p>No cases found for the selected doctor in this date range.</p>
                     </div>

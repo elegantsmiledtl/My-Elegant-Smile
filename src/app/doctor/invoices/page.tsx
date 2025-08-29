@@ -85,6 +85,9 @@ export default function DoctorInvoicesPage() {
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
   
   const formatAmount = (amount: number) => {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return '0';
+    }
     return amount.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
