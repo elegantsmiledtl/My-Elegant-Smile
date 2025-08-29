@@ -34,9 +34,11 @@ export type Invoice = {
     fromDate?: any;
     toDate?: any;
     summary: Record<string, InvoiceSummaryItem>;
+    subtotal: number;
+    paidAmount: number;
     grandTotal: number;
     createdAt: any;
-    cases: DentalCase[]; // Add cases to the invoice type
+    cases: DentalCase[]; 
 };
 
 export type Notification = {

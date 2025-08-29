@@ -47,6 +47,7 @@ export default function InvoicePage() {
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
+  const [paidAmount, setPaidAmount] = useState<number>(0);
   const [materialPrices, setMaterialPrices] = useState<Record<string, number>>({
     "Zolid": 25,
     "Zirconia": 30,
@@ -149,16 +150,18 @@ export default function InvoicePage() {
         });
     });
 
-    let grandTotal = 0;
+    let subtotal = 0;
     Object.keys(summary).forEach(material => {
         const materialInfo = summary[material];
         materialInfo.price = materialPrices[material] || 0; // Ensure price is always up-to-date
         materialInfo.total = materialInfo.toothCount * materialInfo.price;
-        grandTotal += materialInfo.total;
+        subtotal += materialInfo.total;
     });
+    
+    const grandTotal = subtotal - paidAmount;
 
-    return { summary, grandTotal, cases: filteredCasesByDate };
-  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices]);
+    return { summary, subtotal, paidAmount, grandTotal, cases: filteredCasesByDate };
+  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices, paidAmount]);
   
    const handlePriceChange = (material: string, value: string) => {
     const newPrice = parseFloat(value);
@@ -261,11 +264,13 @@ export default function InvoicePage() {
         });
 
 
-        const invoiceData = {
+        const invoiceData: Omit<Invoice, 'id' | 'createdAt'> = {
             dentistName: selectedDoctor,
             fromDate: fromDate || null,
             toDate: toDate || null,
             summary: invoiceSummary.summary,
+            subtotal: invoiceSummary.subtotal,
+            paidAmount: invoiceSummary.paidAmount,
             grandTotal: invoiceSummary.grandTotal,
             cases: sanitizedCases,
         };
@@ -505,11 +510,30 @@ export default function InvoicePage() {
                                 </Table>
                             </CardContent>
                             <CardFooter className="bg-muted/50 p-4 justify-end">
-                                <div className="flex items-center gap-4">
-                                    <p className="text-lg font-bold">Total:</p>
-                                    <p className="text-2xl font-bold text-primary">
-                                        {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
-                                    </p>
+                                <div className="flex flex-col gap-2 text-right">
+                                    <div className="flex items-center gap-4 justify-end">
+                                        <p className="font-semibold">Subtotal:</p>
+                                        <p className="text-lg font-semibold w-[120px] text-left">
+                                            {invoiceSummary.subtotal.toFixed(2)} JOD
+                                        </p>
+                                    </div>
+                                     <div className="flex items-center gap-4 justify-end">
+                                        <Label htmlFor="paid-amount" className="font-semibold">Paid Amount:</Label>
+                                        <Input
+                                            id="paid-amount"
+                                            type="number"
+                                            value={paidAmount}
+                                            onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
+                                            className="h-8 text-right bg-white w-[120px]"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                     <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
+                                        <p className="text-lg font-bold">Total Due:</p>
+                                        <p className="text-2xl font-bold text-primary w-[120px] text-left">
+                                            {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
+                                        </p>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -572,12 +596,20 @@ export default function InvoicePage() {
                         </table>
                         
                         <div className="flex justify-end mt-6">
-                             <div className="w-1/3">
-                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
-                                    <span>Total:</span>
+                            <div className="w-2/5 space-y-2">
+                                <div className="flex justify-between items-center text-lg p-2">
+                                    <span className="font-bold">Subtotal:</span>
+                                    <span>{`${invoiceSummary.subtotal.toFixed(2)} JOD`}</span>
+                                </div>
+                                 <div className="flex justify-between items-center text-lg p-2">
+                                    <span className="font-bold">Paid Amount:</span>
+                                    <span>{`${invoiceSummary.paidAmount.toFixed(2)} JOD`}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
+                                    <span>Total Due:</span>
                                     <span>{`${invoiceSummary.grandTotal.toFixed(2)} JOD`}</span>
                                 </div>
-                             </div>
+                            </div>
                         </div>
 
                          <div className="mt-8">
@@ -752,11 +784,25 @@ export default function InvoicePage() {
                                                 </Table>
                                             </CardContent>
                                             <CardFooter className="bg-muted/50 p-4 justify-end">
-                                                <div className="flex items-center gap-4">
-                                                    <p className="text-lg font-bold">Total:</p>
-                                                    <p className="text-2xl font-bold text-primary">
-                                                        {invoice.grandTotal.toFixed(2)} JOD
-                                                    </p>
+                                                <div className="flex flex-col gap-2 text-right">
+                                                    <div className="flex items-center gap-4 justify-end">
+                                                        <p className="font-semibold">Subtotal:</p>
+                                                        <p className="text-lg font-semibold w-[120px] text-left">
+                                                            {invoice.subtotal.toFixed(2)} JOD
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-4 justify-end">
+                                                        <p className="font-semibold">Paid Amount:</p>
+                                                        <p className="text-lg font-semibold w-[120px] text-left text-green-600">
+                                                            - {invoice.paidAmount.toFixed(2)} JOD
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
+                                                        <p className="text-lg font-bold">Total Due:</p>
+                                                        <p className="text-2xl font-bold text-primary w-[120px] text-left">
+                                                            {invoice.grandTotal.toFixed(2)} JOD
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </CardFooter>
                                         </Card>
@@ -789,11 +835,3 @@ export default function InvoicePage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    

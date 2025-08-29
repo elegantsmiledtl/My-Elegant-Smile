@@ -246,11 +246,25 @@ export default function DoctorInvoicesPage() {
                                             <FileDown className="mr-2 h-4 w-4" />
                                             {isSavingPdf && invoiceForPdf?.id === invoice.id ? 'Saving...' : 'Download Invoice'}
                                         </Button>
-                                        <div className="flex items-center gap-4">
-                                            <p className="text-lg font-bold">Total:</p>
-                                            <p className="text-2xl font-bold text-primary">
-                                                {invoice.grandTotal.toFixed(2)} JOD
-                                            </p>
+                                        <div className="flex flex-col gap-2 text-right">
+                                            <div className="flex items-center gap-4 justify-end">
+                                                <p className="font-semibold">Subtotal:</p>
+                                                <p className="text-lg font-semibold w-[120px] text-left">
+                                                    {invoice.subtotal.toFixed(2)} JOD
+                                                </p>
+                                            </div>
+                                             <div className="flex items-center gap-4 justify-end">
+                                                <p className="font-semibold">Paid Amount:</p>
+                                                <p className="text-lg font-semibold w-[120px] text-left text-green-600">
+                                                    - {invoice.paidAmount.toFixed(2)} JOD
+                                                </p>
+                                            </div>
+                                             <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
+                                                <p className="text-lg font-bold">Total Due:</p>
+                                                <p className="text-2xl font-bold text-primary w-[120px] text-left">
+                                                    {invoice.grandTotal.toFixed(2)} JOD
+                                                </p>
+                                            </div>
                                         </div>
                                     </CardFooter>
                                 </Card>
@@ -324,15 +338,23 @@ export default function DoctorInvoicesPage() {
                 </table>
                 
                 <div className="flex justify-end mt-6">
-                        <div className="w-1/3">
-                            <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
-                            <span>Total:</span>
+                    <div className="w-2/5 space-y-2">
+                        <div className="flex justify-between items-center text-lg p-2">
+                            <span className="font-bold">Subtotal:</span>
+                            <span>{`${invoiceForPdf.subtotal.toFixed(2)} JOD`}</span>
+                        </div>
+                         <div className="flex justify-between items-center text-lg p-2">
+                            <span className="font-bold">Paid Amount:</span>
+                            <span>{`${invoiceForPdf.paidAmount.toFixed(2)} JOD`}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
+                            <span>Total Due:</span>
                             <span>{`${invoiceForPdf.grandTotal.toFixed(2)} JOD`}</span>
                         </div>
-                        </div>
+                    </div>
                 </div>
 
-                    <div className="mt-8">
+                <div className="mt-8">
                     <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
                         <table className="w-full border-collapse text-xs">
                         <thead>
