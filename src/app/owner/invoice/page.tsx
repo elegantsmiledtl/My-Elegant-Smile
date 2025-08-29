@@ -372,6 +372,10 @@ export default function InvoicePage() {
 
   const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
+  
+  const formatGrandTotal = (total: number) => {
+    return total.toFixed(total % 1 === 0 ? 0 : 2);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -531,7 +535,7 @@ export default function InvoicePage() {
                                      <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
                                         <p className="text-lg font-bold">Total Due:</p>
                                         <p className="text-2xl font-bold text-primary w-[120px] text-left">
-                                            {`${invoiceSummary.grandTotal.toFixed(2)} JOD`}
+                                            {`${formatGrandTotal(invoiceSummary.grandTotal)} JOD`}
                                         </p>
                                     </div>
                                 </div>
@@ -607,7 +611,7 @@ export default function InvoicePage() {
                                 </div>
                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                     <span>Total Due:</span>
-                                    <span>{`${invoiceSummary.grandTotal.toFixed(2)} JOD`}</span>
+                                    <span>{`${formatGrandTotal(invoiceSummary.grandTotal)} JOD`}</span>
                                 </div>
                             </div>
                         </div>
@@ -724,7 +728,7 @@ export default function InvoicePage() {
                                         <AccordionTrigger className="flex-grow">
                                             <div className="flex justify-between w-full pr-4">
                                                 <span>Invoice from {formatDateTime(invoice.createdAt)}</span>
-                                                <span className="font-bold text-primary">{invoice.grandTotal.toFixed(2)} JOD</span>
+                                                <span className="font-bold text-primary">{formatGrandTotal(invoice.grandTotal)} JOD</span>
                                             </div>
                                         </AccordionTrigger>
                                         <AlertDialog>
@@ -800,7 +804,7 @@ export default function InvoicePage() {
                                                     <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
                                                         <p className="text-lg font-bold">Total Due:</p>
                                                         <p className="text-2xl font-bold text-primary w-[120px] text-left">
-                                                            {invoice.grandTotal.toFixed(2)} JOD
+                                                            {formatGrandTotal(invoice.grandTotal)} JOD
                                                         </p>
                                                     </div>
                                                 </div>

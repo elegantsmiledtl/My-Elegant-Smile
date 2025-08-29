@@ -83,6 +83,10 @@ export default function DoctorInvoicesPage() {
   
   const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
+  
+  const formatGrandTotal = (total: number) => {
+    return total.toFixed(total % 1 === 0 ? 0 : 2);
+  };
 
   const handleSaveAsPdf = async (invoice: Invoice) => {
     setInvoiceForPdf(invoice);
@@ -199,7 +203,7 @@ export default function DoctorInvoicesPage() {
                             <AccordionTrigger>
                                 <div className="flex justify-between w-full pr-4">
                                     <span>Invoice from {formatDateTime(invoice.createdAt)}</span>
-                                    <span className="font-bold text-primary">{invoice.grandTotal.toFixed(2)} JOD</span>
+                                    <span className="font-bold text-primary">{formatGrandTotal(invoice.grandTotal)} JOD</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent>
@@ -262,7 +266,7 @@ export default function DoctorInvoicesPage() {
                                              <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
                                                 <p className="text-lg font-bold">Total Due:</p>
                                                 <p className="text-2xl font-bold text-primary w-[120px] text-left">
-                                                    {invoice.grandTotal.toFixed(2)} JOD
+                                                    {formatGrandTotal(invoice.grandTotal)} JOD
                                                 </p>
                                             </div>
                                         </div>
@@ -349,7 +353,7 @@ export default function DoctorInvoicesPage() {
                         </div>
                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                             <span>Total Due:</span>
-                            <span>{`${invoiceForPdf.grandTotal.toFixed(2)} JOD`}</span>
+                            <span>{`${formatGrandTotal(invoiceForPdf.grandTotal)} JOD`}</span>
                         </div>
                     </div>
                 </div>
