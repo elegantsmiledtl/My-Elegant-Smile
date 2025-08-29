@@ -44,6 +44,7 @@ const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant
 
 export default function InvoicePage() {
   const [allCases, setAllCases] = useState<DentalCase[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
@@ -70,6 +71,7 @@ export default function InvoicePage() {
 
   useEffect(() => {
     const fetchAllCases = async () => {
+      setIsLoading(true);
       try {
         const casesFromDb = await getCases();
         setAllCases(casesFromDb);
@@ -80,6 +82,8 @@ export default function InvoicePage() {
           title: 'Database Error',
           description: 'Could not fetch cases. Please try again.',
         });
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchAllCases();
@@ -114,7 +118,7 @@ export default function InvoicePage() {
   }, [allCases]);
 
   const invoiceSummary = useMemo(() => {
-    if (!selectedDoctor || !fromDate || !toDate) return null;
+    if (isLoading || !selectedDoctor || !fromDate || !toDate) return null;
 
      const filteredCasesByDate = allCases.filter(c => {
        if (c.dentistName !== selectedDoctor) return false;
@@ -161,7 +165,7 @@ export default function InvoicePage() {
     const grandTotal = subtotal - paidAmount;
 
     return { summary, subtotal, paidAmount, grandTotal, cases: filteredCasesByDate };
-  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices, paidAmount]);
+  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices, paidAmount, isLoading]);
   
    const handlePriceChange = (material: string, value: string) => {
     const newPrice = parseFloat(value);
