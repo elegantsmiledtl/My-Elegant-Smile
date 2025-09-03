@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CaseEntryForm from '@/components/case-entry-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt, ServerIcon } from 'lucide-react';
+import { Stethoscope, LogOut, PlusCircle, BookOpen, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addCase, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -32,7 +32,6 @@ export default function DoctorPortalPage() {
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
-  const [notificationResult, setNotificationResult] = useState<any>(null);
 
 
   useEffect(() => {
@@ -89,7 +88,6 @@ export default function DoctorPortalPage() {
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
 
-    setNotificationResult(null);
     const caseData = { ...newCase, dentistName };
 
     try {
@@ -109,9 +107,7 @@ export default function DoctorPortalPage() {
       setKey(Date.now()); // Reset form
 
       // Step 2: Send the notification and get the result
-      setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
       const result = await sendNewCaseNotification(caseData);
-      setNotificationResult(result);
 
       if (!result.success) {
           const firstError = result.details.find(d => !d.success)?.error || 'An unknown error occurred.';
@@ -126,10 +122,6 @@ export default function DoctorPortalPage() {
 
     } catch (error: any) {
        console.error("Error during case addition or notification:", error);
-       setNotificationResult({ 
-           success: false, 
-           error: `A critical error occurred: ${error.message}` 
-        });
         toast({
             variant: 'destructive',
             title: 'Operation Failed',
@@ -201,14 +193,6 @@ export default function DoctorPortalPage() {
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
-             {notificationResult && (
-                <div className="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
-                    <h3 className="font-bold flex items-center gap-2"><ServerIcon className="h-5 w-5"/>Server Response:</h3>
-                    <pre className="whitespace-pre-wrap break-words text-sm">
-                      {JSON.stringify(notificationResult, null, 2)}
-                    </pre>
-                </div>
-            )}
             <Card className="shadow-lg">
                 <CardContent className="pt-6">
                 <CaseEntryForm 

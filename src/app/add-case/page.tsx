@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Smartphone, ServerIcon } from 'lucide-react';
+import { Home, Smartphone } from 'lucide-react';
 import { addCase } from '@/lib/firebase';
 import Logo from '@/components/logo';
 import { sendNewCaseNotification } from '@/app/actions';
@@ -19,7 +19,6 @@ function AddCasePageContent() {
   const { toast } = useToast();
   const [isMounted, setIsMounted] = useState(false);
   const [key, setKey] = useState(Date.now()); // Add key state to re-mount the form
-  const [notificationResult, setNotificationResult] = useState<any>(null);
   
   const source = searchParams.get('source');
 
@@ -30,7 +29,6 @@ function AddCasePageContent() {
   const handleAddCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
     if (!isMounted) return;
     
-    setNotificationResult(null);
 
     try {
       // Step 1: Add the case to the database
@@ -50,17 +48,11 @@ function AddCasePageContent() {
       setKey(Date.now());
 
       // Step 2: Send the notification and get the result
-      setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
-      const result = await sendNewCaseNotification(newCase);
-      setNotificationResult(result);
+      await sendNewCaseNotification(newCase);
 
 
     } catch (error: any) {
        console.error("Error during case addition or notification:", error);
-       setNotificationResult({ 
-           success: false, 
-           error: `A critical error occurred: ${error.message}` 
-        });
         toast({
             variant: 'destructive',
             title: 'Operation Failed',
@@ -102,14 +94,6 @@ function AddCasePageContent() {
       </header>
       <main className="p-4 sm:p-6 lg:p-8 flex justify-center">
         <div className="w-full max-w-2xl">
-            {notificationResult && (
-                <div className="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
-                    <h3 className="font-bold flex items-center gap-2"><ServerIcon className="h-5 w-5"/>Server Response:</h3>
-                    <pre className="whitespace-pre-wrap break-words text-sm">
-                      {JSON.stringify(notificationResult, null, 2)}
-                    </pre>
-                </div>
-            )}
             <CaseEntryForm key={key} onAddCase={handleAddCase} onUpdate={handleUpdate} />
         </div>
       </main>
