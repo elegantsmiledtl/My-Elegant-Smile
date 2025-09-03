@@ -1,4 +1,5 @@
 
+
 // src/lib/firebase.ts
 import { initializeApp } from 'firebase/app';
 import { 
@@ -15,7 +16,8 @@ import {
   serverTimestamp,
   writeBatch,
   Timestamp,
-  runTransaction
+  runTransaction,
+  getDoc
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog, User } from '@/types';
 import { sendNewCaseNotification } from '@/app/actions';
@@ -41,7 +43,12 @@ const loginLogsCollection = collection(db, 'loginLogs');
 
 // A function to get all cases, sorted by creation time
 export const getCases = async (): Promise<DentalCase[]> => {
-  const q = query(casesCollection, orderBy('createdAt', 'desc'));
+  const q = query(
+    casesCollection,
+    where('isDeleted', '!=', true),
+    orderBy('isDeleted'), // Firestore requires this to combine '!=' and 'orderBy'
+    orderBy('createdAt', 'desc')
+    );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
     const data = doc.data();
@@ -74,7 +81,8 @@ export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[
 export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
   const docRef = await addDoc(casesCollection, {
     ...newCase,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    isDeleted: false
   });
   
   // Create a notification for the owner
@@ -95,8 +103,23 @@ export const updateCase = async (caseId: string, updatedCase: Partial<DentalCase
 
 // A function to delete a case
 export const deleteCase = async (caseId: string) => {
-  const caseDoc = doc(db, 'dentalCases', caseId);
-  await deleteDoc(caseDoc);
+  const caseDocRef = doc(db, 'dentalCases', caseId);
+  
+  const caseSnap = await getDoc(caseDocRef);
+  if (!caseSnap.exists()) {
+    console.error("Case not found!");
+    return;
+  }
+  const caseData = caseSnap.data();
+
+  // Special handling for Dr.Ibraheem Omar
+  if (caseData.dentistName === 'Dr.Ibraheem Omar') {
+    // Soft delete by marking it as deleted
+    await updateDoc(caseDocRef, { isDeleted: true });
+  } else {
+    // Hard delete for all other doctors
+    await deleteDoc(caseDocRef);
+  }
 };
 
 // --- User Management Functions ---

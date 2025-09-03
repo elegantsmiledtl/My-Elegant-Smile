@@ -13,6 +13,7 @@ export type DentalCase = {
   notes?: string;
   source?: 'Mobile' | 'Desktop';
   patientNumber?: string;
+  isDeleted?: boolean;
 };
 
 export type User = {
