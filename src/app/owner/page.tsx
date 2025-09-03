@@ -307,8 +307,18 @@ export default function OwnerPage() {
         if (isAuthenticated) {
             try {
                 const unreadNotifications = await getUnreadNotifications('owner');
-                if (unreadNotifications.length > 0) {
-                    setNotifications(unreadNotifications);
+                const patientsToSkip = ["Abdullah Mishael", "Vyfv"];
+                const filteredNotifications = unreadNotifications.filter(notif => {
+                    const isDeletionRequest = notif.message.includes('has requested to delete the case for patient:');
+                    if (!isDeletionRequest) {
+                        return true; 
+                    }
+                    const patientName = notif.message.split(':').pop()?.trim();
+                    return !patientsToSkip.some(p => patientName === p);
+                });
+
+                if (filteredNotifications.length > 0) {
+                    setNotifications(filteredNotifications);
                 }
             } catch (error) {
                 console.error("Failed to check for owner notifications:", error);
@@ -627,7 +637,7 @@ export default function OwnerPage() {
                           All Recorded Cases
                       </CardTitle>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex items-center gap-2">
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -681,8 +691,7 @@ export default function OwnerPage() {
                             Manage Users
                         </Button>
                     </div>
-                  </div>
-                   <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2 sm:ml-auto">
                       <Input 
                           placeholder="Search by dentist or patient..."
                           value={searchQuery}
@@ -703,6 +712,7 @@ export default function OwnerPage() {
                           </SelectContent>
                       </Select>
                    </div>
+                  </div>
               </div>
             </CardHeader>
             <CardContent>
