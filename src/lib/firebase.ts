@@ -61,16 +61,22 @@ export const getCases = async (): Promise<DentalCase[]> => {
 export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[]> => {
   const q = query(
     casesCollection, 
-    where("dentistName", "==", dentistName),
-    orderBy('createdAt', 'asc')
+    where("dentistName", "==", dentistName)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => {
+  const cases = snapshot.docs.map(doc => {
     const data = doc.data();
     return {
       id: doc.id,
       ...data,
     } as DentalCase;
+  });
+
+  // Sort in-memory to avoid needing a composite index
+  return cases.sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+    return dateA.getTime() - dateB.getTime();
   });
 };
 
