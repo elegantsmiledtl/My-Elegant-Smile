@@ -180,7 +180,7 @@ export default function DoctorPage() {
             <CasesTable 
               cases={filteredCases}
               onDeletionRequest={isIbraheemOmar ? handleRequestDeletion : undefined}
-              highlightDeleted={true}
+              highlightDeleted={false}
             />
           </CardContent>
         </Card>
