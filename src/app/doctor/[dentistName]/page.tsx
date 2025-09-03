@@ -98,12 +98,15 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    // If not Dr. Ibraheem Omar, return all cases without filtering
+    const baseCases = doctorCases.filter(c => !c.isDeleted); // Exclude soft-deleted cases
+
+    // If not Dr. Ibraheem Omar, return filtered base cases without search/month filter
     if (dentistName !== 'Dr.Ibraheem Omar') {
-      return doctorCases;
+      return baseCases;
     }
     
-    return doctorCases.filter(c => {
+    // For Dr. Ibraheem Omar, apply search and month filters
+    return baseCases.filter(c => {
         const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
         
         const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
