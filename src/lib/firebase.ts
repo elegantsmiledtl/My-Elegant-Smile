@@ -45,7 +45,6 @@ const loginLogsCollection = collection(db, 'loginLogs');
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(
     casesCollection,
-    where('isDeleted', '==', false),
     orderBy('createdAt', 'desc')
     );
   const snapshot = await getDocs(q);
