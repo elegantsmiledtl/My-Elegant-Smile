@@ -41,6 +41,18 @@ const notificationsCollection = collection(db, 'notifications');
 const loginLogsCollection = collection(db, 'loginLogs');
 
 
+// A function to get a single case by its ID
+export const getCaseById = async (caseId: string): Promise<DentalCase | null> => {
+  const caseDocRef = doc(db, 'dentalCases', caseId);
+  const docSnap = await getDoc(caseDocRef);
+  if (docSnap.exists()) {
+    return { id: docSnap.id, ...docSnap.data() } as DentalCase;
+  } else {
+    return null;
+  }
+};
+
+
 // A function to get all cases, sorted by creation time
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(

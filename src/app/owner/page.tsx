@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser, createNotification } from '@/lib/firebase';
+import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser, createNotification, getCaseById } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
@@ -397,7 +397,8 @@ export default function OwnerPage() {
         return;
     }
 
-    const relatedCase = cases.find(c => c.id === caseId);
+    const relatedCase = await getCaseById(caseId);
+
     if (!relatedCase) {
         toast({ variant: "destructive", title: "Error", description: "Could not find the related case." });
         return;
