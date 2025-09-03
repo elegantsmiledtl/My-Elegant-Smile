@@ -98,27 +98,29 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    let casesToDisplay = doctorCases; // Start with all cases for the doctor
-    
-    // For Dr. Ibraheem Omar, apply search and month filters but do not filter by isDeleted
-    if (dentistName === 'Dr.Ibraheem Omar') {
-       return casesToDisplay.filter(c => {
-          const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
-          
-          const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
-
-          return patientMatch && monthMatch;
-      });
-    }
+    let casesToDisplay = doctorCases;
     
     // For other doctors, hide deleted cases
-    return casesToDisplay.filter(c => !c.isDeleted);
+    if (dentistName !== 'Dr.Ibraheem Omar') {
+      return casesToDisplay.filter(c => !c.isDeleted);
+    }
+
+    // For Dr. Ibraheem Omar, show all cases but allow filtering by search/month
+    return casesToDisplay.filter(c => {
+        const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
+
+        return patientMatch && monthMatch;
+    });
 
   }, [doctorCases, searchQuery, selectedMonth, dentistName]);
   
   if (!isMounted) {
     return null; // Or a loading spinner
   }
+
+  const isIbraheemOmar = dentistName === 'Dr.Ibraheem Omar';
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -144,7 +146,7 @@ export default function DoctorPage() {
            <CardHeader>
                 <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
                     <CardTitle>My Case History</CardTitle>
-                    {dentistName === 'Dr.Ibraheem Omar' && (
+                    {isIbraheemOmar && (
                       <div className="flex gap-2 items-center">
                           <div className="relative">
                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -176,7 +178,8 @@ export default function DoctorPage() {
           <CardContent className="pt-0">
             <CasesTable 
               cases={filteredCases}
-              onDeletionRequest={dentistName === 'Dr.Ibraheem Omar' ? handleRequestDeletion : undefined}
+              onDeletionRequest={isIbraheemOmar ? handleRequestDeletion : undefined}
+              highlightDeleted={!isIbraheemOmar}
             />
           </CardContent>
         </Card>

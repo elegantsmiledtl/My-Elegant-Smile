@@ -50,6 +50,7 @@ interface CasesTableProps {
   hidePatientNumber?: boolean;
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
+  highlightDeleted?: boolean;
 }
 
 export default function CasesTable({ 
@@ -62,7 +63,8 @@ export default function CasesTable({
     hideShade,
     hidePatientNumber,
     selectedCases = [],
-    onSelectedCasesChange
+    onSelectedCasesChange,
+    highlightDeleted = true,
 }: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -168,7 +170,7 @@ export default function CasesTable({
               data-state={selectedCases.includes(c.id) && "selected"}
               className={cn(
                   c.deletionRequested && "bg-yellow-100 hover:bg-yellow-200/80 text-yellow-900",
-                  c.isDeleted && "bg-red-100 hover:bg-red-200/80 text-red-900 line-through opacity-60"
+                  c.isDeleted && highlightDeleted && "bg-red-100 hover:bg-red-200/80 text-red-900 line-through opacity-60"
                 )}
             >
               {showCheckboxes && (
@@ -249,7 +251,7 @@ export default function CasesTable({
                         className="disabled:opacity-70 disabled:bg-yellow-100"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        {c.deletionRequested ? 'Requested' : 'Delete'}
+                        Delete
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
