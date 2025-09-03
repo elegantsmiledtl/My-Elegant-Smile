@@ -395,7 +395,7 @@ export default function OwnerPage() {
 
     try {
         if (approve) {
-            await updateCase(caseId, { isDeleted: true });
+            await updateCase(caseId, { isDeleted: true, deletionRequested: true }); // Keep deletionRequested true
             await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was APPROVED.`);
             toast({ title: "Approved", description: "Case has been marked as deleted." });
         } else {
@@ -514,17 +514,22 @@ export default function OwnerPage() {
                     </div>
                   ) : (
                     <div className="flex gap-2 mt-2">
-                      <Button size="sm" onClick={() => handleNotificationAcknowledge(notif.id)}>
-                        Acknowledge
-                      </Button>
+                       {/* This part will now be handled by the footer button */}
                     </div>
                   )}
                 </div>
               ))}
             </div>
           <AlertDialogFooter>
-             <AlertDialogAction onClick={() => setNotifications([])}>
-                Close
+             <AlertDialogAction onClick={() => {
+                 notifications.forEach(notif => {
+                    if (!notif.message.includes("delete")) {
+                        handleNotificationAcknowledge(notif.id);
+                    }
+                 });
+                 setNotifications(prev => prev.filter(n => n.message.includes("delete")));
+             }}>
+                Got It
               </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -714,5 +719,3 @@ export default function OwnerPage() {
     </>
   );
 }
-
-    

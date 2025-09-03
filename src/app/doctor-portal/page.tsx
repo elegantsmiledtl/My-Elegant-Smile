@@ -201,6 +201,14 @@ export default function DoctorPortalPage() {
         </header>
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
+             {notificationResult && (
+                <div className="mb-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
+                    <h3 className="font-bold flex items-center gap-2"><ServerIcon className="h-5 w-5"/>Server Response:</h3>
+                    <pre className="whitespace-pre-wrap break-words text-sm">
+                      {JSON.stringify(notificationResult, null, 2)}
+                    </pre>
+                </div>
+            )}
             <Card className="shadow-lg">
                 <CardContent className="pt-6">
                 <CaseEntryForm 
