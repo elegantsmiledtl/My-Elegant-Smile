@@ -99,9 +99,6 @@ export default function DoctorPage() {
 
   const filteredCases = useMemo(() => {
     return doctorCases.filter(c => {
-        // Hide cases that have been soft-deleted (deletion request approved)
-        if (c.isDeleted) return false;
-
         const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
         const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
 
