@@ -626,60 +626,61 @@ export default function OwnerPage() {
                           <ToothIcon className="w-6 h-6 text-primary" />
                           All Recorded Cases
                       </CardTitle>
-                      
                   </div>
-                  <div className="flex items-center gap-2">
-                       <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                              <Button 
-                                  variant="destructive"
-                                  size="sm"
-                                  disabled={selectedCases.length === 0}
-                              >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete ({selectedCases.length})
-                              </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete {selectedCases.length} selected case(s). Cases for Dr.Ibraheem Omar will be hidden from this view but remain in his backup.
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteSelectedCases} className="bg-destructive hover:bg-destructive/90">
-                                      Yes, process
-                                  </AlertDialogAction>
-                              </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
-                      <Dialog>
-                          <DialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                  <History className="mr-2 h-4 w-4" />
-                                  Logs
-                              </Button>
-                          </DialogTrigger>
-                          <LoginLogsDialog />
-                      </Dialog>
-                       <Button asChild variant="outline" size="sm">
-                        <Link href="/owner/invoice">
-                          <Receipt className="mr-2 h-4 w-4" />
-                          Invoices
-                        </Link>
-                      </Button>
-                       <Button asChild variant="outline" size="sm">
-                        <Link href="/owner/qr">
-                          <QrCode className="mr-2 h-4 w-4" />
-                          QR Code
-                        </Link>
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
-                          <Users className="mr-2 h-4 w-4" />
-                          Manage Users
-                      </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex items-center gap-2">
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={selectedCases.length === 0}
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete ({selectedCases.length})
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete {selectedCases.length} selected case(s). Cases for Dr.Ibraheem Omar will be hidden from this view but remain in his backup.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDeleteSelectedCases} className="bg-destructive hover:bg-destructive/90">
+                                        Yes, process
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <History className="mr-2 h-4 w-4" />
+                                    Logs
+                                </Button>
+                            </DialogTrigger>
+                            <LoginLogsDialog />
+                        </Dialog>
+                         <Button asChild variant="outline" size="sm">
+                          <Link href="/owner/invoice">
+                            <Receipt className="mr-2 h-4 w-4" />
+                            Invoices
+                          </Link>
+                        </Button>
+                         <Button asChild variant="outline" size="sm">
+                          <Link href="/owner/qr">
+                            <QrCode className="mr-2 h-4 w-4" />
+                            QR Code
+                          </Link>
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
+                            <Users className="mr-2 h-4 w-4" />
+                            Manage Users
+                        </Button>
+                    </div>
                   </div>
                    <div className="flex items-center gap-2">
                       <Input 
@@ -711,6 +712,7 @@ export default function OwnerPage() {
                   onUpdateCase={handleUpdateCase}
                   selectedCases={selectedCases}
                   onSelectedCasesChange={setSelectedCases}
+                  showSerialNumber={true}
               />
             </CardContent>
           </Card>

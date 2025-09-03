@@ -98,15 +98,9 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    const isIbraheemOmar = dentistName === 'Dr.Ibraheem Omar';
     return doctorCases.filter(c => {
-      // For Dr. Ibraheem Omar, only hide cases he requested to delete AND which were approved.
-      if (isIbraheemOmar && c.deletionRequested && c.isDeleted) {
-          return false;
-      }
-      
-      // For any other doctor, if a case is deleted, hide it. This won't affect Dr. Omar's other cases.
-      if (!isIbraheemOmar && c.isDeleted) {
+      // Hide cases that the doctor requested to delete AND which were approved by the owner.
+      if (c.deletionRequested && c.isDeleted) {
           return false;
       }
 
@@ -115,7 +109,7 @@ export default function DoctorPage() {
 
       return patientMatch && monthMatch;
     });
-  }, [doctorCases, searchQuery, selectedMonth, dentistName]);
+  }, [doctorCases, searchQuery, selectedMonth]);
   
   if (!isMounted) {
     return null; // Or a loading spinner

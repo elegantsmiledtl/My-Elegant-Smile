@@ -51,6 +51,7 @@ interface CasesTableProps {
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
   highlightDeleted?: boolean;
+  showSerialNumber?: boolean;
 }
 
 export default function CasesTable({ 
@@ -65,6 +66,7 @@ export default function CasesTable({
     selectedCases = [],
     onSelectedCasesChange,
     highlightDeleted = true,
+    showSerialNumber = false,
 }: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -149,7 +151,7 @@ export default function CasesTable({
                 />
               </TableHead>
             )}
-            <TableHead>S/N</TableHead>
+            {showSerialNumber && <TableHead>S/N</TableHead>}
             <TableHead>Created At</TableHead>
             {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
@@ -184,7 +186,7 @@ export default function CasesTable({
                       />
                   </TableCell>
               )}
-              <TableCell className="font-medium">{(index + 1).toString().padStart(2, '0')}</TableCell>
+              {showSerialNumber && <TableCell className="font-medium">{(index + 1).toString().padStart(2, '0')}</TableCell>}
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
