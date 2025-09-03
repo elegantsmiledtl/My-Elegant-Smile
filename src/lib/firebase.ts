@@ -103,22 +103,7 @@ export const updateCase = async (caseId: string, updatedCase: Partial<DentalCase
 // A function to delete a case
 export const deleteCase = async (caseId: string) => {
   const caseDocRef = doc(db, 'dentalCases', caseId);
-  
-  const caseSnap = await getDoc(caseDocRef);
-  if (!caseSnap.exists()) {
-    console.error("Case not found!");
-    return;
-  }
-  const caseData = caseSnap.data();
-
-  // Special handling for Dr.Ibraheem Omar
-  if (caseData.dentistName === 'Dr.Ibraheem Omar') {
-    // Soft delete by marking it as deleted
-    await updateDoc(caseDocRef, { isDeleted: true });
-  } else {
-    // Hard delete for all other doctors
-    await deleteDoc(caseDocRef);
-  }
+  await deleteDoc(caseDocRef);
 };
 
 
@@ -126,11 +111,8 @@ export const requestCaseDeletion = async (caseId: string, patientName: string) =
     const caseDocRef = doc(db, 'dentalCases', caseId);
     await updateDoc(caseDocRef, { deletionRequested: true });
 
-    const relatedCase = await getDoc(caseDocRef);
-    const caseData = relatedCase.data();
-
     // Notify the owner
-    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`, caseId, caseData?.dentistName);
+    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`, caseId);
 };
 
 // --- User Management Functions ---
@@ -236,14 +218,13 @@ export const deleteInvoice = async (invoiceId: string) => {
 
 // --- Notification Management Functions ---
 
-export const createNotification = async (dentistName: string, message: string, caseId?: string, fromDentist?: string) => {
+export const createNotification = async (dentistName: string, message: string, caseId?: string) => {
     await addDoc(notificationsCollection, {
         dentistName,
         message,
         read: false,
         createdAt: serverTimestamp(),
         caseId: caseId || null,
-        fromDentist: fromDentist || null,
     });
 };
 

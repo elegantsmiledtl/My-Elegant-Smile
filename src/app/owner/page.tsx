@@ -227,7 +227,7 @@ export default function OwnerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [materialFilter, setMaterialFilter] = useState('all');
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<{ id: string; message: string; caseId?: string; dentistName?: string; }[]>([]);
+  const [notifications, setNotifications] = useState<{ id: string; message: string; caseId?: string }[]>([]);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -377,23 +377,28 @@ export default function OwnerPage() {
         if (!caseId) return;
 
         const relatedCase = cases.find(c => c.id === caseId);
+        
+        if (!relatedCase) {
+             toast({ title: "Error", description: "Could not find the related case.", variant: "destructive" });
+             return;
+        }
 
-        if (approve) {
-            await updateCase(caseId, { isDeleted: true });
-            toast({ title: "Approved", description: "Case has been marked as deleted." });
-            if (relatedCase?.dentistName) {
+        try {
+            if (approve) {
+                await updateCase(caseId, { isDeleted: true });
+                toast({ title: "Approved", description: "Case has been marked as deleted." });
                 await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was APPROVED.`);
-            }
-        } else {
-            await updateCase(caseId, { deletionRequested: false });
-            toast({ title: "Denied", description: "Case deletion request has been denied." });
-            if (relatedCase?.dentistName) {
+            } else {
+                await updateCase(caseId, { deletionRequested: false });
+                toast({ title: "Denied", description: "Case deletion request has been denied." });
                 await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was DENIED.`);
             }
+            await markNotificationAsRead(notifId);
+            setNotifications(prev => prev.filter(n => n.id !== notifId));
+            fetchCases(); // Refresh cases view
+        } catch (error) {
+            handleFirebaseError(error);
         }
-        await markNotificationAsRead(notifId);
-        setNotifications(prev => prev.filter(n => n.id !== notifId));
-        fetchCases(); // Refresh cases view
    };
 
    const handleNotificationAcknowledge = (notifId: string) => {
