@@ -45,7 +45,7 @@ const loginLogsCollection = collection(db, 'loginLogs');
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(
     casesCollection,
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'asc')
     );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
@@ -62,7 +62,7 @@ export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[
   const q = query(
     casesCollection, 
     where("dentistName", "==", dentistName),
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'asc')
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
