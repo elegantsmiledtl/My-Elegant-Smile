@@ -318,6 +318,7 @@ export default function OwnerPage() {
     if (isMounted) {
         checkForNotifications();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isMounted, cases]); // Also re-check when cases change
 
 
@@ -353,13 +354,20 @@ export default function OwnerPage() {
     });
   };
   
-  const handleDeleteCase = async (id: string) => {
+  const handleDeleteCase = async (caseToDelete: DentalCase) => {
     try {
-        await deleteCase(id);
-        fetchCases(); // Re-fetch cases to reflect the deletion
+      if (caseToDelete.dentistName === 'Dr.Ibraheem Omar') {
+        // Soft delete for Dr. Ibraheem Omar
+        await updateCase(caseToDelete.id, { isDeleted: true });
+        toast({ title: "Case Hidden", description: "Case has been hidden from the owner view but remains in the doctor's backup." });
+      } else {
+        // Permanent delete for others
+        await deleteCase(caseToDelete.id);
         toast({ title: "Success", description: "Case deleted successfully." });
+      }
+      fetchCases(); // Re-fetch cases to reflect the change
     } catch (error) {
-        handleFirebaseError(error);
+      handleFirebaseError(error);
     }
   };
   
@@ -374,31 +382,34 @@ export default function OwnerPage() {
   }
 
    const handleDeletionRequest = async (notifId: string, caseId: string | undefined, approve: boolean) => {
-        if (!caseId) return;
+    if (!caseId) {
+        toast({ variant: "destructive", title: "Error", description: "Notification is missing a case ID." });
+        return;
+    }
 
-        const relatedCase = cases.find(c => c.id === caseId);
+    const relatedCase = cases.find(c => c.id === caseId);
+    if (!relatedCase) {
+        toast({ variant: "destructive", title: "Error", description: "Could not find the related case." });
+        return;
+    }
+
+    try {
+        if (approve) {
+            await updateCase(caseId, { isDeleted: true });
+            await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was APPROVED.`);
+            toast({ title: "Approved", description: "Case has been marked as deleted." });
+        } else {
+            await updateCase(caseId, { deletionRequested: false });
+            await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was DENIED.`);
+            toast({ title: "Denied", description: "Case deletion request has been denied." });
+        }
         
-        if (!relatedCase) {
-             toast({ title: "Error", description: "Could not find the related case.", variant: "destructive" });
-             return;
-        }
-
-        try {
-            if (approve) {
-                await updateCase(caseId, { isDeleted: true });
-                toast({ title: "Approved", description: "Case has been marked as deleted." });
-                await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was APPROVED.`);
-            } else {
-                await updateCase(caseId, { deletionRequested: false });
-                toast({ title: "Denied", description: "Case deletion request has been denied." });
-                await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was DENIED.`);
-            }
-            await markNotificationAsRead(notifId);
-            setNotifications(prev => prev.filter(n => n.id !== notifId));
-            fetchCases(); // Refresh cases view
-        } catch (error) {
-            handleFirebaseError(error);
-        }
+        await markNotificationAsRead(notifId);
+        setNotifications(prev => prev.filter(n => n.id !== notifId));
+        fetchCases(); // Refresh cases view to hide the soft-deleted case
+    } catch (error) {
+        handleFirebaseError(error);
+    }
    };
 
    const handleNotificationAcknowledge = (notifId: string) => {
@@ -408,11 +419,19 @@ export default function OwnerPage() {
 
   const handleDeleteSelectedCases = async () => {
     try {
-      const deletePromises = selectedCases.map(id => deleteCase(id));
+      const casesToDelete = cases.filter(c => selectedCases.includes(c.id));
+      const deletePromises = casesToDelete.map(c => {
+        if (c.dentistName === 'Dr.Ibraheem Omar') {
+          return updateCase(c.id, { isDeleted: true }); // Soft delete
+        } else {
+          return deleteCase(c.id); // Hard delete
+        }
+      });
       await Promise.all(deletePromises);
+
       toast({
-        title: 'Cases Deleted',
-        description: `${selectedCases.length} selected case(s) have been successfully deleted.`,
+        title: 'Cases Action Completed',
+        description: `${selectedCases.length} selected case(s) have been processed.`,
       });
       fetchCases(); // Refresh cases from DB
       setSelectedCases([]); // Clear selection
@@ -422,7 +441,8 @@ export default function OwnerPage() {
   };
 
   const filteredCases = cases.filter(c => {
-    if (c.isDeleted) return false; // Hide soft-deleted cases from owner view
+    // Hide soft-deleted cases from owner view by default
+    if (c.isDeleted) return false;
 
     const searchMatch = c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -474,218 +494,223 @@ export default function OwnerPage() {
 
   return (
     <>
-    <AlertDialog open={notifications.length > 0}>
+      <AlertDialog open={notifications.length > 0} onOpenChange={(open) => !open && setNotifications([])}>
         <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>You have {notifications.length} new notification(s)</AlertDialogTitle>
-                <AlertDialogDescription asChild>
-                    <ul className="list-disc pl-5 space-y-2 mt-2 max-h-60 overflow-y-auto">
-                      {notifications.map(notif => (
-                        <li key={notif.id} className="font-bold text-foreground py-2">
-                          <p>{notif.message}</p>
-                           {notif.message.includes("delete") && (
-                                <div className="flex gap-2 mt-2">
-                                    <Button size="sm" onClick={() => handleDeletionRequest(notif.id, notif.caseId, true)}>
-                                        Yes, Delete
-                                    </Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleDeletionRequest(notif.id, notif.caseId, false)}>
-                                        No, Keep
-                                    </Button>
-                                </div>
-                            )}
-                        </li>
-                      ))}
-                    </ul>
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setNotifications([])}>
-                    Close
-                </AlertDialogAction>
-            </AlertDialogFooter>
+          <AlertDialogHeader>
+            <AlertDialogTitle>You have {notifications.length} new notification(s)</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="list-disc pl-5 space-y-2 mt-2 max-h-60 overflow-y-auto pr-4">
+              {notifications.map(notif => (
+                <div key={notif.id} className="font-bold text-foreground py-2 border-b last:border-b-0">
+                  <p>{notif.message}</p>
+                  {notif.message.includes("delete") && notif.caseId ? (
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={() => handleDeletionRequest(notif.id, notif.caseId, true)}>
+                        Yes, Delete
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDeletionRequest(notif.id, notif.caseId, false)}>
+                        No, Keep
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={() => handleNotificationAcknowledge(notif.id)}>
+                        Acknowledge
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          <AlertDialogFooter>
+             <AlertDialogAction onClick={() => setNotifications([])}>
+                Close
+              </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
-    </AlertDialog>
+      </AlertDialog>
     
-    {/* User Management Dialog */}
-    <Dialog open={isManageUsersOpen} onOpenChange={setIsManageUsersOpen}>
-        <DialogContent className="max-w-3xl">
-            <DialogHeader>
-                <DialogTitle>Manage Users</DialogTitle>
-                <DialogDescription>Add, edit, or delete doctor accounts.</DialogDescription>
-            </DialogHeader>
-            <div className="my-4">
-                <Button onClick={() => setIsAddUserOpen(true)}>
-                    <UserPlus className="mr-2 h-4 w-4" /> Add New Doctor
-                </Button>
-            </div>
-            <div className="rounded-md border max-h-[50vh] overflow-y-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>User Name</TableHead>
-                            <TableHead>Password</TableHead>
-                            <TableHead>Welcome Message</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {users.map((user) => (
-                            <TableRow key={user.id}>
-                                <TableCell className="font-medium">{user.name}</TableCell>
-                                <TableCell>{user.password}</TableCell>
-                                <TableCell>{user.welcomeMessage}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>This will permanently delete {user.name}'s account.</AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
-        </DialogContent>
-    </Dialog>
+      {/* User Management Dialog */}
+      <Dialog open={isManageUsersOpen} onOpenChange={setIsManageUsersOpen}>
+          <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                  <DialogTitle>Manage Users</DialogTitle>
+                  <DialogDescription>Add, edit, or delete doctor accounts.</DialogDescription>
+              </DialogHeader>
+              <div className="my-4">
+                  <Button onClick={() => setIsAddUserOpen(true)}>
+                      <UserPlus className="mr-2 h-4 w-4" /> Add New Doctor
+                  </Button>
+              </div>
+              <div className="rounded-md border max-h-[50vh] overflow-y-auto">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>User Name</TableHead>
+                              <TableHead>Password</TableHead>
+                              <TableHead>Welcome Message</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {users.map((user) => (
+                              <TableRow key={user.id}>
+                                  <TableCell className="font-medium">{user.name}</TableCell>
+                                  <TableCell>{user.password}</TableCell>
+                                  <TableCell>{user.welcomeMessage}</TableCell>
+                                  <TableCell className="text-right">
+                                      <Button variant="ghost" size="icon" onClick={() => setUserToEdit(user)}>
+                                          <Edit className="h-4 w-4" />
+                                      </Button>
+                                      <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                              <Button variant="ghost" size="icon">
+                                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                              </Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                  <AlertDialogDescription>This will permanently delete {user.name}'s account.</AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                  <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                              </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                      </AlertDialog>
+                                  </TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+              </div>
+          </DialogContent>
+      </Dialog>
 
-    {/* Add User Dialog */}
-    <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Add New Doctor</DialogTitle>
-            </DialogHeader>
-            <AddUserForm onUserAdded={handleUserAdded} onCancel={() => setIsAddUserOpen(false)} />
-        </DialogContent>
-    </Dialog>
+      {/* Add User Dialog */}
+      <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Add New Doctor</DialogTitle>
+              </DialogHeader>
+              <AddUserForm onUserAdded={handleUserAdded} onCancel={() => setIsAddUserOpen(false)} />
+          </DialogContent>
+      </Dialog>
 
-    {/* Edit User Dialog */}
-    <Dialog open={isEditUserOpen} onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit User: {userToEdit?.name}</DialogTitle>
-            </DialogHeader>
-            {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} onCancel={() => setUserToEdit(null)} />}
-        </DialogContent>
-    </Dialog>
+      {/* Edit User Dialog */}
+      <Dialog open={isEditUserOpen} onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Edit User: {userToEdit?.name}</DialogTitle>
+              </DialogHeader>
+              {userToEdit && <EditUserForm user={userToEdit} onUserUpdated={handleUserUpdated} onCancel={() => setUserToEdit(null)} />}
+          </DialogContent>
+      </Dialog>
 
 
-    <div className="min-h-screen bg-background text-foreground">
-      <PageHeader cases={cases} setCases={setCases} />
-      <main className="p-4 sm:p-6 lg:p-8 space-y-6">
-        <Dashboard cases={filteredCases} />
-        <Card className="shadow-lg">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-                <div>
-                    <CardTitle className="flex items-center gap-2 font-headline">
-                        <ToothIcon className="w-6 h-6 text-primary" />
-                        All Recorded Cases
-                    </CardTitle>
-                     <div className="flex items-center gap-2 mt-4">
-                        <Input 
-                            placeholder="Search by dentist or patient..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="max-w-xs"
-                        />
-                        <Select value={materialFilter} onValueChange={setMaterialFilter}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Filter by material..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Materials</SelectItem>
-                                {materialOptions.map(material => (
-                                    <SelectItem key={material} value={material}>
-                                        {material}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                     </div>
-                </div>
-                <div className="flex items-center gap-2">
-                     <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button 
-                                variant="destructive"
-                                size="sm"
-                                disabled={selectedCases.length === 0}
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete ({selectedCases.length})
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete {selectedCases.length} selected case(s).
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteSelectedCases} className="bg-destructive hover:bg-destructive/90">
-                                    Yes, delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                                <History className="mr-2 h-4 w-4" />
-                                Logs
-                            </Button>
-                        </DialogTrigger>
-                        <LoginLogsDialog />
-                    </Dialog>
-                     <Button asChild variant="outline" size="sm">
-                      <Link href="/owner/invoice">
-                        <Receipt className="mr-2 h-4 w-4" />
-                        Invoices
-                      </Link>
-                    </Button>
-                     <Button asChild variant="outline" size="sm">
-                      <Link href="/owner/qr">
-                        <QrCode className="mr-2 h-4 w-4" />
-                        QR Code
-                      </Link>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Users
-                    </Button>
-                </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CasesTable 
-                cases={filteredCases} 
-                onDeleteCase={handleDeleteCase} 
-                onUpdateCase={handleUpdateCase}
-                selectedCases={selectedCases}
-                onSelectedCasesChange={setSelectedCases}
-            />
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+      <div className="min-h-screen bg-background text-foreground">
+        <PageHeader cases={cases} setCases={setCases} />
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6">
+          <Dashboard cases={filteredCases} />
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                  <div>
+                      <CardTitle className="flex items-center gap-2 font-headline">
+                          <ToothIcon className="w-6 h-6 text-primary" />
+                          All Recorded Cases
+                      </CardTitle>
+                       <div className="flex items-center gap-2 mt-4">
+                          <Input 
+                              placeholder="Search by dentist or patient..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="max-w-xs"
+                          />
+                          <Select value={materialFilter} onValueChange={setMaterialFilter}>
+                              <SelectTrigger className="w-[180px]">
+                                  <SelectValue placeholder="Filter by material..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="all">All Materials</SelectItem>
+                                  {materialOptions.map(material => (
+                                      <SelectItem key={material} value={material}>
+                                          {material}
+                                      </SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                       </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                       <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button 
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={selectedCases.length === 0}
+                              >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete ({selectedCases.length})
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete {selectedCases.length} selected case(s). Cases for Dr.Ibraheem Omar will be hidden from this view but remain in his backup.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleDeleteSelectedCases} className="bg-destructive hover:bg-destructive/90">
+                                      Yes, process
+                                  </AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
+                      <Dialog>
+                          <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                  <History className="mr-2 h-4 w-4" />
+                                  Logs
+                              </Button>
+                          </DialogTrigger>
+                          <LoginLogsDialog />
+                      </Dialog>
+                       <Button asChild variant="outline" size="sm">
+                        <Link href="/owner/invoice">
+                          <Receipt className="mr-2 h-4 w-4" />
+                          Invoices
+                        </Link>
+                      </Button>
+                       <Button asChild variant="outline" size="sm">
+                        <Link href="/owner/qr">
+                          <QrCode className="mr-2 h-4 w-4" />
+                          QR Code
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setIsManageUsersOpen(true)}>
+                          <Users className="mr-2 h-4 w-4" />
+                          Manage Users
+                      </Button>
+                  </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CasesTable 
+                  cases={filteredCases} 
+                  onDeleteCase={handleDeleteCase} 
+                  onUpdateCase={handleUpdateCase}
+                  selectedCases={selectedCases}
+                  onSelectedCasesChange={setSelectedCases}
+                  hideSource
+              />
+            </CardContent>
+          </Card>
+        </main>
+      </div>
     </>
   );
 }

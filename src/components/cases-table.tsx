@@ -41,7 +41,7 @@ import { Checkbox } from './ui/checkbox';
 
 interface CasesTableProps {
   cases: DentalCase[];
-  onDeleteCase?: (id: string) => void;
+  onDeleteCase?: (dentalCase: DentalCase) => void;
   onUpdateCase?: (updatedCase: DentalCase) => void;
   onDeletionRequest?: (id: string, patientName: string) => void; // New prop
   hideDentist?: boolean;
@@ -125,7 +125,7 @@ export default function CasesTable({
     );
   }
   
-  const showActions = onDeleteCase && onUpdateCase;
+  const showActions = !!onDeleteCase && !!onUpdateCase;
   const showCheckboxes = !!onSelectedCasesChange;
   const showDeletionRequest = !!onDeletionRequest;
   const numSelected = selectedCases.length;
@@ -166,7 +166,10 @@ export default function CasesTable({
             <TableRow 
               key={c.id} 
               data-state={selectedCases.includes(c.id) && "selected"}
-              className={cn(c.deletionRequested && "bg-yellow-100 hover:bg-yellow-200/80 text-yellow-900")}
+              className={cn(
+                  c.deletionRequested && "bg-yellow-100 hover:bg-yellow-200/80 text-yellow-900",
+                  c.isDeleted && "bg-red-100 hover:bg-red-200/80 text-red-900 line-through opacity-60"
+                )}
             >
               {showCheckboxes && (
                   <TableCell>
@@ -223,12 +226,12 @@ export default function CasesTable({
                           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete the case
-                            for {c.patientName}.
+                            for {c.patientName}. For Dr.Ibraheem Omar, this will only hide the case from the owner view.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDeleteCase && onDeleteCase(c.id)} className="bg-destructive hover:bg-destructive/90">
+                          <AlertDialogAction onClick={() => onDeleteCase && onDeleteCase(c)} className="bg-destructive hover:bg-destructive/90">
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -289,5 +292,3 @@ export default function CasesTable({
     </div>
   );
 }
-
-    
