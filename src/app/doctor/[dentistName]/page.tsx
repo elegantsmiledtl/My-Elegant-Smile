@@ -74,6 +74,11 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
+    // If not Dr. Ibraheem Omar, return all cases without filtering
+    if (dentistName !== 'Dr.Ibraheem Omar') {
+      return doctorCases;
+    }
+    
     return doctorCases.filter(c => {
         const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
         
@@ -81,7 +86,7 @@ export default function DoctorPage() {
 
         return patientMatch && monthMatch;
     });
-  }, [doctorCases, searchQuery, selectedMonth]);
+  }, [doctorCases, searchQuery, selectedMonth, dentistName]);
   
   if (!isMounted) {
     return null; // Or a loading spinner
@@ -111,31 +116,33 @@ export default function DoctorPage() {
            <CardHeader>
                 <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
                     <CardTitle>My Case History</CardTitle>
-                    <div className="flex gap-2 items-center">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Search by patient..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 w-[250px]"
-                            />
-                        </div>
-                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                            <SelectTrigger className="w-[180px]">
-                                <Calendar className="mr-2 h-4 w-4" />
-                                <SelectValue placeholder="Filter by month..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Months</SelectItem>
-                                {monthOptions.map(month => (
-                                    <SelectItem key={month} value={month}>
-                                        {format(parseISO(`${month}-01`), 'MMMM yyyy')}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {dentistName === 'Dr.Ibraheem Omar' && (
+                      <div className="flex gap-2 items-center">
+                          <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input 
+                                  placeholder="Search by patient..."
+                                  value={searchQuery}
+                                  onChange={(e) => setSearchQuery(e.target.value)}
+                                  className="pl-10 w-[250px]"
+                              />
+                          </div>
+                          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                              <SelectTrigger className="w-[180px]">
+                                  <Calendar className="mr-2 h-4 w-4" />
+                                  <SelectValue placeholder="Filter by month..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="all">All Months</SelectItem>
+                                  {monthOptions.map(month => (
+                                      <SelectItem key={month} value={month}>
+                                          {format(parseISO(`${month}-01`), 'MMMM yyyy')}
+                                      </SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                    )}
                 </div>
             </CardHeader>
           <CardContent className="pt-0">
