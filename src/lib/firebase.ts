@@ -45,8 +45,7 @@ const loginLogsCollection = collection(db, 'loginLogs');
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(
     casesCollection,
-    where('isDeleted', '!=', true),
-    orderBy('isDeleted'), // Firestore requires this to combine '!=' and 'orderBy'
+    where('isDeleted', '==', false),
     orderBy('createdAt', 'desc')
     );
   const snapshot = await getDocs(q);
