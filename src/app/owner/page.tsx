@@ -710,7 +710,6 @@ export default function OwnerPage() {
                   onUpdateCase={handleUpdateCase}
                   selectedCases={selectedCases}
                   onSelectedCasesChange={setSelectedCases}
-                  hideSource
               />
             </CardContent>
           </Card>

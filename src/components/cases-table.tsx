@@ -47,7 +47,6 @@ interface CasesTableProps {
   hideDentist?: boolean;
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
-  hideSource?: boolean;
   hidePatientNumber?: boolean;
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
@@ -62,7 +61,6 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
-    hideSource,
     hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange,
@@ -259,7 +257,7 @@ export default function CasesTable({
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Request Case Deletion?</AlertDialogTitle>
+                        <AlertDialogTitle>Delete Case?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This will send a notification to the lab owner to approve the deletion of the case for {c.patientName}. You will be notified once it's approved. Are you sure?
                         </AlertDialogDescription>

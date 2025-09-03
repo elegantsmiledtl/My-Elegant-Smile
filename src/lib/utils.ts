@@ -37,7 +37,6 @@ export function convertJsonToCsv(jsonData: DentalCase[]): string {
             material: caseItem.material,
             shade: caseItem.shade,
             notes: caseItem.notes,
-            source: caseItem.source,
         };
     });
     

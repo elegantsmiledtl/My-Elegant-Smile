@@ -559,7 +559,6 @@ export default function InvoicePage() {
                                 hideDentist 
                                 hideDeliveryDate 
                                 hideShade 
-                                hideSource
                                 hidePatientNumber
                             />
                         </div>
@@ -831,7 +830,6 @@ export default function InvoicePage() {
                                                 hideDentist
                                                 hideDeliveryDate
                                                 hideShade
-                                                hideSource
                                                 hidePatientNumber
                                             />
                                             </CardContent>

@@ -21,7 +21,7 @@ function AddCasePageContent() {
   const [key, setKey] = useState(Date.now()); // Add key state to re-mount the form
   const [notificationResult, setNotificationResult] = useState<any>(null);
   
-  const source = searchParams.get('source') as 'Mobile' | 'Desktop' | null;
+  const source = searchParams.get('source');
 
   useEffect(() => {
     setIsMounted(true);
@@ -32,11 +32,6 @@ function AddCasePageContent() {
     
     setNotificationResult(null);
 
-    const caseWithSource = { 
-        ...newCase, 
-        source: source === 'Mobile' ? 'Mobile' : 'Desktop'
-    };
-
     try {
       // Step 1: Add the case to the database
       toast({
@@ -44,7 +39,7 @@ function AddCasePageContent() {
         description: `Adding case for ${newCase.patientName}.`,
       });
 
-      await addCase(caseWithSource);
+      await addCase(newCase);
       
       toast({
         title: 'Case Added!',
@@ -56,7 +51,7 @@ function AddCasePageContent() {
 
       // Step 2: Send the notification and get the result
       setNotificationResult({ message: "Sending WhatsApp notification(s)... Please wait." });
-      const result = await sendNewCaseNotification(caseWithSource);
+      const result = await sendNewCaseNotification(newCase);
       setNotificationResult(result);
 
 

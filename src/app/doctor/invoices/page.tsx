@@ -290,7 +290,6 @@ export default function DoctorInvoicesPage() {
                                         hideDentist
                                         hideDeliveryDate
                                         hideShade
-                                        hideSource
                                       />
                                     </CardContent>
                                   </Card>

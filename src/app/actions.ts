@@ -37,7 +37,6 @@ Dentist: ${newCase.dentistName}
 Units: ${toothCount} (${newCase.toothNumbers})
 Material: ${newCase.material}
 Prosthesis: ${newCase.prosthesisType}
-Source: ${newCase.source || 'Desktop'}
 Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleDateString() : 'N/A'}`;
 
         const messageBody = `*New Elegant Smile Case*\n${caseDetails}`;
