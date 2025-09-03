@@ -98,9 +98,11 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    // For Dr. Ibraheem Omar, apply search and month filters to all his cases (backup view)
+    let casesToDisplay = doctorCases.filter(c => !c.isDeleted);
+    
+    // For Dr. Ibraheem Omar, apply search and month filters
     if (dentistName === 'Dr.Ibraheem Omar') {
-       return doctorCases.filter(c => {
+       return casesToDisplay.filter(c => {
           const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
           
           const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
@@ -109,8 +111,7 @@ export default function DoctorPage() {
       });
     }
     
-    // For all other doctors, only show non-deleted cases.
-    return doctorCases.filter(c => !c.isDeleted);
+    return casesToDisplay;
 
   }, [doctorCases, searchQuery, selectedMonth, dentistName]);
   
@@ -182,3 +183,4 @@ export default function DoctorPage() {
     </div>
   );
 }
+
