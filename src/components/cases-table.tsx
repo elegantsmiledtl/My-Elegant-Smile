@@ -47,6 +47,7 @@ interface CasesTableProps {
   hideDentist?: boolean;
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
+  hideSource?: boolean;
   hidePatientNumber?: boolean;
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
@@ -61,6 +62,7 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
+    hideSource,
     hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange,
@@ -170,7 +172,8 @@ export default function CasesTable({
               data-state={selectedCases.includes(c.id) && "selected"}
               className={cn(
                   c.deletionRequested && "bg-yellow-100 hover:bg-yellow-200/80 text-yellow-900",
-                  c.isDeleted && highlightDeleted && "bg-red-100 hover:bg-red-200/80 text-red-900 line-through opacity-60"
+                  // Only apply deleted styling if the highlight prop is true AND the case is deleted.
+                  highlightDeleted && c.isDeleted && "bg-red-100 hover:bg-red-200/80 text-red-900 line-through opacity-60"
                 )}
             >
               {showCheckboxes && (

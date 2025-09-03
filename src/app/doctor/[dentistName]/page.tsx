@@ -100,20 +100,20 @@ export default function DoctorPage() {
   const filteredCases = useMemo(() => {
     const isIbraheemOmar = dentistName === 'Dr.Ibraheem Omar';
     return doctorCases.filter(c => {
-        // For Dr. Ibraheem Omar, only hide cases he requested to delete AND were approved.
-        if (isIbraheemOmar && c.deletionRequested && c.isDeleted) {
-            return false;
-        }
+      // For Dr. Ibraheem Omar, only hide cases he requested to delete AND which were approved.
+      if (isIbraheemOmar && c.deletionRequested && c.isDeleted) {
+          return false;
+      }
+      
+      // For any other doctor, if a case is deleted, hide it. This won't affect Dr. Omar's other cases.
+      if (!isIbraheemOmar && c.isDeleted) {
+          return false;
+      }
 
-        // For all other doctors (or for Dr. Omar's non-requested deletes), hide if isDeleted.
-        if (!isIbraheemOmar && c.isDeleted) {
-            return false;
-        }
+      const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
+      const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
 
-        const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
-        const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
-
-        return patientMatch && monthMatch;
+      return patientMatch && monthMatch;
     });
   }, [doctorCases, searchQuery, selectedMonth, dentistName]);
   
