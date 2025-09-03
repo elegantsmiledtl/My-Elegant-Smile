@@ -149,6 +149,7 @@ export default function CasesTable({
                 />
               </TableHead>
             )}
+            <TableHead>S/N</TableHead>
             <TableHead>Created At</TableHead>
             {!hideDeliveryDate && <TableHead>Delivery Date</TableHead>}
             <TableHead>Patient</TableHead>
@@ -164,7 +165,7 @@ export default function CasesTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {cases.map((c) => (
+          {cases.map((c, index) => (
             <TableRow 
               key={c.id} 
               data-state={selectedCases.includes(c.id) && "selected"}
@@ -183,6 +184,7 @@ export default function CasesTable({
                       />
                   </TableCell>
               )}
+              <TableCell className="font-medium">{(index + 1).toString().padStart(2, '0')}</TableCell>
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>
