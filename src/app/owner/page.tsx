@@ -356,7 +356,7 @@ export default function OwnerPage() {
   const handleDeleteCase = async (id: string) => {
     try {
         await deleteCase(id);
-        setCases(prevCases => prevCases.filter(c => c.id !== id));
+        fetchCases(); // Re-fetch cases to reflect the deletion
         toast({ title: "Success", description: "Case deleted successfully." });
     } catch (error) {
         handleFirebaseError(error);
@@ -398,6 +398,8 @@ export default function OwnerPage() {
   };
 
   const filteredCases = cases.filter(c => {
+    if (c.isDeleted) return false; // Hide soft-deleted cases from owner view
+
     const searchMatch = c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -645,7 +647,6 @@ export default function OwnerPage() {
                 onUpdateCase={handleUpdateCase}
                 selectedCases={selectedCases}
                 onSelectedCasesChange={setSelectedCases}
-                hideSource
             />
           </CardContent>
         </Card>
