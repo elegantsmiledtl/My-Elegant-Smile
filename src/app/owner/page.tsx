@@ -620,33 +620,13 @@ export default function OwnerPage() {
           <Dashboard cases={filteredCases} />
           <Card className="shadow-lg">
             <CardHeader>
-              <div className="flex justify-between items-start">
-                  <div>
+              <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-start">
                       <CardTitle className="flex items-center gap-2 font-headline">
                           <ToothIcon className="w-6 h-6 text-primary" />
                           All Recorded Cases
                       </CardTitle>
-                       <div className="flex items-center gap-2 mt-4">
-                          <Input 
-                              placeholder="Search by dentist or patient..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="max-w-xs"
-                          />
-                          <Select value={materialFilter} onValueChange={setMaterialFilter}>
-                              <SelectTrigger className="w-[180px]">
-                                  <SelectValue placeholder="Filter by material..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                  <SelectItem value="all">All Materials</SelectItem>
-                                  {materialOptions.map(material => (
-                                      <SelectItem key={material} value={material}>
-                                          {material}
-                                      </SelectItem>
-                                  ))}
-                              </SelectContent>
-                          </Select>
-                       </div>
+                      
                   </div>
                   <div className="flex items-center gap-2">
                        <AlertDialog>
@@ -701,6 +681,27 @@ export default function OwnerPage() {
                           Manage Users
                       </Button>
                   </div>
+                   <div className="flex items-center gap-2">
+                      <Input 
+                          placeholder="Search by dentist or patient..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="max-w-xs"
+                      />
+                      <Select value={materialFilter} onValueChange={setMaterialFilter}>
+                          <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Filter by material..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all">All Materials</SelectItem>
+                              {materialOptions.map(material => (
+                                  <SelectItem key={material} value={material}>
+                                      {material}
+                                  </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                   </div>
               </div>
             </CardHeader>
             <CardContent>
