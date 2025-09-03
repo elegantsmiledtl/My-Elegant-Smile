@@ -98,23 +98,16 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    let casesToDisplay = doctorCases;
-    
-    // For other doctors, hide deleted cases
-    if (dentistName !== 'Dr.Ibraheem Omar') {
-      return casesToDisplay.filter(c => !c.isDeleted);
-    }
+    return doctorCases.filter(c => {
+        // Hide cases that have been soft-deleted (deletion request approved)
+        if (c.isDeleted) return false;
 
-    // For Dr. Ibraheem Omar, show all cases but allow filtering by search/month
-    return casesToDisplay.filter(c => {
         const patientMatch = c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
-        
         const monthMatch = selectedMonth === 'all' || (c.createdAt && format(c.createdAt.toDate ? c.createdAt.toDate() : parseISO(c.createdAt), 'yyyy-MM') === selectedMonth);
 
         return patientMatch && monthMatch;
     });
-
-  }, [doctorCases, searchQuery, selectedMonth, dentistName]);
+  }, [doctorCases, searchQuery, selectedMonth]);
   
   if (!isMounted) {
     return null; // Or a loading spinner
@@ -179,7 +172,7 @@ export default function DoctorPage() {
             <CasesTable 
               cases={filteredCases}
               onDeletionRequest={isIbraheemOmar ? handleRequestDeletion : undefined}
-              highlightDeleted={!isIbraheemOmar}
+              highlightDeleted={false}
             />
           </CardContent>
         </Card>
