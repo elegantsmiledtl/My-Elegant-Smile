@@ -98,7 +98,13 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
+    const patientsToExclude = ["Abdullah Mishael", "Vyfv"];
     return doctorCases.filter(c => {
+      // Exclude specific patients for Dr. Ibraheem Omar
+      if (dentistName === 'Dr.Ibraheem Omar' && patientsToExclude.includes(c.patientName)) {
+          return false;
+      }
+      
       // Hide cases that the doctor requested to delete AND which were approved by the owner.
       if (c.deletionRequested && c.isDeleted) {
           return false;
@@ -109,7 +115,7 @@ export default function DoctorPage() {
 
       return patientMatch && monthMatch;
     });
-  }, [doctorCases, searchQuery, selectedMonth]);
+  }, [doctorCases, searchQuery, selectedMonth, dentistName]);
   
   if (!isMounted) {
     return null; // Or a loading spinner
