@@ -243,13 +243,13 @@ export default function CasesTable({
                    <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button 
-                        variant="outline" 
+                        variant="destructive" 
                         size="sm" 
                         disabled={!!c.deletionRequested}
-                        className="bg-orange-100 hover:bg-orange-200 border-orange-300 text-orange-800 disabled:opacity-70 disabled:bg-yellow-100"
+                        className="disabled:opacity-70 disabled:bg-yellow-100"
                       >
-                        <Send className="mr-2 h-4 w-4" />
-                        {c.deletionRequested ? 'Requested' : 'Request Deletion'}
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {c.deletionRequested ? 'Requested' : 'Delete'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
