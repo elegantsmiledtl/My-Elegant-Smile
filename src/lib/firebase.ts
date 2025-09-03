@@ -80,7 +80,8 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
   const docRef = await addDoc(casesCollection, {
     ...newCase,
     createdAt: serverTimestamp(),
-    isDeleted: false
+    isDeleted: false,
+    deletionRequested: false,
   });
   
   // Create a notification for the owner
@@ -125,8 +126,11 @@ export const requestCaseDeletion = async (caseId: string, patientName: string) =
     const caseDocRef = doc(db, 'dentalCases', caseId);
     await updateDoc(caseDocRef, { deletionRequested: true });
 
+    const relatedCase = await getDoc(caseDocRef);
+    const caseData = relatedCase.data();
+
     // Notify the owner
-    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`);
+    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`, caseId, caseData?.dentistName);
 };
 
 // --- User Management Functions ---
@@ -232,12 +236,14 @@ export const deleteInvoice = async (invoiceId: string) => {
 
 // --- Notification Management Functions ---
 
-export const createNotification = async (dentistName: string, message: string) => {
+export const createNotification = async (dentistName: string, message: string, caseId?: string, fromDentist?: string) => {
     await addDoc(notificationsCollection, {
         dentistName,
         message,
         read: false,
         createdAt: serverTimestamp(),
+        caseId: caseId || null,
+        fromDentist: fromDentist || null,
     });
 };
 
@@ -288,3 +294,5 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
         ...doc.data(),
     } as LoginLog));
 };
+
+    

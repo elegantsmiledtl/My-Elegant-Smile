@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus } from 'lucide-react';
-import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser } from '@/lib/firebase';
+import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser, createNotification } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import {
@@ -227,7 +227,7 @@ export default function OwnerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [materialFilter, setMaterialFilter] = useState('all');
   const { toast } = useToast();
-  const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
+  const [notifications, setNotifications] = useState<{ id: string; message: string; caseId?: string; dentistName?: string; }[]>([]);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -284,6 +284,15 @@ export default function OwnerPage() {
       setIsAuthenticated(true);
     }
   }, []);
+
+  const fetchCases = async () => {
+    try {
+        const casesFromDb = await getCases();
+        setCases(casesFromDb);
+    } catch (error) {
+        handleFirebaseError(error);
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -343,15 +352,6 @@ export default function OwnerPage() {
         ) : undefined,
     });
   };
-
-  const fetchCases = async () => {
-    try {
-        const casesFromDb = await getCases();
-        setCases(casesFromDb);
-    } catch (error) {
-        handleFirebaseError(error);
-    }
-  };
   
   const handleDeleteCase = async (id: string) => {
     try {
@@ -373,14 +373,33 @@ export default function OwnerPage() {
     }
   }
 
-   const handleNotificationAcknowledge = () => {
-    if (notifications.length > 0) {
-      notifications.forEach(notif => {
-        markNotificationAsRead(notif.id);
-      });
-      setNotifications([]);
-    }
-  };
+   const handleDeletionRequest = async (notifId: string, caseId: string | undefined, approve: boolean) => {
+        if (!caseId) return;
+
+        const relatedCase = cases.find(c => c.id === caseId);
+
+        if (approve) {
+            await updateCase(caseId, { isDeleted: true });
+            toast({ title: "Approved", description: "Case has been marked as deleted." });
+            if (relatedCase?.dentistName) {
+                await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was APPROVED.`);
+            }
+        } else {
+            await updateCase(caseId, { deletionRequested: false });
+            toast({ title: "Denied", description: "Case deletion request has been denied." });
+            if (relatedCase?.dentistName) {
+                await createNotification(relatedCase.dentistName, `Your deletion request for case (${relatedCase.patientName}) was DENIED.`);
+            }
+        }
+        await markNotificationAsRead(notifId);
+        setNotifications(prev => prev.filter(n => n.id !== notifId));
+        fetchCases(); // Refresh cases view
+   };
+
+   const handleNotificationAcknowledge = (notifId: string) => {
+      markNotificationAsRead(notifId);
+      setNotifications(prev => prev.filter(n => n.id !== notifId));
+   };
 
   const handleDeleteSelectedCases = async () => {
     try {
@@ -453,20 +472,30 @@ export default function OwnerPage() {
     <AlertDialog open={notifications.length > 0}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>You have {notifications.length} new case notification(s)</AlertDialogTitle>
+                <AlertDialogTitle>You have {notifications.length} new notification(s)</AlertDialogTitle>
                 <AlertDialogDescription asChild>
                     <ul className="list-disc pl-5 space-y-2 mt-2 max-h-60 overflow-y-auto">
                       {notifications.map(notif => (
-                        <li key={notif.id} className="font-bold text-foreground">
-                          {notif.message}
+                        <li key={notif.id} className="font-bold text-foreground py-2">
+                          <p>{notif.message}</p>
+                           {notif.message.includes("delete") && (
+                                <div className="flex gap-2 mt-2">
+                                    <Button size="sm" onClick={() => handleDeletionRequest(notif.id, notif.caseId, true)}>
+                                        Yes, Delete
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleDeletionRequest(notif.id, notif.caseId, false)}>
+                                        No, Keep
+                                    </Button>
+                                </div>
+                            )}
                         </li>
                       ))}
                     </ul>
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogAction onClick={handleNotificationAcknowledge}>
-                    Got It
+                <AlertDialogAction onClick={() => setNotifications([])}>
+                    Close
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
@@ -655,3 +684,5 @@ export default function OwnerPage() {
     </>
   );
 }
+
+    

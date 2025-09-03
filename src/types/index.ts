@@ -49,6 +49,8 @@ export type Notification = {
     message: string;
     read: boolean;
     createdAt: any;
+    caseId?: string;
+    fromDentist?: string;
 };
 
 export type LoginLog = {
@@ -56,3 +58,5 @@ export type LoginLog = {
     dentistName: string;
     timestamp: any;
 };
+
+    

@@ -47,7 +47,6 @@ interface CasesTableProps {
   hideDentist?: boolean;
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
-  hideSource?: boolean;
   hidePatientNumber?: boolean;
   selectedCases?: string[];
   onSelectedCasesChange?: (selectedIds: string[]) => void;
@@ -61,7 +60,6 @@ export default function CasesTable({
     hideDentist,
     hideDeliveryDate,
     hideShade,
-    hideSource,
     hidePatientNumber,
     selectedCases = [],
     onSelectedCasesChange
@@ -160,7 +158,6 @@ export default function CasesTable({
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideShade && <TableHead>Shade</TableHead>}
             <TableHead>Notes</TableHead>
-            {!hideSource && <TableHead>Source</TableHead>}
             {(showActions || showDeletionRequest) && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
@@ -208,7 +205,6 @@ export default function CasesTable({
               )}
               {!hideShade && <TableCell>{c.shade}</TableCell>}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
-              {!hideSource && <TableCell>{c.source}</TableCell>}
               
               <TableCell className="text-right">
                 {showActions && (
@@ -293,3 +289,5 @@ export default function CasesTable({
     </div>
   );
 }
+
+    
