@@ -120,6 +120,15 @@ export const deleteCase = async (caseId: string) => {
   }
 };
 
+
+export const requestCaseDeletion = async (caseId: string, patientName: string) => {
+    const caseDocRef = doc(db, 'dentalCases', caseId);
+    await updateDoc(caseDocRef, { deletionRequested: true });
+
+    // Notify the owner
+    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`);
+};
+
 // --- User Management Functions ---
 
 // In a real app, you would have more secure user management, this is for prototyping.

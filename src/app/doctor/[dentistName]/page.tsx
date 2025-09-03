@@ -1,20 +1,32 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CasesTable from '@/components/cases-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, User, Search, Calendar } from 'lucide-react';
+import { Stethoscope, User, Search, Calendar, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { getCasesByDoctor } from '@/lib/firebase';
+import { getCasesByDoctor, requestCaseDeletion } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/logo';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { parseISO, format } from 'date-fns';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function DoctorPage() {
   const params = useParams();
@@ -45,7 +57,7 @@ export default function DoctorPage() {
     });
   };
 
-  const fetchDoctorCases = async () => {
+  const fetchDoctorCases = useCallback(async () => {
       if(dentistName) {
         try {
             const casesFromDb = await getCasesByDoctor(dentistName);
@@ -54,13 +66,25 @@ export default function DoctorPage() {
             handleFirebaseError(error);
         }
       }
-  };
+  }, [dentistName]);
 
   useEffect(() => {
     setIsMounted(true);
     fetchDoctorCases();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dentistName]);
+  }, [fetchDoctorCases]);
+
+  const handleRequestDeletion = async (caseId: string, patientName: string) => {
+    try {
+      await requestCaseDeletion(caseId, patientName);
+      toast({
+        title: 'Deletion Requested',
+        description: 'The owner has been notified of your request to delete this case.',
+      });
+      fetchDoctorCases(); // Re-fetch to update UI
+    } catch(error) {
+      handleFirebaseError(error);
+    }
+  };
 
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
@@ -148,6 +172,7 @@ export default function DoctorPage() {
           <CardContent className="pt-0">
             <CasesTable 
               cases={filteredCases}
+              onDeletionRequest={dentistName === 'Dr.Ibraheem Omar' ? handleRequestDeletion : undefined}
             />
           </CardContent>
         </Card>

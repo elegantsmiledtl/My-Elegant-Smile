@@ -11,8 +11,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit, Phone } from 'lucide-react';
+import { Trash2, Edit, Phone, Send } from 'lucide-react';
 import type { DentalCase } from '@/types';
+import { cn } from "@/lib/utils";
 
 import {
   AlertDialog,
@@ -42,6 +43,7 @@ interface CasesTableProps {
   cases: DentalCase[];
   onDeleteCase?: (id: string) => void;
   onUpdateCase?: (updatedCase: DentalCase) => void;
+  onDeletionRequest?: (id: string, patientName: string) => void; // New prop
   hideDentist?: boolean;
   hideDeliveryDate?: boolean;
   hideShade?: boolean;
@@ -55,6 +57,7 @@ export default function CasesTable({
     cases, 
     onDeleteCase, 
     onUpdateCase,
+    onDeletionRequest,
     hideDentist,
     hideDeliveryDate,
     hideShade,
@@ -126,6 +129,7 @@ export default function CasesTable({
   
   const showActions = onDeleteCase && onUpdateCase;
   const showCheckboxes = !!onSelectedCasesChange;
+  const showDeletionRequest = !!onDeletionRequest;
   const numSelected = selectedCases.length;
   const rowCount = cases.length;
   const showPatientNumber = cases.some(c => c.patientNumber) && !hidePatientNumber;
@@ -157,12 +161,16 @@ export default function CasesTable({
             {!hideShade && <TableHead>Shade</TableHead>}
             <TableHead>Notes</TableHead>
             {!hideSource && <TableHead>Source</TableHead>}
-            {showActions && <TableHead className="text-right">Actions</TableHead>}
+            {(showActions || showDeletionRequest) && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {cases.map((c) => (
-            <TableRow key={c.id} data-state={selectedCases.includes(c.id) && "selected"}>
+            <TableRow 
+              key={c.id} 
+              data-state={selectedCases.includes(c.id) && "selected"}
+              className={cn(c.deletionRequested && "bg-yellow-100 hover:bg-yellow-200/80 text-yellow-900")}
+            >
               {showCheckboxes && (
                   <TableCell>
                       <Checkbox
@@ -201,35 +209,67 @@ export default function CasesTable({
               {!hideShade && <TableCell>{c.shade}</TableCell>}
               <TableCell className="max-w-[200px] truncate">{c.notes}</TableCell>
               {!hideSource && <TableCell>{c.source}</TableCell>}
-              {showActions && (
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
-                      <Edit className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
+              
+              <TableCell className="text-right">
+                {showActions && (
+                  <>
+                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(c)}>
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the case
+                            for {c.patientName}.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => onDeleteCase && onDeleteCase(c.id)} className="bg-destructive hover:bg-destructive/90">
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
+                {showDeletionRequest && (
+                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        disabled={!!c.deletionRequested}
+                        className="bg-orange-100 hover:bg-orange-200 border-orange-300 text-orange-800 disabled:opacity-70 disabled:bg-yellow-100"
+                      >
+                        <Send className="mr-2 h-4 w-4" />
+                        {c.deletionRequested ? 'Requested' : 'Request Deletion'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle>Request Case Deletion?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the case
-                          for {c.patientName}.
+                          This will send a notification to the lab owner to approve the deletion of the case for {c.patientName}. You will be notified once it's approved. Are you sure?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDeleteCase && onDeleteCase(c.id)} className="bg-destructive hover:bg-destructive/90">
-                          Delete
+                        <AlertDialogAction onClick={() => onDeletionRequest(c.id, c.patientName)}>
+                          Yes, Send Request
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                </TableCell>
-              )}
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

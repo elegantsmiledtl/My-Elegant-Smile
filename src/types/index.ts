@@ -14,6 +14,7 @@ export type DentalCase = {
   source?: 'Mobile' | 'Desktop';
   patientNumber?: string;
   isDeleted?: boolean;
+  deletionRequested?: boolean;
 };
 
 export type User = {
