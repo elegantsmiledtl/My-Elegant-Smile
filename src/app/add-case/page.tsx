@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Home, Smartphone } from 'lucide-react';
 import { addCase } from '@/lib/firebase';
 import Logo from '@/components/logo';
-import { sendNewCaseNotification } from '@/app/actions';
+import { sendNewCaseNotification, sendNewCaseEmail } from '@/app/actions';
 
 function AddCasePageContent() {
   const router = useRouter();
@@ -47,8 +47,9 @@ function AddCasePageContent() {
       // Reset the form by changing the key
       setKey(Date.now());
 
-      // Step 2: Send the notification and get the result
-      await sendNewCaseNotification(newCase);
+      // Step 2: Send notifications (no need to await all of them if we don't show results)
+      sendNewCaseNotification(newCase);
+      sendNewCaseEmail(newCase);
 
 
     } catch (error: any) {

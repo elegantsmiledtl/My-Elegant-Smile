@@ -2,6 +2,7 @@
 'use server';
 
 import twilio from 'twilio';
+import sgMail from '@sendgrid/mail';
 import type { DentalCase } from '@/types';
 
 export const sendNewCaseNotification = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
@@ -80,5 +81,48 @@ Delivery Date: ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleD
 
     } catch (error: any) {
         return { success: false, error: error.message || "A critical error occurred while setting up the notification.", details: [] };
+    }
+};
+
+
+export const sendNewCaseEmail = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => {
+    const apiKey = process.env.SENDGRID_API_KEY;
+    const senderEmail = process.env.SENDER_EMAIL;
+    const recipientEmail = process.env.RECIPIENT_EMAIL;
+
+    if (!apiKey || !senderEmail || !recipientEmail) {
+        const errorMsg = 'Cannot send email. Server is missing SENDGRID_API_KEY, SENDER_EMAIL, or RECIPIENT_EMAIL from .env file.';
+        console.error(errorMsg);
+        return { success: false, error: errorMsg };
+    }
+
+    sgMail.setApiKey(apiKey);
+    const toothCount = newCase.toothNumbers.split(',').filter(t => t.trim()).length;
+
+    const caseDetails = `
+        <ul>
+            <li><strong>Patient:</strong> ${newCase.patientName}</li>
+            <li><strong>Dentist:</strong> ${newCase.dentistName}</li>
+            <li><strong>Units:</strong> ${toothCount} (${newCase.toothNumbers})</li>
+            <li><strong>Material:</strong> ${newCase.material}</li>
+            <li><strong>Prosthesis:</strong> ${newCase.prosthesisType}</li>
+            <li><strong>Delivery Date:</strong> ${newCase.deliveryDate ? new Date(newCase.deliveryDate).toLocaleDateString() : 'N/A'}</li>
+            <li><strong>Notes:</strong> ${newCase.notes || 'None'}</li>
+        </ul>
+    `;
+
+    const msg = {
+        to: recipientEmail,
+        from: senderEmail,
+        subject: `New Elegant Smile Case: ${newCase.patientName}`,
+        html: `<h1>New Case Added</h1>${caseDetails}<p>This is an automated notification.</p>`,
+    };
+
+    try {
+        await sgMail.send(msg);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error: any) {
+        console.error('Email sending error:', error.response?.body || error);
+        return { success: false, error: 'Failed to send email notification.' };
     }
 };

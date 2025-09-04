@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { sendNewCaseNotification } from '@/app/actions';
+import { sendNewCaseNotification, sendNewCaseEmail } from '@/app/actions';
 
 
 export default function DoctorPortalPage() {
@@ -106,19 +106,9 @@ export default function DoctorPortalPage() {
       
       setKey(Date.now()); // Reset form
 
-      // Step 2: Send the notification and get the result
-      const result = await sendNewCaseNotification(caseData);
-
-      if (!result.success) {
-          const firstError = result.details.find(d => !d.success)?.error || 'An unknown error occurred.';
-           toast({
-                variant: 'destructive',
-                title: 'WhatsApp Notification Failed',
-                description: `Could not send notification. Reason: ${firstError}`,
-                duration: 9000,
-            });
-      }
-
+      // Step 2: Send notifications
+      sendNewCaseNotification(caseData);
+      sendNewCaseEmail(caseData);
 
     } catch (error: any) {
        console.error("Error during case addition or notification:", error);
