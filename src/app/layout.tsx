@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -5,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 export const metadata: Metadata = {
   title: 'Elegant Smile Data Hub',
   description: 'A data entry application for Elegant Smile Dental Lab',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
