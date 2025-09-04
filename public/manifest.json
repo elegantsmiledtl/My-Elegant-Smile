@@ -1,23 +1,21 @@
-
 {
-  "name": "Elegant Smile Data Hub",
+  "name": "Elegant Smile Dental Lab",
   "short_name": "Elegant Smile",
   "description": "A data entry application for Elegant Smile Dental Lab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2596be",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "theme_color": "#2072A4",
-  "background_color": "#F0F4F8",
-  "start_url": "/",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
