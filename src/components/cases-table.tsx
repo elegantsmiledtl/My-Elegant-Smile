@@ -186,7 +186,7 @@ export default function CasesTable({
                       />
                   </TableCell>
               )}
-              {showSerialNumber && <TableCell className="font-medium">{(index + 1).toString().padStart(2, '0')}</TableCell>}
+              {showSerialNumber && <TableCell className="font-medium">{(rowCount - index).toString().padStart(2, '0')}</TableCell>}
               <TableCell>{formatDateTime(c.createdAt)}</TableCell>
               {!hideDeliveryDate && <TableCell>{formatDate(c.deliveryDate)}</TableCell>}
               <TableCell className="font-medium">{c.patientName}</TableCell>

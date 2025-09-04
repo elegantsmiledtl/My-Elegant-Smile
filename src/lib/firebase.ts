@@ -56,7 +56,7 @@ export const getCaseById = async (caseId: string): Promise<DentalCase | null> =>
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(
     casesCollection,
-    orderBy('createdAt', 'asc')
+    orderBy('createdAt', 'desc')
     );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
