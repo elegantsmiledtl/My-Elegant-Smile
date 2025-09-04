@@ -525,7 +525,6 @@ export default function OwnerPage() {
                     </div>
                   ) : (
                     <div className="flex gap-2 mt-2">
-                       {/* This part will now be handled by the footer button */}
                     </div>
                   )}
                 </div>

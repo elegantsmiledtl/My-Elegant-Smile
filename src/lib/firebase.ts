@@ -20,7 +20,6 @@ import {
   getDoc
 } from 'firebase/firestore';
 import type { DentalCase, Invoice, Notification, LoginLog, User } from '@/types';
-import { sendNewCaseNotification } from '@/app/actions';
 
 const firebaseConfig = {
   projectId: "elegant-smile-r6jex",
@@ -57,7 +56,7 @@ export const getCaseById = async (caseId: string): Promise<DentalCase | null> =>
 export const getCases = async (): Promise<DentalCase[]> => {
   const q = query(
     casesCollection,
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'asc')
     );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
@@ -108,7 +107,6 @@ export const addCase = async (newCase: Omit<DentalCase, 'id' | 'createdAt'>) => 
     `New Case From ${newCase.dentistName}`
   );
   
-  // The notification is now sent from the page component after this function resolves
   return docRef.id;
 };
 
@@ -286,7 +284,7 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
     }
     
     // Fetch remaining (recent) logs
-    const q = query(loginLogsCollection, orderBy('timestamp', 'desc'));
+    const q = query(loginLogsCollection, orderBy('timestamp', 'asc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({
         id: doc.id,
