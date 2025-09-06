@@ -69,8 +69,8 @@ function LoginPageContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-       <div className="absolute top-8 left-8">
-         <Logo />
+      <div className="mb-8">
+        <Logo />
       </div>
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader>
@@ -100,7 +100,7 @@ function LoginPageContent() {
                 type="password" 
                 required 
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.targe.value)}
                 disabled={isLoading}
                 autoComplete="current-password"
               />
