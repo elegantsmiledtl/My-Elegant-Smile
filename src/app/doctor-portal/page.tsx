@@ -163,31 +163,34 @@ export default function DoctorPortalPage() {
       </AlertDialog>
 
       <div className="min-h-screen bg-background text-foreground">
-        <header className="bg-muted/50 border-b p-2">
-            <div className="container mx-auto flex justify-start items-center gap-4">
-                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                    <Link href="/doctor/invoices">
-                        <Receipt className="mr-2 h-4 w-4" /> My Invoices
+        <header className="bg-card border-b p-4">
+            <div className="container mx-auto flex justify-between items-center">
+                 <SmallLogo />
+                 <div className="flex items-center gap-4">
+                    <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                        <Link href="/doctor/invoices">
+                            <Receipt className="mr-2 h-4 w-4" /> My Invoices
+                        </Link>
+                    </Button>
+                    <Button asChild size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
+                    <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        My Cases
                     </Link>
-                </Button>
-                <Button asChild size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
-                  <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      My Cases
-                  </Link>
-              </Button>
-                <Button onClick={handleLogout} variant="destructive" size="sm">
-                    <LogOut className="mr-2 h-4 w-4" /> Logout
-                </Button>
+                    </Button>
+                    <Button onClick={handleLogout} variant="destructive" size="sm">
+                        <LogOut className="mr-2 h-4 w-4" /> Logout
+                    </Button>
+                </div>
             </div>
         </header>
-
+        
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline text-2xl">
-                        <h2 className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</h2>
+                        <span className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
