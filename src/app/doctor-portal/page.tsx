@@ -163,15 +163,6 @@ export default function DoctorPortalPage() {
       </AlertDialog>
 
       <div className="min-h-screen bg-background text-foreground">
-        {/* Top Header */}
-        <header className="bg-card border-b shadow-sm p-4">
-            <div className="container mx-auto flex justify-between items-center">
-                <SmallLogo />
-                <h2 className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</h2>
-            </div>
-        </header>
-
-        {/* Second Header */}
         <header className="bg-muted/50 border-b p-2">
             <div className="container mx-auto flex justify-start items-center gap-4">
                 <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
@@ -194,6 +185,11 @@ export default function DoctorPortalPage() {
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
             <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-headline text-2xl">
+                        <h2 className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</h2>
+                    </CardTitle>
+                </CardHeader>
                 <CardContent className="pt-6">
                 <CaseEntryForm 
                     key={key} 
