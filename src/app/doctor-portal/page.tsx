@@ -187,20 +187,11 @@ export default function DoctorPortalPage() {
         
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline text-2xl">
-                        <span className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
                 <CaseEntryForm 
                     key={key} 
                     onAddCase={handleAddCase} 
                     caseToEdit={{ dentistName: dentistName }} // Pre-fill dentist name
                 />
-                </CardContent>
-            </Card>
           </div>
         </main>
       </div>
