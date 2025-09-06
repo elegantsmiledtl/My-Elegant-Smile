@@ -142,6 +142,7 @@ export default function DoctorPage() {
             </h2>
           </div>
           <div className="flex justify-end">
+            <Logo />
           </div>
         </div>
       </header>
