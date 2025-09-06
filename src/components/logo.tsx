@@ -8,7 +8,7 @@ export default function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2">
       <Image 
-        src="https://i.imgur.com/Hfy1pIv.png" 
+        src="https://i.imgur.com/6oUDQAi.png" 
         alt="Elegant Smile Logo" 
         width={150} 
         height={50}
