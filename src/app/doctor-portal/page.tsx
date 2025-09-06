@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { addCase, getUnreadNotifications, markNotificationAsRead } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import Logo from '@/components/logo';
+import SmallLogo from '@/components/small-logo';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -166,7 +166,7 @@ export default function DoctorPortalPage() {
         {/* Top Header */}
         <header className="bg-card border-b shadow-sm p-4">
             <div className="container mx-auto flex justify-between items-center">
-                <Logo />
+                <SmallLogo />
                 <h2 className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</h2>
             </div>
         </header>
