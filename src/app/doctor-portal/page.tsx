@@ -187,7 +187,7 @@ export default function DoctorPortalPage() {
         
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
            <div className="text-center">
-              <h1 className="text-2xl font-bold text-primary">{welcomeMessage}</h1>
+              <h1 className="text-2xl font-bold text-[#C6A963]">{welcomeMessage}</h1>
            </div>
           <div className="w-full max-w-6xl mx-auto">
                 <CaseEntryForm 
