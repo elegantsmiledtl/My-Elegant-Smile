@@ -133,7 +133,7 @@ export default function DoctorPage() {
                         <Stethoscope className="w-6 h-6" />
                         Cases for {dentistName}
                     </h2>
-                    <Button asChild>
+                    <Button asChild variant="outline">
                         <Link href={`/login?name=${encodeURIComponent(dentistName)}`}>
                             <User className="mr-2" />
                             My Cases
