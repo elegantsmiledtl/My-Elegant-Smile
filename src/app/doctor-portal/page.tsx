@@ -173,13 +173,13 @@ export default function DoctorPortalPage() {
 
         {/* Second Header */}
         <header className="bg-muted/50 border-b p-2">
-            <div className="container mx-auto flex justify-end items-center gap-4">
-                <Button asChild variant="outline" size="sm">
+            <div className="container mx-auto flex justify-start items-center gap-4">
+                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                     <Link href="/doctor/invoices">
                         <Receipt className="mr-2 h-4 w-4" /> My Invoices
                     </Link>
                 </Button>
-                <Button onClick={handleLogout} variant="outline" size="sm">
+                <Button onClick={handleLogout} variant="destructive" size="sm">
                     <LogOut className="mr-2 h-4 w-4" /> Logout
                 </Button>
             </div>
