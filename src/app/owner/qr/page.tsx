@@ -72,7 +72,7 @@ export default function DoctorQrCodePage() {
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                 value={loginUrl}
                 viewBox={`0 0 256 256`}
-                fgColor="#244469"
+                fgColor="#000000"
                 level="H"
                 />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-md">
@@ -104,4 +104,5 @@ export default function DoctorQrCodePage() {
     </div>
   );
 }
+
 
