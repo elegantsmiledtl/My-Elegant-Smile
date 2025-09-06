@@ -163,24 +163,28 @@ export default function DoctorPortalPage() {
       </AlertDialog>
 
       <div className="min-h-screen bg-background text-foreground">
-          <header className="bg-card border-b shadow-sm p-4">
+        {/* Top Header */}
+        <header className="bg-card border-b shadow-sm p-4">
             <div className="container mx-auto flex justify-between items-center">
                 <Logo />
-                <div className="flex-1 flex justify-center">
-                    <h2 className="text-xl font-bold text-primary">{welcomeMessage}</h2>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/doctor/invoices">
-                            <Receipt className="mr-2 h-4 w-4" /> My Invoices
-                        </Link>
-                    </Button>
-                    <Button onClick={handleLogout} variant="outline" size="sm">
-                        <LogOut className="mr-2" /> Logout
-                    </Button>
-                </div>
+                <h2 className="text-xl font-bold text-primary">{welcomeMessage}</h2>
             </div>
         </header>
+
+        {/* Second Header */}
+        <header className="bg-muted/50 border-b p-2">
+            <div className="container mx-auto flex justify-end items-center gap-4">
+                <Button asChild variant="outline" size="sm">
+                    <Link href="/doctor/invoices">
+                        <Receipt className="mr-2 h-4 w-4" /> My Invoices
+                    </Link>
+                </Button>
+                <Button onClick={handleLogout} variant="outline" size="sm">
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
+                </Button>
+            </div>
+        </header>
+
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <div className="w-full max-w-6xl mx-auto">
             <Card className="shadow-lg">
