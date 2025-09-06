@@ -65,8 +65,15 @@ export default function DoctorQrCodePage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center p-8 gap-8">
           {loginUrl ? (
-            <div style={{ background: 'white', padding: '16px', borderRadius: '8px' }}>
-              <QRCode value={loginUrl} size={256} />
+            <div style={{ height: "auto", margin: "0 auto", maxWidth: 288, width: "100%" }}>
+                <QRCode
+                size={256}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={loginUrl}
+                viewBox={`0 0 256 256`}
+                fgColor="#244469"
+                level="H"
+                />
             </div>
           ) : (
             <div className="h-[288px] w-[288px] flex items-center justify-center">
