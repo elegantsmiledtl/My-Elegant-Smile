@@ -179,6 +179,12 @@ export default function DoctorPortalPage() {
                         <Receipt className="mr-2 h-4 w-4" /> My Invoices
                     </Link>
                 </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      View My Recorded Cases
+                  </Link>
+              </Button>
                 <Button onClick={handleLogout} variant="destructive" size="sm">
                     <LogOut className="mr-2 h-4 w-4" /> Logout
                 </Button>
@@ -196,14 +202,6 @@ export default function DoctorPortalPage() {
                 />
                 </CardContent>
             </Card>
-          </div>
-          <div className="w-full max-w-6xl mx-auto flex justify-center">
-              <Button asChild>
-                  <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      View My Recorded Cases
-                  </Link>
-              </Button>
           </div>
         </main>
       </div>
