@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import QRCode from 'react-qr-code';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -65,7 +66,7 @@ export default function DoctorQrCodePage() {
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center p-8 gap-8">
           {loginUrl ? (
-            <div style={{ height: "auto", margin: "0 auto", maxWidth: 288, width: "100%" }}>
+            <div className="relative p-4 bg-white rounded-lg" style={{ height: "auto", margin: "0 auto", maxWidth: 288, width: "100%" }}>
                 <QRCode
                 size={256}
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
@@ -74,6 +75,14 @@ export default function DoctorQrCodePage() {
                 fgColor="#244469"
                 level="H"
                 />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-md">
+                     <Image
+                      src="https://i.imgur.com/6oUDQAi.png"
+                      alt="Elegant Smile Logo"
+                      width={50}
+                      height={17}
+                  />
+                </div>
             </div>
           ) : (
             <div className="h-[288px] w-[288px] flex items-center justify-center">
@@ -95,3 +104,4 @@ export default function DoctorQrCodePage() {
     </div>
   );
 }
+
