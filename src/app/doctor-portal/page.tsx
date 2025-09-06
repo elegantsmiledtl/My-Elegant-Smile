@@ -164,29 +164,8 @@ export default function DoctorPortalPage() {
 
       <div className="min-h-screen bg-background text-foreground">
         <header className="bg-card border-b p-4">
-            <div className="container mx-auto grid grid-cols-3 items-center">
-                 <div className="flex justify-start">
-                    <SmallLogo />
-                 </div>
-                 <div className="flex justify-center items-center gap-4">
-                    <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                        <Link href="/doctor/invoices">
-                            <Receipt className="mr-2 h-4 w-4" /> My Invoices
-                        </Link>
-                    </Button>
-                    <Button asChild size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
-                    <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        My Cases
-                    </Link>
-                    </Button>
-                    <Button onClick={handleLogout} variant="destructive" size="sm">
-                        <LogOut className="mr-2 h-4 w-4" /> Logout
-                    </Button>
-                </div>
-                 <div className="flex justify-end">
-                    {/* This empty div helps with centering the middle content */}
-                 </div>
+            <div className="container mx-auto flex justify-start items-center">
+                 <SmallLogo />
             </div>
         </header>
         
@@ -194,6 +173,22 @@ export default function DoctorPortalPage() {
            <div className="text-center">
               <h1 className="text-2xl font-bold text-[#C6A963]">{welcomeMessage}</h1>
            </div>
+            <div className="flex justify-center items-center gap-4">
+                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                    <Link href="/doctor/invoices">
+                        <Receipt className="mr-2 h-4 w-4" /> My Invoices
+                    </Link>
+                </Button>
+                <Button asChild size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    My Cases
+                </Link>
+                </Button>
+                <Button onClick={handleLogout} variant="destructive" size="sm">
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
+                </Button>
+            </div>
           <div className="w-full max-w-6xl mx-auto">
                 <CaseEntryForm 
                     key={key} 
