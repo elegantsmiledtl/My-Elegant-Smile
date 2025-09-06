@@ -182,7 +182,7 @@ export default function DoctorPortalPage() {
                 <Button asChild size="sm" className="bg-blue-500 hover:bg-blue-600 text-white">
                   <Link href={`/doctor/${encodeURIComponent(dentistName)}`}>
                       <BookOpen className="mr-2 h-4 w-4" />
-                      View My Recorded Cases
+                      My Cases
                   </Link>
               </Button>
                 <Button onClick={handleLogout} variant="destructive" size="sm">
