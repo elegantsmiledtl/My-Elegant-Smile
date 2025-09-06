@@ -164,7 +164,7 @@ export default function DoctorPortalPage() {
 
       <div className="min-h-screen bg-background text-foreground">
         <header className="bg-card border-b p-4">
-            <div className="container mx-auto flex justify-start items-center">
+            <div className="container mx-auto flex justify-center items-center">
                  <SmallLogo />
             </div>
         </header>
