@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getCasesByDoctor, requestCaseDeletion } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import Logo from '@/components/logo';
+import SmallLogo from '@/components/small-logo';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { parseISO, format } from 'date-fns';
@@ -127,10 +127,9 @@ export default function DoctorPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
         <div className="container mx-auto grid grid-cols-3 items-center">
-          <div className="flex justify-start">
-            <Logo />
-          </div>
+          <div></div>
           <div className="flex justify-center">
+            <SmallLogo />
           </div>
           <div className="flex justify-end">
             <Button asChild variant="outline">
