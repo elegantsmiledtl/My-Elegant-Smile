@@ -167,7 +167,7 @@ export default function DoctorPortalPage() {
         <header className="bg-card border-b shadow-sm p-4">
             <div className="container mx-auto flex justify-between items-center">
                 <Logo />
-                <h2 className="text-xl font-bold text-primary">{welcomeMessage}</h2>
+                <h2 className="text-xl font-bold text-[#C4A666]">{welcomeMessage}</h2>
             </div>
         </header>
 
