@@ -131,10 +131,6 @@ export default function DoctorPage() {
             <Logo />
           </div>
           <div className="flex justify-center">
-            <h2 className="text-xl font-bold text-[#C4A666] flex items-center gap-2">
-              <Stethoscope className="w-6 h-6" />
-              Cases for {dentistName}
-            </h2>
           </div>
           <div className="flex justify-end">
             <Button asChild variant="outline">
