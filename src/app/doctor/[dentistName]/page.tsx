@@ -145,7 +145,7 @@ export default function DoctorPage() {
       <main className="p-4 sm:p-6 lg:p-8">
         <Card className="shadow-lg">
            <CardHeader>
-                <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                <div className="flex flex-col gap-4">
                     <CardTitle>My Case History</CardTitle>
                     {isIbraheemOmar && (
                       <div className="flex gap-2 items-center">
