@@ -100,7 +100,7 @@ function LoginPageContent() {
                 type="password" 
                 required 
                 value={password}
-                onChange={(e) => setPassword(e.targe.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 autoComplete="current-password"
               />
