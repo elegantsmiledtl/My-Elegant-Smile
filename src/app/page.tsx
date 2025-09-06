@@ -11,8 +11,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="bg-card border-b shadow-sm p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Logo />
+        <div className="container mx-auto flex justify-end items-center">
           <div className="flex items-center gap-4">
             <Button asChild variant="outline">
               <Link href="/owner">Owner Dashboard</Link>
