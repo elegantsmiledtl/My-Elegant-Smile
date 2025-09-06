@@ -148,7 +148,7 @@ export default function DoctorPage() {
                 <div className="flex flex-col gap-4">
                     <CardTitle>My Case History</CardTitle>
                     {isIbraheemOmar && (
-                      <div className="flex gap-2 items-center">
+                      <div className="flex flex-col gap-2 items-start">
                           <div className="relative">
                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input 
@@ -159,7 +159,7 @@ export default function DoctorPage() {
                               />
                           </div>
                           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                              <SelectTrigger className="w-[180px]">
+                              <SelectTrigger className="w-[250px]">
                                   <Calendar className="mr-2 h-4 w-4" />
                                   <SelectValue placeholder="Filter by month..." />
                               </SelectTrigger>
