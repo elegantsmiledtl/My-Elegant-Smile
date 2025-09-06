@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Home, Receipt, FileDown } from 'lucide-react';
-import Logo from '@/components/logo';
+import SmallLogo from '@/components/small-logo';
 import { getInvoicesByDoctor } from '@/lib/firebase';
 import type { Invoice, DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -177,14 +177,19 @@ export default function DoctorInvoicesPage() {
     <>
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Logo />
-          <Button asChild variant="outline">
-            <Link href="/doctor-portal">
-              <Home className="mr-2" />
-              Back to Portal
-            </Link>
-          </Button>
+        <div className="container mx-auto grid grid-cols-3 items-center">
+            <div />
+            <div className="flex justify-center">
+                <SmallLogo />
+            </div>
+            <div className="flex justify-end">
+                <Button asChild variant="outline">
+                    <Link href="/doctor-portal">
+                    <Home className="mr-2" />
+                    Back to Portal
+                    </Link>
+                </Button>
+            </div>
         </div>
       </header>
       <main className="p-4 sm:p-6 lg:p-8">
@@ -398,3 +403,5 @@ export default function DoctorInvoicesPage() {
     </>
   );
 }
+
+    
