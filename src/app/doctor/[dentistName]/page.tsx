@@ -129,7 +129,7 @@ export default function DoctorPage() {
             <div className="container mx-auto flex justify-between items-center">
                 <Logo />
                 <div className="flex items-center gap-4">
-                     <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                     <h2 className="text-xl font-bold text-[#C4A666] flex items-center gap-2">
                         <Stethoscope className="w-6 h-6" />
                         Cases for {dentistName}
                     </h2>
