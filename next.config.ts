@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'elegant-smile-r6jex.web.app',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+      },
     ],
   },
 };

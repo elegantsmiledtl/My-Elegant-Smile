@@ -6,9 +6,16 @@ import Link from 'next/link';
 
 export default function Logo() {
   return (
-    <Link href="/" className="flex flex-col items-start">
-      <h1 className="text-2xl font-bold font-headline text-primary leading-tight">Elegant Smile</h1>
-      <p className="text-xs text-primary -mt-1 ml-1">Dental Lab</p>
+    <Link href="/" className="flex items-center gap-2">
+      <Image 
+        src="https://i.imgur.com/Hfy1pIv.png" 
+        alt="Elegant Smile Logo" 
+        width={150} 
+        height={50}
+        priority
+        data-ai-hint="logo"
+        className="w-auto h-auto"
+      />
     </Link>
   );
 }
