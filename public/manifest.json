@@ -1,3 +1,4 @@
+
 {
   "name": "Elegant Smile Data Hub",
   "short_name": "Elegant Smile",
@@ -5,7 +6,7 @@
   "background_color": "#ffffff",
   "display": "standalone",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/login",
   "icons": [
     {
       "src": "https://i.imgur.com/kDubvxf.png",
