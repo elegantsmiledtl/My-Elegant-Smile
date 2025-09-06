@@ -174,7 +174,7 @@ export default function DoctorPortalPage() {
         {/* Second Header */}
         <header className="bg-muted/50 border-b p-2">
             <div className="container mx-auto flex justify-start items-center gap-4">
-                <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                <Button asChild size="sm">
                     <Link href="/doctor/invoices">
                         <Receipt className="mr-2 h-4 w-4" /> My Invoices
                     </Link>
