@@ -164,9 +164,11 @@ export default function DoctorPortalPage() {
 
       <div className="min-h-screen bg-background text-foreground">
         <header className="bg-card border-b p-4">
-            <div className="container mx-auto flex justify-between items-center">
-                 <SmallLogo />
-                 <div className="flex items-center gap-4">
+            <div className="container mx-auto grid grid-cols-3 items-center">
+                 <div className="flex justify-start">
+                    <SmallLogo />
+                 </div>
+                 <div className="flex justify-center items-center gap-4">
                     <Button asChild size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                         <Link href="/doctor/invoices">
                             <Receipt className="mr-2 h-4 w-4" /> My Invoices
@@ -182,6 +184,9 @@ export default function DoctorPortalPage() {
                         <LogOut className="mr-2 h-4 w-4" /> Logout
                     </Button>
                 </div>
+                 <div className="flex justify-end">
+                    {/* This empty div helps with centering the middle content */}
+                 </div>
             </div>
         </header>
         
