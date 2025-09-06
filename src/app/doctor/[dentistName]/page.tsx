@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import type { DentalCase } from '@/types';
 import CasesTable from '@/components/cases-table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Stethoscope, User, Search, Calendar, Trash2 } from 'lucide-react';
+import { Stethoscope, Search, Calendar, Trash2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getCasesByDoctor, requestCaseDeletion } from '@/lib/firebase';
@@ -66,7 +66,7 @@ export default function DoctorPage() {
             handleFirebaseError(error);
         }
       }
-  }, [dentistName]);
+  }, [dentistName, toast]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -134,9 +134,9 @@ export default function DoctorPage() {
                         Cases for {dentistName}
                     </h2>
                     <Button asChild variant="outline">
-                        <Link href={`/login?name=${encodeURIComponent(dentistName)}`}>
-                            <User className="mr-2" />
-                            My Cases
+                        <Link href="/doctor-portal">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back
                         </Link>
                     </Button>
                 </div>
@@ -145,7 +145,7 @@ export default function DoctorPage() {
       <main className="p-4 sm:p-6 lg:p-8">
         <Card className="shadow-lg">
            <CardHeader>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 items-start">
                     <CardTitle>My Case History</CardTitle>
                     {isIbraheemOmar && (
                       <div className="flex flex-col gap-2 items-start">
