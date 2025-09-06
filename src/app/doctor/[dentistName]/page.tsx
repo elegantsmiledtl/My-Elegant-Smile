@@ -128,12 +128,7 @@ export default function DoctorPage() {
       <header className="bg-card border-b shadow-sm p-4">
         <div className="container mx-auto grid grid-cols-3 items-center">
           <div className="flex justify-start">
-            <Button asChild variant="outline">
-              <Link href="/doctor-portal">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Link>
-            </Button>
+            <Logo />
           </div>
           <div className="flex justify-center">
             <h2 className="text-xl font-bold text-[#C4A666] flex items-center gap-2">
@@ -142,7 +137,12 @@ export default function DoctorPage() {
             </h2>
           </div>
           <div className="flex justify-end">
-            <Logo />
+            <Button asChild variant="outline">
+              <Link href="/doctor-portal">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Link>
+            </Button>
           </div>
         </div>
       </header>
