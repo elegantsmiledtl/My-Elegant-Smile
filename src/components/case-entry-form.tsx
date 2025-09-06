@@ -273,7 +273,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                 </div>
             </div>
             
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 mt-6">
+            <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white mt-6">
                 <Save className="mr-2 h-4 w-4" />
                 {isEditMode ? 'Save Changes' : 'Add Case'}
             </Button>
