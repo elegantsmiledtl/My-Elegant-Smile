@@ -178,7 +178,7 @@ export default function DoctorInvoicesPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
         <div className="container mx-auto grid grid-cols-3 items-center">
-            <div />
+            <div></div>
             <div className="flex justify-center">
                 <SmallLogo />
             </div>
