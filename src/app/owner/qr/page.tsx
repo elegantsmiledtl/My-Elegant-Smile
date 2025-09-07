@@ -50,12 +50,6 @@ export default function DoctorQrCodePage() {
          <Logo />
       </div>
        <div className="absolute top-8 right-8">
-         <Button asChild variant="outline">
-            <Link href="/owner">
-                <Home className="mr-2" />
-                Back to Owner View
-            </Link>
-          </Button>
       </div>
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>

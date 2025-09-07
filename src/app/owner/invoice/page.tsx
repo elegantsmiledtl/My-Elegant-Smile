@@ -384,12 +384,6 @@ export default function InvoicePage() {
       <header className="bg-card border-b shadow-sm p-4">
         <div className="container mx-auto flex justify-between items-center">
           <Logo />
-          <Button asChild variant="outline">
-            <Link href="/owner">
-              <Home className="mr-2" />
-              Back to Owner View
-            </Link>
-          </Button>
         </div>
       </header>
       <main className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -567,17 +561,18 @@ export default function InvoicePage() {
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
                         <>
                         <div
-                            style={{
+                             style={{
                                 position: 'absolute',
-                                top: `65%`,
-                                left: `50%`,
+                                top: '65%',
+                                left: '50%',
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: 0,
                                 opacity: 0.1,
+                                width: '490px'
                             }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: `490px` }} />
+                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '100%' }} />
                         </div>
 
                         <div className="relative space-y-6" style={{ zIndex: 1 }}>
