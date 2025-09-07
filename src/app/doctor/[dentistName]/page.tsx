@@ -135,7 +135,7 @@ export default function DoctorPage() {
             <Button asChild variant="outline">
               <Link href="/doctor-portal">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                Back to Portal
               </Link>
             </Button>
           </div>
