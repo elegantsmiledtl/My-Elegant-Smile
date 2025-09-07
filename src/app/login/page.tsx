@@ -82,7 +82,7 @@ function LoginPageContent() {
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">User Name</Label>
+              <Label htmlFor="name">Doctor User</Label>
               <Input
                 id="name"
                 type="text"

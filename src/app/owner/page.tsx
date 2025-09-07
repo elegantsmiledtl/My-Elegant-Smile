@@ -107,7 +107,7 @@ function LoginLogsDialog() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>User Name</TableHead>
+                            <TableHead>Doctor User</TableHead>
                             <TableHead>Login Time</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -159,7 +159,7 @@ function EditUserForm({ user, onUserUpdated, onCancel }: { user: User; onUserUpd
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-                <Label htmlFor="name">User Name</Label>
+                <Label htmlFor="name">Doctor User</Label>
                 <Input id="name" {...register('name', { required: 'Name is required' })} />
                 {errors.name && <p className="text-destructive text-sm mt-1">{errors.name.message}</p>}
             </div>
@@ -200,7 +200,7 @@ function AddUserForm({ onUserAdded, onCancel }: { onUserAdded: () => void; onCan
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-                <Label htmlFor="add-name">User Name</Label>
+                <Label htmlFor="add-name">Doctor User</Label>
                 <Input id="add-name" {...register('name', { required: 'Name is required' })} />
                 {errors.name && <p className="text-destructive text-sm mt-1">{errors.name.message}</p>}
             </div>
@@ -561,7 +561,7 @@ export default function OwnerPage() {
                   <Table>
                       <TableHeader>
                           <TableRow>
-                              <TableHead>User Name</TableHead>
+                              <TableHead>Doctor User</TableHead>
                               <TableHead>Password</TableHead>
                               <TableHead>Welcome Message</TableHead>
                               <TableHead className="text-right">Actions</TableHead>
