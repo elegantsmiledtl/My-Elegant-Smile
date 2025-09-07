@@ -5,8 +5,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt, FileDown, Send, Trash2, History, Settings } from 'lucide-react';
-import SmallLogo from '@/components/small-logo';
+import { Receipt, FileDown, Send, Trash2, History, Settings } from 'lucide-react';
+import Logo from '@/components/logo';
 import { getCases, saveInvoice, getInvoicesByDoctor, deleteInvoice, createNotification } from '@/lib/firebase';
 import type { DentalCase, Invoice } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -384,7 +384,7 @@ export default function InvoicePage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
         <div className="container mx-auto flex justify-center items-center">
-          <SmallLogo />
+          <Logo width={150} height={40} />
         </div>
       </header>
       <main className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -571,12 +571,12 @@ export default function InvoicePage() {
                         <div
                             style={{
                                 position: 'absolute',
-                                top: `65%`,
-                                left: `50%`,
+                                top: '65%',
+                                left: '50%',
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: 0,
                                 opacity: 0.1,
-                                width: `490px`
+                                width: '490px'
                             }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -5,11 +5,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Home, Receipt, FileDown } from 'lucide-react';
-import SmallLogo from '@/components/small-logo';
+import { Receipt, FileDown } from 'lucide-react';
+import Logo from '@/components/logo';
 import { getInvoicesByDoctor } from '@/lib/firebase';
-import type { Invoice, DentalCase } from '@/types';
+import type { Invoice } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { parseISO, isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -170,7 +169,7 @@ export default function DoctorInvoicesPage() {
         <div className="container mx-auto grid grid-cols-3 items-center">
             <div />
             <div className="flex justify-center">
-                <SmallLogo />
+                <Logo width={150} height={40} />
             </div>
             <div className="flex justify-end">
             </div>

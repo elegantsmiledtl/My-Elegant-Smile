@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { convertJsonToCsv, downloadFile, generateReport } from '@/lib/utils';
 import Link from 'next/link';
 import { Toaster } from '@/components/ui/toaster';
-import Logo from './logo';
 
 
 interface PageHeaderProps {
