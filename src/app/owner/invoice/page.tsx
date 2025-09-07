@@ -178,6 +178,18 @@ export default function InvoicePage() {
     }
   };
 
+  // Function to fetch image and convert to base64
+  const getImageBase64 = async (url: string) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+      });
+  };
+
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
     if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
@@ -207,21 +219,28 @@ export default function InvoicePage() {
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        // --- Add Logo Watermark ---
+        try {
+            const logoUrl = 'https://i.imgur.com/BYbgglV.png'; 
+            const logoBase64 = await getImageBase64(logoUrl);
+            const logoWidth = 100; // adjust as needed
+            const logoHeight = 25; // adjust as needed
+            const x = (pdfWidth - logoWidth) / 2;
+            const y = (pdfHeight - logoHeight) / 2;
+            
+            pdf.setGState(new pdf.GState({opacity: 0.1})); // Set transparency
+            pdf.addImage(logoBase64, 'PNG', x, y, logoWidth, logoHeight);
+            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
+        } catch (e) {
+            console.error("Could not add logo watermark", e);
+        }
+        // --- End Watermark ---
+        
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight);
-        
-        // --- Add Text Watermark ---
-        const watermarkText = "Elegant Smile";
-        pdf.setFontSize(100);
-        pdf.setTextColor(200, 200, 200); // Light grey color
-        pdf.setGState(new pdf.GState({opacity: 0.2})); // Set transparency
-        
-        pdf.text(watermarkText, 130, 92, { angle: -45, align: 'center' });
-        
-        pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
-        // --- End Watermark ---
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight, undefined, 'FAST');
 
         const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
         pdf.save(fileName);
@@ -401,8 +420,8 @@ export default function InvoicePage() {
           </Button>
         </div>
       </header>
-      <main className="p-4 sm:p-6 lg:p-8">
-        <div className="space-y-6">
+      <main className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -573,7 +592,7 @@ export default function InvoicePage() {
                 {invoiceSummary && selectedDoctor && fromDate && toDate && (
                     <div className="space-y-6">
                         <div className="text-center mb-8">
-                           <h1 className="text-3xl font-bold text-primary">Elegant Smile</h1>
+                           <h1 className="text-3xl font-bold">Elegant Smile</h1>
                            <h2 className="text-2xl">Invoice</h2>
                         </div>
                          <div className="flex justify-between mb-6">
@@ -850,3 +869,6 @@ export default function InvoicePage() {
   );
 }
 
+
+
+    
