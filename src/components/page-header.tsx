@@ -22,11 +22,7 @@ export default function PageHeader({ cases, setCases, onReload }: PageHeaderProp
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleReload = () => {
-    onReload();
-    toast({
-        title: 'Data Reloaded',
-        description: 'The case list has been refreshed.',
-    });
+    window.location.reload();
   }
 
   const handleImportClick = () => {
