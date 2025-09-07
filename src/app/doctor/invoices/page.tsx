@@ -152,14 +152,16 @@ export default function DoctorInvoicesPage() {
         try {
             const logoUrl = 'https://i.imgur.com/BYbgglV.png'; 
             const logoBase64 = await getImageBase64(logoUrl);
-            const logoWidth = 100; // adjust as needed
-            const logoHeight = 25; // adjust as needed
+            const logoWidth = 100;
+            const logoHeight = 25; 
             const x = (pdfWidth - logoWidth) / 2;
             const y = (pdfHeight - logoHeight) / 2;
             
-            pdf.setGState(new pdf.GState({opacity: 0.1})); // Set transparency
+            // @ts-ignore
+            pdf.setGState(new pdf.GState({opacity: 0.1})); 
             pdf.addImage(logoBase64, 'PNG', x, y, logoWidth, logoHeight);
-            pdf.setGState(new pdf.GState({opacity: 1})); // Reset transparency
+            // @ts-ignore
+            pdf.setGState(new pdf.GState({opacity: 1})); 
         } catch (e) {
             console.error("Could not add logo watermark", e);
         }
@@ -423,6 +425,3 @@ export default function DoctorInvoicesPage() {
     </>
   );
 }
-
-    
-    
