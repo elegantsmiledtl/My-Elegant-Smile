@@ -451,14 +451,6 @@ export default function OwnerPage() {
     }
   };
 
-  const handleReload = () => {
-    fetchCases();
-    toast({
-        title: 'Data Reloaded',
-        description: 'The case list has been refreshed.',
-    });
-  }
-
   const filteredCases = cases.filter(c => {
     // Hide soft-deleted cases from owner view by default
     if (c.isDeleted) return false;
@@ -633,7 +625,7 @@ export default function OwnerPage() {
 
 
       <div className="min-h-screen bg-background text-foreground">
-        <PageHeader cases={cases} setCases={setCases} />
+        <PageHeader cases={cases} setCases={setCases} onReload={fetchCases} />
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
           <Dashboard cases={filteredCases} />
           <Card className="shadow-lg">
@@ -674,10 +666,6 @@ export default function OwnerPage() {
                                   </AlertDialogFooter>
                               </AlertDialogContent>
                           </AlertDialog>
-                          <Button onClick={handleReload} variant="outline" size="sm">
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                              Reload
-                          </Button>
                           <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm">
@@ -685,7 +673,9 @@ export default function OwnerPage() {
                                     Logs
                                 </Button>
                             </DialogTrigger>
-                            <LoginLogsDialog />
+                            <DialogContent>
+                                <LoginLogsDialog />
+                            </DialogContent>
                           </Dialog>
                           <Button asChild variant="outline" size="sm">
                             <Link href="/owner/invoice">

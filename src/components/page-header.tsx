@@ -3,7 +3,7 @@
 
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, FileUp, User, LogIn } from 'lucide-react';
+import { Download, FileUp, User, LogIn, RefreshCw } from 'lucide-react';
 import type { DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { convertJsonToCsv, downloadFile } from '@/lib/utils';
@@ -14,11 +14,20 @@ import { Toaster } from '@/components/ui/toaster';
 interface PageHeaderProps {
   cases: DentalCase[];
   setCases: React.Dispatch<React.SetStateAction<DentalCase[]>>;
+  onReload: () => void;
 }
 
-export default function PageHeader({ cases, setCases }: PageHeaderProps) {
+export default function PageHeader({ cases, setCases, onReload }: PageHeaderProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleReload = () => {
+    onReload();
+    toast({
+        title: 'Data Reloaded',
+        description: 'The case list has been refreshed.',
+    });
+  }
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -104,6 +113,10 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
                 <Link href="/login">
                     <LogIn className="mr-2 h-4 w-4" /> Doctor Portal
                 </Link>
+            </Button>
+            <Button onClick={handleReload} variant="outline" size="sm">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Reload
             </Button>
             <input
                 type="file"
