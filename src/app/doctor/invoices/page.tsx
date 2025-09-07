@@ -310,8 +310,8 @@ export default function DoctorInvoicesPage() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        zIndex: 0,
-                        opacity: 0.1,
+                        zIndex: 2,
+                        opacity: 1,
                     }}
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
