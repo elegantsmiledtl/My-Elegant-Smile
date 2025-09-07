@@ -10,8 +10,8 @@ export default function Logo() {
       <Image
         src="https://i.imgur.com/BYbgglV.png"
         alt="Elegant Smile Logo"
-        width={200}
-        height={50}
+        width={150}
+        height={40}
         priority
         data-ai-hint="logo"
       />

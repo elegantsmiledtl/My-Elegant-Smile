@@ -129,13 +129,17 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
     <header className="bg-card border-b shadow-sm p-4">
       <Toaster />
       <div className="container mx-auto flex justify-between items-center">
-        <Logo />
-        <div className="flex items-center gap-2">
+        <div className="flex-1">
             <Button asChild size="sm">
                 <Link href="/owner">
                     <User className="mr-2 h-4 w-4" /> Owner View
                 </Link>
             </Button>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <Logo />
+        </div>
+        <div className="flex-1 flex justify-end items-center gap-2">
             <Button asChild size="sm" variant="secondary">
                 <Link href="/login">
                     <LogIn className="mr-2 h-4 w-4" /> Doctor Portal

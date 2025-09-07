@@ -46,14 +46,12 @@ export default function DoctorQrCodePage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-       <div className="absolute top-8 left-8">
+       <div className="absolute top-8 left-1/2 -translate-x-1/2">
          <Logo />
-      </div>
-       <div className="absolute top-8 right-8">
       </div>
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl">Doctor Portal QR Code</CardTitle>
+          <CardTitle className="text-2xl">Doctor Login QR Code</CardTitle>
           <CardDescription>
             Share this QR code with doctors. When scanned, it will take them to the login page for the doctor portal.
           </CardDescription>
@@ -65,7 +63,6 @@ export default function DoctorQrCodePage() {
                 size={256}
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                 value={loginUrl}
-                viewBox={`0 0 256 256`}
                 fgColor="#000000"
                 level="H"
                 />

@@ -124,6 +124,7 @@ export default function InvoicePage() {
      const filteredCasesByDate = allCases.filter(c => {
        if (c.dentistName !== selectedDoctor) return false;
        if (!c.createdAt) return false;
+       
        if (c.isDeleted) return false;
        
         let caseDate;
@@ -382,7 +383,7 @@ export default function InvoicePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b shadow-sm p-4">
-        <div className="container mx-auto flex justify-between items-center">
+        <div className="container mx-auto flex justify-center items-center">
           <Logo />
         </div>
       </header>
@@ -561,7 +562,7 @@ export default function InvoicePage() {
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
                         <>
                         <div
-                             style={{
+                            style={{
                                 position: 'absolute',
                                 top: '65%',
                                 left: '50%',
