@@ -128,41 +128,39 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
     <header className="bg-card border-b shadow-sm p-4">
       <Toaster />
       <div className="container mx-auto flex justify-between items-center">
-        <div className="flex-1">
+        <div className="flex items-center gap-2">
             <Button asChild size="sm">
                 <Link href="/owner">
                     <User className="mr-2 h-4 w-4" /> Owner View
                 </Link>
             </Button>
-        </div>
-        <div className="flex-1 flex justify-center">
-          
-        </div>
-        <div className="flex-1 flex justify-end items-center gap-2">
             <Button asChild size="sm" variant="secondary">
                 <Link href="/login">
                     <LogIn className="mr-2 h-4 w-4" /> Doctor Portal
                 </Link>
             </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".json"
-            className="hidden"
-          />
-          <Button variant="outline" size="sm" onClick={handleImportClick}>
-            <FileUp className="mr-2 h-4 w-4" /> Import JSON
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExportJson}>
-            <FileJson className="mr-2 h-4 w-4" /> Export JSON
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExportCsv}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleGenerateReport}>
-            <FileText className="mr-2 h-4 w-4" /> Generate Report
-          </Button>
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".json"
+                className="hidden"
+            />
+            <Button variant="outline" size="sm" onClick={handleImportClick}>
+                <FileUp className="mr-2 h-4 w-4" /> Import JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportJson}>
+                <FileJson className="mr-2 h-4 w-4" /> Export JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportCsv}>
+                <Download className="mr-2 h-4 w-4" /> Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleGenerateReport}>
+                <FileText className="mr-2 h-4 w-4" /> Generate Report
+            </Button>
+        </div>
+        <div className="flex-1 flex justify-end items-center gap-2">
+          
         </div>
       </div>
     </header>
