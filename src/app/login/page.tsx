@@ -75,9 +75,6 @@ function LoginPageContent() {
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">Doctor Login</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your cases.
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="grid gap-4">
