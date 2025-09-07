@@ -679,13 +679,13 @@ export default function OwnerPage() {
                               Reload
                           </Button>
                           <Dialog>
-                              <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                      <History className="mr-2 h-4 w-4" />
-                                      Logs
-                                  </Button>
-                              </DialogTrigger>
-                              <LoginLogsDialog />
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <History className="mr-2 h-4 w-4" />
+                                    Logs
+                                </Button>
+                            </DialogTrigger>
+                            <LoginLogsDialog />
                           </Dialog>
                           <Button asChild variant="outline" size="sm">
                             <Link href="/owner/invoice">
@@ -746,4 +746,5 @@ export default function OwnerPage() {
         </main>
       </div>
     </>
-    
+  );
+}
