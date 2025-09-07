@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Home, Receipt, FileDown, Send, Trash2, History } from 'lucide-react';
+import { Home, Receipt, FileDown, Send, Trash2, History, Settings } from 'lucide-react';
 import Logo from '@/components/logo';
 import { getCases, saveInvoice, getInvoicesByDoctor, deleteInvoice, createNotification } from '@/lib/firebase';
 import type { DentalCase, Invoice } from '@/types';
@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
@@ -63,6 +64,13 @@ export default function InvoicePage() {
   const [isSharing, setIsSharing] = useState(false);
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+
+  // Watermark state
+  const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
+  const [watermarkSize, setWatermarkSize] = useState(400);
+  const [watermarkX, setWatermarkX] = useState(50);
+  const [watermarkY, setWatermarkY] = useState(50);
+
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
@@ -195,7 +203,7 @@ export default function InvoicePage() {
         const canvas = await html2canvas(invoiceElement, {
             scale: 2,
             useCORS: true,
-            backgroundColor: null,
+            backgroundColor: null, // Transparent background to capture only the content
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -467,9 +475,10 @@ export default function InvoicePage() {
                 )}
             </Card>
         
-            {/* The live, interactive invoice for the UI */}
-            {invoiceSummary && fromDate && toDate && (
-                <div className="bg-white text-black p-4">
+             {invoiceSummary && fromDate && toDate && (
+              <div className="grid lg:grid-cols-3 gap-6 mt-6">
+                {/* The live, interactive invoice for the UI */}
+                <div className="lg:col-span-2 bg-white text-black p-4 rounded-lg shadow-md">
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
@@ -556,6 +565,61 @@ export default function InvoicePage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Watermark Controls */}
+                 <div className="lg:col-span-1">
+                    <Card className="shadow-lg sticky top-8">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Settings className="w-5 h-5" />
+                                Watermark Settings
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="space-y-2">
+                                <Label>Opacity ({Math.round(watermarkOpacity * 100)}%)</Label>
+                                <Slider
+                                    value={[watermarkOpacity]}
+                                    onValueChange={(value) => setWatermarkOpacity(value[0])}
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                />
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Size ({watermarkSize}px)</Label>
+                                <Slider
+                                    value={[watermarkSize]}
+                                    onValueChange={(value) => setWatermarkSize(value[0])}
+                                    min={100}
+                                    max={800}
+                                    step={10}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="x-pos">Horizontal Position (%)</Label>
+                                    <Input 
+                                        id="x-pos"
+                                        type="number"
+                                        value={watermarkX}
+                                        onChange={(e) => setWatermarkX(Number(e.target.value))}
+                                    />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="y-pos">Vertical Position (%)</Label>
+                                    <Input 
+                                        id="y-pos"
+                                        type="number"
+                                        value={watermarkY}
+                                        onChange={(e) => setWatermarkY(Number(e.target.value))}
+                                    />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+              </div>
             )}
              
             {/* Hidden, simplified invoice for PDF generation */}
@@ -566,15 +630,15 @@ export default function InvoicePage() {
                         <div
                             style={{
                                 position: 'absolute',
-                                top: '50%',
-                                left: '50%',
+                                top: `${watermarkY}%`,
+                                left: `${watermarkX}%`,
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: 0,
-                                opacity: 0.1,
+                                opacity: watermarkOpacity,
                             }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '400px' }} />
+                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: `${watermarkSize}px` }} />
                         </div>
 
                         <div className="relative space-y-6" style={{ zIndex: 1 }}>
