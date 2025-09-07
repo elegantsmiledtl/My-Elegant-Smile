@@ -65,13 +65,6 @@ export default function InvoicePage() {
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
-  // Watermark state
-  const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
-  const [watermarkSize, setWatermarkSize] = useState(490);
-  const [watermarkX, setWatermarkX] = useState(50);
-  const [watermarkY, setWatermarkY] = useState(65);
-
-
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
 
@@ -476,9 +469,9 @@ export default function InvoicePage() {
             </Card>
         
              {invoiceSummary && fromDate && toDate && (
-              <div className="grid lg:grid-cols-3 gap-6 mt-6">
+              <div className="mt-6">
                 {/* The live, interactive invoice for the UI */}
-                <div className="lg:col-span-2 bg-white text-black p-4 rounded-lg shadow-md">
+                <div className="bg-white text-black p-4 rounded-lg shadow-md">
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
@@ -565,60 +558,6 @@ export default function InvoicePage() {
                         </div>
                     </div>
                 </div>
-
-                {/* Watermark Controls */}
-                 <div className="lg:col-span-1">
-                    <Card className="shadow-lg sticky top-8">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Settings className="w-5 h-5" />
-                                Watermark Settings
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-2">
-                                <Label>Opacity ({Math.round(watermarkOpacity * 100)}%)</Label>
-                                <Slider
-                                    value={[watermarkOpacity]}
-                                    onValueChange={(value) => setWatermarkOpacity(value[0])}
-                                    min={0}
-                                    max={1}
-                                    step={0.05}
-                                />
-                            </div>
-                             <div className="space-y-2">
-                                <Label>Size ({watermarkSize}px)</Label>
-                                <Slider
-                                    value={[watermarkSize]}
-                                    onValueChange={(value) => setWatermarkSize(value[0])}
-                                    min={100}
-                                    max={800}
-                                    step={10}
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="x-pos">Horizontal Position (%)</Label>
-                                    <Input 
-                                        id="x-pos"
-                                        type="number"
-                                        value={watermarkX}
-                                        onChange={(e) => setWatermarkX(Number(e.target.value))}
-                                    />
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="y-pos">Vertical Position (%)</Label>
-                                    <Input 
-                                        id="y-pos"
-                                        type="number"
-                                        value={watermarkY}
-                                        onChange={(e) => setWatermarkY(Number(e.target.value))}
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
               </div>
             )}
              
@@ -630,15 +569,15 @@ export default function InvoicePage() {
                         <div
                             style={{
                                 position: 'absolute',
-                                top: `${watermarkY}%`,
-                                left: `${watermarkX}%`,
+                                top: `65%`,
+                                left: `50%`,
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: 0,
-                                opacity: watermarkOpacity,
+                                opacity: 0.1,
                             }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: `${watermarkSize}px` }} />
+                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: `490px` }} />
                         </div>
 
                         <div className="relative space-y-6" style={{ zIndex: 1 }}>
