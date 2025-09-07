@@ -74,7 +74,7 @@ function LoginPageContent() {
       </div>
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl">Doctor Portal Login</CardTitle>
+          <CardTitle className="text-2xl">Doctor Login</CardTitle>
           <CardDescription>
             Enter your credentials to access your cases.
           </CardDescription>
