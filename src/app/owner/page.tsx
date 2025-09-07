@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus } from 'lucide-react';
+import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus, RefreshCw } from 'lucide-react';
 import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser, createNotification, getCaseById } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -451,6 +451,14 @@ export default function OwnerPage() {
     }
   };
 
+  const handleReload = () => {
+    fetchCases();
+    toast({
+        title: 'Data Reloaded',
+        description: 'The case list has been refreshed.',
+    });
+  }
+
   const filteredCases = cases.filter(c => {
     // Hide soft-deleted cases from owner view by default
     if (c.isDeleted) return false;
@@ -666,6 +674,10 @@ export default function OwnerPage() {
                                   </AlertDialogFooter>
                               </AlertDialogContent>
                           </AlertDialog>
+                          <Button onClick={handleReload} variant="outline" size="sm">
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Reload
+                          </Button>
                           <Dialog>
                               <DialogTrigger asChild>
                                   <Button variant="outline" size="sm">
@@ -734,5 +746,4 @@ export default function OwnerPage() {
         </main>
       </div>
     </>
-  );
-}
+    
