@@ -141,7 +141,7 @@ export default function DoctorPortalPage() {
        <AlertDialog open={showAppreciation} onOpenChange={setShowAppreciation}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-center text-2xl font-bold text-primary">
+            <AlertDialogTitle className="text-center text-2xl font-bold text-[#C6A963]">
               Your Trust Means A Lot To Us
             </AlertDialogTitle>
           </AlertDialogHeader>
