@@ -142,7 +142,7 @@ export default function DoctorPortalPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center text-2xl font-bold text-primary">
-              Your Trust Is Highly Appreciated
+              Your Trust Means A Lot To Us
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter>
