@@ -3,10 +3,10 @@
 
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Upload, FileText, FileJson, FileUp, Sparkles, QrCode, PlusCircle, User, LogIn } from 'lucide-react';
+import { Download, FileUp, User, LogIn } from 'lucide-react';
 import type { DentalCase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { convertJsonToCsv, downloadFile, generateReport } from '@/lib/utils';
+import { convertJsonToCsv, downloadFile } from '@/lib/utils';
 import Link from 'next/link';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -65,23 +65,6 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
     }
   };
 
-  const handleExportJson = () => {
-    if (cases.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'No Data',
-        description: 'There are no cases to export.',
-      });
-      return;
-    }
-    const jsonString = JSON.stringify(cases, null, 2);
-    downloadFile(jsonString, 'elegant-smile-data.json', 'application/json');
-    toast({
-      title: 'Export Successful',
-      description: 'Cases have been exported to JSON.',
-    });
-  };
-
   const handleExportCsv = () => {
     if (cases.length === 0) {
       toast({
@@ -107,23 +90,6 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
     }
   };
 
-  const handleGenerateReport = () => {
-     if (cases.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'No Data',
-        description: 'There is no data to generate a report from.',
-      });
-      return;
-    }
-    const reportText = generateReport(cases);
-    downloadFile(reportText, 'dental-lab-report.txt', 'text/plain');
-    toast({
-      title: 'Report Generated',
-      description: 'A summary report has been downloaded.',
-    });
-  };
-
   return (
     <header className="bg-card border-b shadow-sm p-4">
       <Toaster />
@@ -146,17 +112,8 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
                 accept=".json"
                 className="hidden"
             />
-            <Button variant="outline" size="sm" onClick={handleImportClick}>
-                <FileUp className="mr-2 h-4 w-4" /> Import JSON
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExportJson}>
-                <FileJson className="mr-2 h-4 w-4" /> Export JSON
-            </Button>
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
                 <Download className="mr-2 h-4 w-4" /> Export CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleGenerateReport}>
-                <FileText className="mr-2 h-4 w-4" /> Generate Report
             </Button>
         </div>
         <div className="flex-1 flex justify-end items-center gap-2">
