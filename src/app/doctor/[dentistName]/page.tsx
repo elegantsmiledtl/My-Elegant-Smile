@@ -132,12 +132,6 @@ export default function DoctorPage() {
             <SmallLogo />
           </div>
           <div className="flex justify-end">
-            <Button asChild variant="outline">
-              <Link href="/doctor-portal">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Portal
-              </Link>
-            </Button>
           </div>
         </div>
       </header>

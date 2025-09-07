@@ -173,12 +173,6 @@ export default function DoctorInvoicesPage() {
                 <SmallLogo />
             </div>
             <div className="flex justify-end">
-                <Button asChild variant="outline">
-                    <Link href="/doctor-portal">
-                    <Home className="mr-2" />
-                    Back to Portal
-                    </Link>
-                </Button>
             </div>
         </div>
       </header>
