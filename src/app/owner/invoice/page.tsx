@@ -123,6 +123,7 @@ export default function InvoicePage() {
      const filteredCasesByDate = allCases.filter(c => {
        if (c.dentistName !== selectedDoctor) return false;
        if (!c.createdAt) return false;
+       if (c.isDeleted) return false; // Exclude deleted cases
        
         let caseDate;
         if (typeof c.createdAt.toDate === 'function') {
@@ -560,6 +561,7 @@ export default function InvoicePage() {
                                 hideDeliveryDate 
                                 hideShade 
                                 hidePatientNumber
+                                highlightDeleted={false}
                             />
                         </div>
                     </div>
@@ -847,3 +849,4 @@ export default function InvoicePage() {
     </div>
   );
 }
+
