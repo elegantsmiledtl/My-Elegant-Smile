@@ -66,10 +66,10 @@ export default function InvoicePage() {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
   // Watermark state
-  const [watermarkOpacity, setWatermarkOpacity] = useState(1);
-  const [watermarkSize, setWatermarkSize] = useState(400);
+  const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
+  const [watermarkSize, setWatermarkSize] = useState(490);
   const [watermarkX, setWatermarkX] = useState(50);
-  const [watermarkY, setWatermarkY] = useState(50);
+  const [watermarkY, setWatermarkY] = useState(65);
 
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
@@ -633,7 +633,7 @@ export default function InvoicePage() {
                                 top: `${watermarkY}%`,
                                 left: `${watermarkX}%`,
                                 transform: 'translate(-50%, -50%)',
-                                zIndex: 2,
+                                zIndex: 0,
                                 opacity: watermarkOpacity,
                             }}
                         >
