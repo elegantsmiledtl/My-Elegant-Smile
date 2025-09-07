@@ -32,6 +32,7 @@ export default function DoctorPortalPage() {
   const [key, setKey] = useState(Date.now()); // For resetting the form
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<{ id: string; message: string }[]>([]);
+  const [showAppreciation, setShowAppreciation] = useState(false);
 
 
   useEffect(() => {
@@ -99,10 +100,7 @@ export default function DoctorPortalPage() {
 
       await addCase(caseData);
       
-      toast({
-        title: 'Case Added!',
-        description: `Case for ${newCase.patientName} has been successfully saved. Now sending notification...`,
-      });
+      setShowAppreciation(true);
       
       setKey(Date.now()); // Reset form
 
@@ -140,6 +138,21 @@ export default function DoctorPortalPage() {
 
   return (
     <>
+       <AlertDialog open={showAppreciation} onOpenChange={setShowAppreciation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-2xl font-bold text-primary">
+              Your Trust Is Highly Appreciated
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowAppreciation(false)}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AlertDialog open={notifications.length > 0}>
           <AlertDialogContent>
               <AlertDialogHeader>
