@@ -75,10 +75,8 @@ export default function DoctorQrCodePage() {
                 fgColor="#000000"
                 level="H"
                 />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-md">
-                     <div className="font-headline text-2xl text-black">
-                       Elegant Smile
-                     </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-md">
+                     <Image src="https://i.imgur.com/BYbgglV.png" alt="Elegant Smile Logo" width={60} height={60} data-ai-hint="logo" />
                 </div>
             </div>
           ) : (
