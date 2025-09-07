@@ -178,18 +178,6 @@ export default function InvoicePage() {
     }
   };
 
-  // Function to fetch image and convert to base64
-  const getImageBase64 = async (url: string) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-      });
-  };
-
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
     if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
@@ -219,25 +207,6 @@ export default function InvoicePage() {
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        // --- Add Logo Watermark ---
-        try {
-            const logoUrl = 'https://i.imgur.com/BYbgglV.png'; 
-            const logoBase64 = await getImageBase64(logoUrl);
-            const logoWidth = 100;
-            const logoHeight = 25; 
-            const x = (pdfWidth - logoWidth) / 2;
-            const y = (pdfHeight - logoHeight) / 2;
-            
-            // @ts-ignore
-            pdf.setGState(new pdf.GState({opacity: 0.1})); 
-            pdf.addImage(logoBase64, 'PNG', x, y, logoWidth, logoHeight);
-            // @ts-ignore
-            pdf.setGState(new pdf.GState({opacity: 1})); 
-        } catch (e) {
-            console.error("Could not add logo watermark", e);
-        }
-        // --- End Watermark ---
         
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
@@ -590,95 +559,113 @@ export default function InvoicePage() {
             )}
              
             {/* Hidden, simplified invoice for PDF generation */}
-            <div ref={printableInvoiceRef} className="bg-white text-black p-8 absolute -z-50 -top-[9999px] -left-[9999px] w-[800px]">
-                {invoiceSummary && selectedDoctor && fromDate && toDate && (
-                    <div className="space-y-6">
-                        <div className="text-center mb-8">
-                           <h1 className="text-3xl font-bold">Elegant Smile</h1>
-                           <h2 className="text-2xl">Invoice</h2>
-                        </div>
-                         <div className="flex justify-between mb-6">
-                            <div>
-                                <p className="font-bold">Doctor:</p>
-                                <p>{selectedDoctor}</p>
-                            </div>
-                            <div>
-                                <p className="font-bold">Date Range:</p>
-                                <p>{`From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`}</p>
-                            </div>
-                        </div>
-
-                        <table className="w-full border-collapse text-sm">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="border p-2 text-left">Material</th>
-                                    <th className="border p-2 text-right">Unit(s)</th>
-                                    <th className="border p-2 text-right">Price per Unit (JOD)</th>
-                                    <th className="border p-2 text-right">Total (JOD)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Object.entries(invoiceSummary.summary).map(([material, data]) => (
-                                    data.toothCount > 0 && (
-                                        <tr key={material}>
-                                            <td className="border p-2 font-medium">{material}</td>
-                                            <td className="border p-2 text-right">{data.toothCount}</td>
-                                            <td className="border p-2 text-right">{formatAmount(data.price)}</td>
-                                            <td className="border p-2 text-right font-semibold">{formatAmount(data.total)}</td>
-                                        </tr>
-                                    )
-                                ))}
-                            </tbody>
-                        </table>
-                        
-                        <div className="flex justify-end mt-6">
-                            <div className="w-2/5 space-y-2">
-                                <div className="flex justify-between items-center text-lg p-2">
-                                    <span className="font-bold">Subtotal:</span>
-                                    <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
-                                </div>
-                                 <div className="flex justify-between items-center text-lg p-2">
-                                    <span className="font-bold">Paid Amount:</span>
-                                    <span className="font-bold text-red-600">{`- ${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
-                                    <span>Total Due:</span>
-                                    <span>{`${formatAmount(invoiceSummary.grandTotal)} JOD`}</span>
-                                </div>
-                            </div>
+            <div className="fixed -z-50 -top-[9999px] -left-[9999px] w-[800px] bg-white text-black">
+                <div ref={printableInvoiceRef} className="relative p-8">
+                    {invoiceSummary && selectedDoctor && fromDate && toDate && (
+                        <>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                zIndex: 0,
+                                opacity: 0.1,
+                            }}
+                        >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '400px' }} />
                         </div>
 
-                         <div className="mt-8">
-                            <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
-                             <table className="w-full border-collapse text-xs">
+                        <div className="relative space-y-6" style={{ zIndex: 1 }}>
+                            <div className="text-center mb-8">
+                            <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                            <h2 className="text-2xl">Invoice</h2>
+                            </div>
+                            <div className="flex justify-between mb-6">
+                                <div>
+                                    <p className="font-bold">Doctor:</p>
+                                    <p>{selectedDoctor}</p>
+                                </div>
+                                <div>
+                                    <p className="font-bold">Date Range:</p>
+                                    <p>{`From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`}</p>
+                                </div>
+                            </div>
+
+                            <table className="w-full border-collapse text-sm">
                                 <thead>
                                     <tr className="bg-gray-100">
-                                        <th className="border p-2 text-left">Created At</th>
-                                        <th className="border p-2 text-left">Patient</th>
-                                        <th className="border p-2 text-left">Tooth #(s)</th>
-                                        <th className="border p-2 text-right">Unit(s)</th>
-                                        <th className="border p-2 text-left">Prosthesis</th>
                                         <th className="border p-2 text-left">Material</th>
-                                        <th className="border p-2 text-left">Notes</th>
+                                        <th className="border p-2 text-right">Unit(s)</th>
+                                        <th className="border p-2 text-right">Price per Unit (JOD)</th>
+                                        <th className="border p-2 text-right">Total (JOD)</th>
                                     </tr>
                                 </thead>
-                                 <tbody>
-                                   {invoiceSummary.cases.map(c => (
-                                        <tr key={c.id}>
-                                            <td className="border p-2">{formatDate(c.createdAt)}</td>
-                                            <td className="border p-2">{c.patientName}</td>
-                                            <td className="border p-2">{c.toothNumbers}</td>
-                                            <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
-                                            <td className="border p-2">{c.prosthesisType}</td>
-                                            <td className="border p-2">{c.material}</td>
-                                            <td className="border p-2">{c.notes}</td>
-                                        </tr>
+                                <tbody>
+                                    {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                        data.toothCount > 0 && (
+                                            <tr key={material}>
+                                                <td className="border p-2 font-medium">{material}</td>
+                                                <td className="border p-2 text-right">{data.toothCount}</td>
+                                                <td className="border p-2 text-right">{formatAmount(data.price)}</td>
+                                                <td className="border p-2 text-right font-semibold">{formatAmount(data.total)}</td>
+                                            </tr>
+                                        )
                                     ))}
                                 </tbody>
                             </table>
+                            
+                            <div className="flex justify-end mt-6">
+                                <div className="w-2/5 space-y-2">
+                                    <div className="flex justify-between items-center text-lg p-2">
+                                        <span className="font-bold">Subtotal:</span>
+                                        <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-lg p-2">
+                                        <span className="font-bold">Paid Amount:</span>
+                                        <span className="font-bold text-red-600">{`- ${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
+                                        <span>Total Due:</span>
+                                        <span>{`${formatAmount(invoiceSummary.grandTotal)} JOD`}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8">
+                                <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
+                                <table className="w-full border-collapse text-xs">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border p-2 text-left">Created At</th>
+                                            <th className="border p-2 text-left">Patient</th>
+                                            <th className="border p-2 text-left">Tooth #(s)</th>
+                                            <th className="border p-2 text-right">Unit(s)</th>
+                                            <th className="border p-2 text-left">Prosthesis</th>
+                                            <th className="border p-2 text-left">Material</th>
+                                            <th className="border p-2 text-left">Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {invoiceSummary.cases.map(c => (
+                                            <tr key={c.id}>
+                                                <td className="border p-2">{formatDate(c.createdAt)}</td>
+                                                <td className="border p-2">{c.patientName}</td>
+                                                <td className="border p-2">{c.toothNumbers}</td>
+                                                <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
+                                                <td className="border p-2">{c.prosthesisType}</td>
+                                                <td className="border p-2">{c.material}</td>
+                                                <td className="border p-2">{c.notes}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
 
             {invoiceSummary && fromDate && toDate && (
