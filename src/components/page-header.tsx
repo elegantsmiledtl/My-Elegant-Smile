@@ -137,7 +137,7 @@ export default function PageHeader({ cases, setCases }: PageHeaderProps) {
             </Button>
         </div>
         <div className="flex-1 flex justify-center">
-          <Logo />
+          
         </div>
         <div className="flex-1 flex justify-end items-center gap-2">
             <Button asChild size="sm" variant="secondary">
