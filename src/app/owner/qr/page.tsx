@@ -76,12 +76,9 @@ export default function DoctorQrCodePage() {
                 level="H"
                 />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-md">
-                     <Image
-                      src="https://i.imgur.com/6oUDQAi.png"
-                      alt="Elegant Smile Logo"
-                      width={50}
-                      height={17}
-                  />
+                     <div className="font-headline text-2xl text-black">
+                       Elegant Smile
+                     </div>
                 </div>
             </div>
           ) : (
@@ -104,5 +101,3 @@ export default function DoctorQrCodePage() {
     </div>
   );
 }
-
-
