@@ -16,19 +16,19 @@ export default function HomePage() {
       <div className="min-h-screen bg-background text-foreground flex flex-col">
         <header className="bg-card border-b shadow-sm p-4">
           <div className="container mx-auto flex justify-end items-center">
-            <div className="flex items-center gap-4">
-              <Button asChild variant="outline">
-                <Link href="/owner">Owner Dashboard</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/login">Doctor Portal</Link>
-              </Button>
-            </div>
           </div>
         </header>
         <main className="flex-grow container mx-auto flex flex-col items-center justify-center p-8 text-center">
           <div className="mb-12">
             <Logo />
+          </div>
+          <div className="flex flex-col items-center gap-4 w-full max-w-xs">
+            <Button asChild size="lg" className="w-full">
+              <Link href="/owner">Lab User</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="w-full">
+              <Link href="/login">Doctor User</Link>
+            </Button>
           </div>
         </main>
         <footer className="py-4 text-center text-muted-foreground text-sm">
