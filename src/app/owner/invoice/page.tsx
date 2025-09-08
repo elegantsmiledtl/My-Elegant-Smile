@@ -465,13 +465,6 @@ export default function InvoicePage() {
         
              {invoiceSummary && fromDate && toDate && (
               <div className="mt-6">
-                <Card className="mb-4">
-                  <CardContent className="p-4">
-                    <p className="text-destructive text-sm font-semibold text-center">
-                      The watermark is now fixed and cannot be changed.
-                    </p>
-                  </CardContent>
-                </Card>
                 {/* The live, interactive invoice for the UI */}
                 <div className="bg-white text-black p-4 rounded-lg shadow-md">
                     <div className="space-y-6">
