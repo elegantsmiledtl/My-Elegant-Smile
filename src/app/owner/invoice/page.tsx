@@ -623,9 +623,7 @@ export default function InvoicePage() {
                                     </div>
                                     <div className="flex justify-between items-center text-lg p-2">
                                         <span className="font-bold">Paid Amount:</span>
-                                        <span className={invoiceSummary.paidAmount > 0 ? "font-bold text-red-600" : "font-bold"}>
-                                            {invoiceSummary.paidAmount > 0 ? `- ${formatAmount(invoiceSummary.paidAmount)} JOD` : `${formatAmount(invoiceSummary.paidAmount)} JOD`}
-                                        </span>
+                                        <span className="font-bold">{`${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                         <span>Total Due:</span>
