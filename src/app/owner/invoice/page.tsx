@@ -560,94 +560,98 @@ export default function InvoicePage() {
             <div className="fixed -z-50 -top-[9999px] -left-[9999px] w-[800px] bg-white text-black">
                 <div ref={printableInvoiceRef} className="relative p-8">
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
-                        <div className="relative space-y-6">
-                            <div className="text-center mb-8">
+                        <>
+                            <div className="absolute inset-0 flex items-center justify-center z-0 opacity-10">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src="https://i.imgur.com/BYbgglV.png" alt="Logo" style={{ width: '300px', margin: '0 auto 20px' }} />
-                                <h1 className="text-3xl font-bold">Elegant Smile</h1>
-                                <h2 className="text-2xl">Invoice</h2>
+                                <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" className="max-w-full h-auto" />
                             </div>
-                            <div className="flex justify-between mb-6">
-                                <div>
-                                    <p className="font-bold">Doctor:</p>
-                                    <p>{selectedDoctor}</p>
+                            <div className="relative z-10 space-y-6">
+                                <div className="text-center mb-8">
+                                    <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                                    <h2 className="text-2xl">Invoice</h2>
                                 </div>
-                                <div>
-                                    <p className="font-bold">Date Range:</p>
-                                    <p>{`From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`}</p>
+                                <div className="flex justify-between mb-6">
+                                    <div>
+                                        <p className="font-bold">Doctor:</p>
+                                        <p>{selectedDoctor}</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold">Date Range:</p>
+                                        <p>{`From ${formatInTimeZone(fromDate, timeZone, 'PPP')} to ${formatInTimeZone(toDate, timeZone, 'PPP')}`}</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <table className="w-full border-collapse text-sm">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border p-2 text-left">Material</th>
-                                        <th className="border p-2 text-right">Unit(s)</th>
-                                        <th className="border p-2 text-right">Price per Unit (JOD)</th>
-                                        <th className="border p-2 text-right">Total (JOD)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {Object.entries(invoiceSummary.summary).map(([material, data]) => (
-                                        data.toothCount > 0 && (
-                                            <tr key={material}>
-                                                <td className="border p-2 font-medium">{material}</td>
-                                                <td className="border p-2 text-right">{data.toothCount}</td>
-                                                <td className="border p-2 text-right">{formatAmount(data.price)}</td>
-                                                <td className="border p-2 text-right font-semibold">{formatAmount(data.total)}</td>
-                                            </tr>
-                                        )
-                                    ))}
-                                </tbody>
-                            </table>
-                            
-                            <div className="flex justify-end mt-6">
-                                <div className="w-2/5 space-y-2">
-                                    <div className="flex justify-between items-center text-lg p-2">
-                                        <span className="font-bold">Subtotal:</span>
-                                        <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-lg p-2">
-                                        <span className="font-bold">Paid Amount:</span>
-                                        <span className="font-bold text-red-600">{`${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
-                                        <span>Total Due:</span>
-                                        <span>{`${formatAmount(invoiceSummary.grandTotal)} JOD`}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-8">
-                                <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
-                                <table className="w-full border-collapse text-xs">
+                                <table className="w-full border-collapse text-sm">
                                     <thead>
                                         <tr className="bg-gray-100">
-                                            <th className="border p-2 text-left">Created At</th>
-                                            <th className="border p-2 text-left">Patient</th>
-                                            <th className="border p-2 text-left">Tooth #(s)</th>
-                                            <th className="border p-2 text-right">Unit(s)</th>
-                                            <th className="border p-2 text-left">Prosthesis</th>
                                             <th className="border p-2 text-left">Material</th>
-                                            <th className="border p-2 text-left">Notes</th>
+                                            <th className="border p-2 text-right">Unit(s)</th>
+                                            <th className="border p-2 text-right">Price per Unit (JOD)</th>
+                                            <th className="border p-2 text-right">Total (JOD)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    {invoiceSummary.cases.map(c => (
-                                            <tr key={c.id}>
-                                                <td className="border p-2">{formatDate(c.createdAt)}</td>
-                                                <td className="border p-2">{c.patientName}</td>
-                                                <td className="border p-2">{c.toothNumbers}</td>
-                                                <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
-                                                <td className="border p-2">{c.prosthesisType}</td>
-                                                <td className="border p-2">{c.material}</td>
-                                                <td className="border p-2">{c.notes}</td>
-                                            </tr>
+                                        {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                            data.toothCount > 0 && (
+                                                <tr key={material}>
+                                                    <td className="border p-2 font-medium">{material}</td>
+                                                    <td className="border p-2 text-right">{data.toothCount}</td>
+                                                    <td className="border p-2 text-right">{formatAmount(data.price)}</td>
+                                                    <td className="border p-2 text-right font-semibold">{formatAmount(data.total)}</td>
+                                                </tr>
+                                            )
                                         ))}
                                     </tbody>
                                 </table>
+                                
+                                <div className="flex justify-end mt-6">
+                                    <div className="w-2/5 space-y-2">
+                                        <div className="flex justify-between items-center text-lg p-2">
+                                            <span className="font-bold">Subtotal:</span>
+                                            <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-lg p-2">
+                                            <span className="font-bold">Paid Amount:</span>
+                                            <span className="font-bold text-red-600">{`${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
+                                            <span>Total Due:</span>
+                                            <span>{`${formatAmount(invoiceSummary.grandTotal)} JOD`}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8">
+                                    <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
+                                    <table className="w-full border-collapse text-xs">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="border p-2 text-left">Created At</th>
+                                                <th className="border p-2 text-left">Patient</th>
+                                                <th className="border p-2 text-left">Tooth #(s)</th>
+                                                <th className="border p-2 text-right">Unit(s)</th>
+                                                <th className="border p-2 text-left">Prosthesis</th>
+                                                <th className="border p-2 text-left">Material</th>
+                                                <th className="border p-2 text-left">Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {invoiceSummary.cases.map(c => (
+                                                <tr key={c.id}>
+                                                    <td className="border p-2">{formatDate(c.createdAt)}</td>
+                                                    <td className="border p-2">{c.patientName}</td>
+                                                    <td className="border p-2">{c.toothNumbers}</td>
+                                                    <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
+                                                    <td className="border p-2">{c.prosthesisType}</td>
+                                                    <td className="border p-2">{c.material}</td>
+                                                    <td className="border p-2">{c.notes}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
                 </div>
             </div>
