@@ -4,7 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Elegant Smile Data Hub',
+  title: 'Elegant Smile',
   description: 'A data entry application for Elegant Smile Dental Lab',
 };
 
