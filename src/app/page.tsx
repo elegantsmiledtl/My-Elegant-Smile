@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, UserCog } from 'lucide-react';
+import { ArrowRight, User, UserCog } from 'lucide-react';
 import Logo from '@/components/logo';
 import { Metadata } from 'next';
 import Head from 'next/head';
@@ -25,6 +25,9 @@ export default function HomePage() {
           <div className="flex flex-col items-center gap-4 w-full max-w-xs">
             <Button asChild size="lg" className="w-full bg-[#C6A963] hover:bg-[#C6A963]/90 text-white font-bold">
               <Link href="/owner">Enter Lab Portal</Link>
+            </Button>
+             <Button asChild size="lg" className="w-full">
+              <Link href="/login">Doctor User</Link>
             </Button>
           </div>
         </main>
