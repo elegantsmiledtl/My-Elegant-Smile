@@ -7,9 +7,10 @@ import Image from 'next/image';
 interface LogoProps {
   width?: number;
   height?: number;
+  isLoginPage?: boolean;
 }
 
-export default function Logo({ width = 300, height = 80 }: LogoProps) {
+export default function Logo({ width = 300, height = 80, isLoginPage = false }: LogoProps) {
   const isSmall = width < 200;
   const src = isSmall 
     ? "https://i.imgur.com/Lf9QBbc.png" 
@@ -19,16 +20,24 @@ export default function Logo({ width = 300, height = 80 }: LogoProps) {
     ? "Elegant Smile Small Logo" 
     : "Elegant Smile Logo";
 
+  const LogoImage = (
+    <Image
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      priority
+      data-ai-hint="logo"
+    />
+  );
+  
+  if (isLoginPage) {
+    return <div className="flex items-center gap-2 cursor-default">{LogoImage}</div>
+  }
+
   return (
     <Link href="/" className="flex items-center gap-2">
-      <Image
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        priority
-        data-ai-hint="logo"
-      />
+      {LogoImage}
     </Link>
   );
 }

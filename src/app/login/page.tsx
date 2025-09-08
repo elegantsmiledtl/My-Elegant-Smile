@@ -77,7 +77,7 @@ function LoginPageContent() {
       </Head>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="mb-8">
-          <Logo />
+          <Logo isLoginPage />
         </div>
         <Card className="w-full max-w-sm shadow-2xl">
           <CardHeader>
