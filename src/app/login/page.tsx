@@ -73,7 +73,7 @@ function LoginPageContent() {
   return (
     <>
       <Head>
-        <link rel="manifest" href="/manifest-doctor.json" />
+        <link rel="manifest" href="/manifest-doctor.json?source=pwa" />
       </Head>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="mb-8">

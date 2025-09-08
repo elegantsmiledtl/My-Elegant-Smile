@@ -71,11 +71,11 @@ function AddCasePageContent() {
       return null;
   }
   
-  const isMobileSource = source === 'Mobile';
+  const isMobileSource = source === 'Mobile' || source === 'pwa';
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="bg-card border-b shadow-sm p-4">
+       <header className={`bg-card border-b shadow-sm p-4 ${isMobileSource ? 'sticky top-0 z-10' : ''}`}>
         <div className="container mx-auto flex justify-between items-center">
           <Logo />
            {isMobileSource ? (
