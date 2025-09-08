@@ -303,12 +303,13 @@ export default function DoctorInvoicesPage() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        zIndex: 2,
-                        opacity: 1,
+                        zIndex: 0,
+                        opacity: 0.1,
+                        width: '400px'
                     }}
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '400px' }} />
+                    <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '100%' }} />
                 </div>
 
                 <div className="relative space-y-6" style={{ zIndex: 1 }}>
@@ -358,7 +359,7 @@ export default function DoctorInvoicesPage() {
                             </div>
                             <div className="flex justify-between items-center text-lg p-2">
                                 <span className="font-bold">Paid Amount:</span>
-                                <span className="font-bold text-red-600">{`- ${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
+                                <span className="font-bold text-red-600">{`${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
                             </div>
                             <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                 <span>Total Due:</span>

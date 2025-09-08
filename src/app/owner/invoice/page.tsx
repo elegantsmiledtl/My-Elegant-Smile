@@ -564,12 +564,12 @@ export default function InvoicePage() {
                         <div
                             style={{
                                 position: 'absolute',
-                                top: '65%',
+                                top: '50%',
                                 left: '50%',
                                 transform: 'translate(-50%, -50%)',
                                 zIndex: 0,
                                 opacity: 0.1,
-                                width: '490px'
+                                width: '400px'
                             }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
