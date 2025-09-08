@@ -23,10 +23,10 @@ export default function HomePage() {
             <Logo />
           </div>
           <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-            <Button asChild size="lg" className="w-full bg-[#C6A963] hover:bg-[#C6A963]/90 text-white">
+            <Button asChild size="lg" className="w-full bg-[#C6A963] hover:bg-[#C6A963]/90 text-white font-bold">
               <Link href="/owner">Lab User</Link>
             </Button>
-            <Button asChild size="lg" className="w-full bg-[#C6A963] hover:bg-[#C6A963]/90 text-white">
+            <Button asChild size="lg" className="w-full bg-[#C6A963] hover:bg-[#C6A963]/90 text-white font-bold">
               <Link href="/login">Doctor User</Link>
             </Button>
           </div>
