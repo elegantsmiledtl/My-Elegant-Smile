@@ -253,8 +253,8 @@ export default function DoctorInvoicesPage() {
                                             </div>
                                              <div className="flex items-center gap-4 justify-end">
                                                 <p className="font-semibold">Paid Amount:</p>
-                                                <p className="text-lg font-bold w-[120px] text-left text-destructive">
-                                                    - {formatAmount(invoice.paidAmount)} JOD
+                                                 <p className="text-lg font-bold w-[120px] text-left" style={{ color: invoice.paidAmount > 0 ? 'red' : 'inherit' }}>
+                                                    {formatAmount(invoice.paidAmount)} JOD
                                                 </p>
                                             </div>
                                              <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
@@ -360,7 +360,7 @@ export default function DoctorInvoicesPage() {
                                 </div>
                                  <div className="flex justify-between items-center text-lg p-2">
                                     <span className="font-bold">Paid Amount:</span>
-                                    <span className="font-bold" style={{ color: 'red' }}>
+                                    <span className="font-bold" style={{ color: invoiceForPdf.paidAmount > 0 ? 'red' : 'inherit' }}>
                                         {`${formatAmount(invoiceForPdf.paidAmount)} JOD`}
                                     </span>
                                 </div>
