@@ -30,23 +30,6 @@ export default function HomePage() {
           <div className="mb-12">
             <Logo />
           </div>
-          <div className="flex justify-center w-full max-w-4xl">
-            <Card className="shadow-lg hover:shadow-xl transition-shadow max-w-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserCog className="w-6 h-6 text-primary" />
-                  Owner Dashboard
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button asChild className="w-full">
-                  <Link href="/owner">
-                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         </main>
         <footer className="py-4 text-center text-muted-foreground text-sm">
           <p>Elegant Smile Dental Lab &copy; {new Date().getFullYear()}</p>
