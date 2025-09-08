@@ -71,7 +71,7 @@ function AddCasePageContent() {
       return null;
   }
   
-  const isMobileSource = source === 'Mobile' || source === 'pwa';
+  const isMobileSource = true;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

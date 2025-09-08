@@ -1,7 +1,7 @@
 
 {
-  "name": "Elegant Smile Owner Hub",
-  "short_name": "ES Owner",
+  "name": "Elegant Smile Hub",
+  "short_name": "ES Hub",
   "description": "Owner Dashboard for Elegant Smile Dental Lab",
   "start_url": "/owner",
   "display": "standalone",

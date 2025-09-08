@@ -1,7 +1,7 @@
 
 {
-  "name": "Elegant Smile Doctor Portal",
-  "short_name": "ES Doctor",
+  "name": "Elegant Smile",
+  "short_name": "Elegant Smile",
   "description": "Doctor Portal for Elegant Smile Dental Lab",
   "start_url": "/login?source=pwa",
   "display": "standalone",
