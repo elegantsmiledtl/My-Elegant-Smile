@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Receipt, FileDown, Send, Trash2, History, Settings } from 'lucide-react';
+import { Receipt, FileDown, Send, Trash2, History, Settings, Eye } from 'lucide-react';
 import Logo from '@/components/logo';
 import { getCases, saveInvoice, getInvoicesByDoctor, deleteInvoice, createNotification } from '@/lib/firebase';
 import type { DentalCase, Invoice } from '@/types';
@@ -67,6 +67,12 @@ export default function InvoicePage() {
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
+
+  // Watermark state
+  const [watermarkSize, setWatermarkSize] = useState(80); // As a percentage of width
+  const [watermarkOpacity, setWatermarkOpacity] = useState(10); // As a percentage
+  const [watermarkX, setWatermarkX] = useState(50); // As a percentage from left
+  const [watermarkY, setWatermarkY] = useState(50); // As a percentage from top
 
   const timeZone = 'Asia/Amman';
 
@@ -462,6 +468,54 @@ export default function InvoicePage() {
                     </div>
                 )}
             </Card>
+
+            {invoiceSummary && fromDate && toDate && (
+                 <Card className="shadow-lg mt-6">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Settings className="w-5 h-5 text-primary" />
+                            Watermark Settings
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div className="space-y-6">
+                           <div className="space-y-2">
+                                <Label htmlFor="watermark-size">Size ({watermarkSize}%)</Label>
+                                <Slider id="watermark-size" value={[watermarkSize]} onValueChange={(v) => setWatermarkSize(v[0])} max={200} step={1} />
+                           </div>
+                           <div className="space-y-2">
+                                <Label htmlFor="watermark-opacity">Opacity ({watermarkOpacity}%)</Label>
+                                <Slider id="watermark-opacity" value={[watermarkOpacity]} onValueChange={(v) => setWatermarkOpacity(v[0])} max={100} step={1} />
+                           </div>
+                           <div className="space-y-2">
+                                <Label htmlFor="watermark-x">Horizontal Position ({watermarkX}%)</Label>
+                                <Slider id="watermark-x" value={[watermarkX]} onValueChange={(v) => setWatermarkX(v[0])} max={100} step={1} />
+                           </div>
+                           <div className="space-y-2">
+                                <Label htmlFor="watermark-y">Vertical Position ({watermarkY}%)</Label>
+                                <Slider id="watermark-y" value={[watermarkY]} onValueChange={(v) => setWatermarkY(v[0])} max={100} step={1} />
+                           </div>
+                        </div>
+                        <div className="relative w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                           <p className="text-muted-foreground z-10 p-4 bg-background/50 rounded">Content Preview</p>
+                           {/* eslint-disable-next-line @next/next/no-img-element */}
+                           <img
+                                src="https://i.imgur.com/BYbgglV.png"
+                                alt="Watermark Preview"
+                                style={{
+                                    position: 'absolute',
+                                    width: `${watermarkSize}%`,
+                                    opacity: watermarkOpacity / 100,
+                                    left: `${watermarkX}%`,
+                                    top: `${watermarkY}%`,
+                                    transform: 'translate(-50%, -50%)',
+                                    zIndex: 0,
+                                }}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         
              {invoiceSummary && fromDate && toDate && (
               <div className="mt-6">
@@ -561,9 +615,19 @@ export default function InvoicePage() {
                 <div ref={printableInvoiceRef} className="relative p-8">
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
                         <>
-                            <div className="absolute inset-0 flex items-center justify-center z-0 opacity-10">
+                           <div
+                                className="absolute"
+                                style={{
+                                    left: `${watermarkX}%`,
+                                    top: `${watermarkY}%`,
+                                    width: `${watermarkSize}%`,
+                                    opacity: watermarkOpacity / 100,
+                                    transform: 'translate(-50%, -50%)',
+                                    zIndex: 0,
+                                }}
+                            >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" className="max-w-full h-auto" />
+                                <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" className="w-full h-auto" />
                             </div>
                             <div className="relative z-10 space-y-6">
                                 <div className="text-center mb-8">
@@ -612,7 +676,9 @@ export default function InvoicePage() {
                                         </div>
                                         <div className="flex justify-between items-center text-lg p-2">
                                             <span className="font-bold">Paid Amount:</span>
-                                            <span className="font-bold text-red-600">{`${formatAmount(invoiceSummary.paidAmount)} JOD`}</span>
+                                            <span className="font-bold" style={{ color: 'red' }}>
+                                                {`${formatAmount(invoiceSummary.paidAmount)} JOD`}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                             <span>Total Due:</span>
@@ -845,3 +911,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
