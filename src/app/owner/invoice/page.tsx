@@ -67,11 +67,11 @@ export default function InvoicePage() {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
   // Watermark and Logo State
-  const [isWatermarkInFront, setIsWatermarkInFront] = useState(false);
-  const [watermarkSize, setWatermarkSize] = useState(400);
+  const [isWatermarkInFront, setIsWatermarkInFront] = useState(true);
+  const [watermarkSize, setWatermarkSize] = useState(440);
   const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
   const [watermarkX, setWatermarkX] = useState(50);
-  const [watermarkY, setWatermarkY] = useState(50);
+  const [watermarkY, setWatermarkY] = useState(61);
 
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
@@ -473,95 +473,6 @@ export default function InvoicePage() {
             </Card>
 
             
-             {invoiceSummary && (
-                <Card className="shadow-lg mt-6">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Settings className="w-6 h-6 text-primary" />
-                            PDF Layout Settings
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                         <div className="space-y-6">
-                            <div className="flex items-center space-x-2 p-2 rounded-lg border bg-muted/50">
-                                <Switch
-                                    id="logo-position"
-                                    checked={isWatermarkInFront}
-                                    onCheckedChange={setIsWatermarkInFront}
-                                />
-                                <Label htmlFor="logo-position" className="font-semibold">
-                                    Show Watermark in Front of Text
-                                </Label>
-                            </div>
-                            
-                            <div>
-                                <Label>Watermark Size: {watermarkSize}px</Label>
-                                <Slider
-                                    value={[watermarkSize]}
-                                    onValueChange={(value) => setWatermarkSize(value[0])}
-                                    max={800}
-                                    step={10}
-                                />
-                            </div>
-                            <div>
-                                <Label>Watermark Opacity: {watermarkOpacity.toFixed(2)}</Label>
-                                <Slider
-                                    value={[watermarkOpacity]}
-                                    onValueChange={(value) => setWatermarkOpacity(value[0])}
-                                    max={1}
-                                    step={0.05}
-                                />
-                            </div>
-                            <div>
-                                <Label>Watermark Horizontal Position: {watermarkX}%</Label>
-                                <Slider
-                                    value={[watermarkX]}
-                                    onValueChange={(value) => setWatermarkX(value[0])}
-                                    max={100}
-                                    step={1}
-                                />
-                            </div>
-                            <div>
-                                <Label>Watermark Vertical Position: {watermarkY}%</Label>
-                                <Slider
-                                    value={[watermarkY]}
-                                    onValueChange={(value) => setWatermarkY(value[0])}
-                                    max={100}
-                                    step={1}
-                                />
-                            </div>
-                        </div>
-                        <div className="relative h-48 w-full bg-gray-200 rounded-md overflow-hidden">
-                           {/* Watermark/Logo Preview */}
-                           <div
-                                className="absolute transition-all duration-200"
-                                style={{
-                                    top: `${watermarkY}%`,
-                                    left: `${watermarkX}%`,
-                                    transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
-                                    zIndex: isWatermarkInFront ? 20 : 0
-                                }}
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src="https://i.imgur.com/Lf9QBbc.png"
-                                    alt="Watermark Preview"
-                                    style={{
-                                        width: `${watermarkSize}px`,
-                                        height: 'auto',
-                                        opacity: watermarkOpacity,
-                                    }}
-                                />
-                            </div>
-                           <div className="p-4 text-center relative z-10">
-                                <h3 className="font-bold">Invoice Content Preview</h3>
-                                <p className="text-sm text-muted-foreground">Adjust settings to see changes</p>
-                           </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
         
              {invoiceSummary && fromDate && toDate && (
               <div className="mt-6">
@@ -725,7 +636,7 @@ export default function InvoicePage() {
                                         </div>
                                          <div className="flex justify-between items-center text-lg p-2">
                                             <span className="font-bold">Paid Amount:</span>
-                                            <span className="font-bold" style={{ color: invoiceSummary.paidAmount > 0 ? 'red' : 'inherit' }}>
+                                            <span className="font-bold" style={{ color: 'red' }}>
                                                 {`${formatAmount(invoiceSummary.paidAmount)} JOD`}
                                             </span>
                                         </div>
@@ -960,5 +871,7 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
