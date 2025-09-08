@@ -560,26 +560,12 @@ export default function InvoicePage() {
             <div className="fixed -z-50 -top-[9999px] -left-[9999px] w-[800px] bg-white text-black">
                 <div ref={printableInvoiceRef} className="relative p-8">
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
-                        <>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                zIndex: 0,
-                                opacity: 0.1,
-                                width: '400px'
-                            }}
-                        >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" style={{ width: '100%' }} />
-                        </div>
-
-                        <div className="relative space-y-6" style={{ zIndex: 1 }}>
+                        <div className="relative space-y-6">
                             <div className="text-center mb-8">
-                            <h1 className="text-3xl font-bold">Elegant Smile</h1>
-                            <h2 className="text-2xl">Invoice</h2>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="https://i.imgur.com/BYbgglV.png" alt="Logo" style={{ width: '300px', margin: '0 auto 20px' }} />
+                                <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                                <h2 className="text-2xl">Invoice</h2>
                             </div>
                             <div className="flex justify-between mb-6">
                                 <div>
@@ -662,7 +648,6 @@ export default function InvoicePage() {
                                 </table>
                             </div>
                         </div>
-                        </>
                     )}
                 </div>
             </div>
