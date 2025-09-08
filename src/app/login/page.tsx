@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { verifyUser, addLoginLog } from '@/lib/firebase';
 import Logo from '@/components/logo';
+import { Metadata } from 'next';
+import Head from 'next/head';
+
 
 function LoginPageContent() {
   const router = useRouter();
@@ -68,47 +71,52 @@ function LoginPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="mb-8">
-        <Logo />
+    <>
+      <Head>
+        <link rel="manifest" href="/manifest-doctor.json" />
+      </Head>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="mb-8">
+          <Logo />
+        </div>
+        <Card className="w-full max-w-sm shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl">Doctor Login</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Doctor User</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="username"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-      <Card className="w-full max-w-sm shadow-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl">Doctor Login</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Doctor User</Label>
-              <Input
-                id="name"
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-                autoComplete="username"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    </>
   );
 }
 

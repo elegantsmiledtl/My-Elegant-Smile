@@ -1,0 +1,22 @@
+
+{
+  "name": "Elegant Smile Doctor Portal",
+  "short_name": "ES Doctor",
+  "description": "Doctor Portal for Elegant Smile Dental Lab",
+  "start_url": "/login?source=pwa",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#C6A963",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/Lf9QBbc.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.imgur.com/Lf9QBbc.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

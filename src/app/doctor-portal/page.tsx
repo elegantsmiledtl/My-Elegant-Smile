@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { sendNewCaseNotification, sendNewCaseEmail } from '@/app/actions';
 
-
 export default function DoctorPortalPage() {
   const router = useRouter();
   const [dentistName, setDentistName] = useState('');
