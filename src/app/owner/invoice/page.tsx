@@ -67,7 +67,7 @@ export default function InvoicePage() {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
   // Watermark and Logo State
-  const [isLogoInFront, setIsLogoInFront] = useState(false);
+  const [isWatermarkInFront, setIsWatermarkInFront] = useState(false);
   const [watermarkSize, setWatermarkSize] = useState(400);
   const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
   const [watermarkX, setWatermarkX] = useState(50);
@@ -486,88 +486,74 @@ export default function InvoicePage() {
                             <div className="flex items-center space-x-2 p-2 rounded-lg border bg-muted/50">
                                 <Switch
                                     id="logo-position"
-                                    checked={isLogoInFront}
-                                    onCheckedChange={setIsLogoInFront}
+                                    checked={isWatermarkInFront}
+                                    onCheckedChange={setIsWatermarkInFront}
                                 />
                                 <Label htmlFor="logo-position" className="font-semibold">
-                                    Show Logo in Front (Header)
+                                    Show Watermark in Front of Text
                                 </Label>
                             </div>
                             
-                            {!isLogoInFront && (
-                                <>
-                                    <div>
-                                        <Label>Watermark Size: {watermarkSize}px</Label>
-                                        <Slider
-                                            value={[watermarkSize]}
-                                            onValueChange={(value) => setWatermarkSize(value[0])}
-                                            max={800}
-                                            step={10}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label>Watermark Opacity: {watermarkOpacity.toFixed(2)}</Label>
-                                        <Slider
-                                            value={[watermarkOpacity]}
-                                            onValueChange={(value) => setWatermarkOpacity(value[0])}
-                                            max={1}
-                                            step={0.05}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label>Watermark Horizontal Position: {watermarkX}%</Label>
-                                        <Slider
-                                            value={[watermarkX]}
-                                            onValueChange={(value) => setWatermarkX(value[0])}
-                                            max={100}
-                                            step={1}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label>Watermark Vertical Position: {watermarkY}%</Label>
-                                        <Slider
-                                            value={[watermarkY]}
-                                            onValueChange={(value) => setWatermarkY(value[0])}
-                                            max={100}
-                                            step={1}
-                                        />
-                                    </div>
-                                </>
-                             )}
+                            <div>
+                                <Label>Watermark Size: {watermarkSize}px</Label>
+                                <Slider
+                                    value={[watermarkSize]}
+                                    onValueChange={(value) => setWatermarkSize(value[0])}
+                                    max={800}
+                                    step={10}
+                                />
+                            </div>
+                            <div>
+                                <Label>Watermark Opacity: {watermarkOpacity.toFixed(2)}</Label>
+                                <Slider
+                                    value={[watermarkOpacity]}
+                                    onValueChange={(value) => setWatermarkOpacity(value[0])}
+                                    max={1}
+                                    step={0.05}
+                                />
+                            </div>
+                            <div>
+                                <Label>Watermark Horizontal Position: {watermarkX}%</Label>
+                                <Slider
+                                    value={[watermarkX]}
+                                    onValueChange={(value) => setWatermarkX(value[0])}
+                                    max={100}
+                                    step={1}
+                                />
+                            </div>
+                            <div>
+                                <Label>Watermark Vertical Position: {watermarkY}%</Label>
+                                <Slider
+                                    value={[watermarkY]}
+                                    onValueChange={(value) => setWatermarkY(value[0])}
+                                    max={100}
+                                    step={1}
+                                />
+                            </div>
                         </div>
                         <div className="relative h-48 w-full bg-gray-200 rounded-md overflow-hidden">
                            {/* Watermark/Logo Preview */}
-                           {!isLogoInFront ? (
-                                <div
-                                    className="absolute transition-all duration-200"
+                           <div
+                                className="absolute transition-all duration-200"
+                                style={{
+                                    top: `${watermarkY}%`,
+                                    left: `${watermarkX}%`,
+                                    transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
+                                    zIndex: isWatermarkInFront ? 20 : 0
+                                }}
+                            >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src="https://i.imgur.com/Lf9QBbc.png"
+                                    alt="Watermark Preview"
                                     style={{
-                                        top: `${watermarkY}%`,
-                                        left: `${watermarkX}%`,
-                                        transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
+                                        width: `${watermarkSize}px`,
+                                        height: 'auto',
+                                        opacity: watermarkOpacity,
                                     }}
-                                >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src="https://i.imgur.com/Lf9QBbc.png"
-                                        alt="Watermark Preview"
-                                        style={{
-                                            width: `${watermarkSize}px`,
-                                            height: 'auto',
-                                            opacity: watermarkOpacity,
-                                        }}
-                                    />
-                                </div>
-                           ) : (
-                                <div className="absolute top-4 left-4">
-                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src="https://i.imgur.com/Lf9QBbc.png"
-                                        alt="Header Logo Preview"
-                                        style={{ width: `100px`, height: 'auto' }}
-                                    />
-                                </div>
-                           )}
-                           <div className="p-4 text-center">
+                                />
+                            </div>
+                           <div className="p-4 text-center relative z-10">
                                 <h3 className="font-bold">Invoice Content Preview</h3>
                                 <p className="text-sm text-muted-foreground">Adjust settings to see changes</p>
                            </div>
@@ -675,36 +661,25 @@ export default function InvoicePage() {
                 <div ref={printableInvoiceRef} className="relative p-8">
                     {invoiceSummary && selectedDoctor && fromDate && toDate && (
                          <>
-                            {!isLogoInFront && (
-                                <div className="absolute inset-0 flex items-center justify-center -z-10" style={{
-                                    top: `${watermarkY}%`,
-                                    left: `${watermarkX}%`,
-                                    transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
-                                }}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src="https://i.imgur.com/Lf9QBbc.png"
-                                        alt="Watermark"
-                                        style={{
-                                            width: `${watermarkSize}px`,
-                                            height: 'auto',
-                                            opacity: watermarkOpacity,
-                                        }}
-                                    />
-                                </div>
-                            )}
+                            <div className="absolute inset-0 flex items-center justify-center" style={{
+                                top: `${watermarkY}%`,
+                                left: `${watermarkX}%`,
+                                transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
+                                zIndex: isWatermarkInFront ? 20 : 0,
+                            }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src="https://i.imgur.com/Lf9QBbc.png"
+                                    alt="Watermark"
+                                    style={{
+                                        width: `${watermarkSize}px`,
+                                        height: 'auto',
+                                        opacity: watermarkOpacity,
+                                    }}
+                                />
+                            </div>
                             <div className="relative z-10 space-y-6">
                                 <div className="text-center mb-8">
-                                    {isLogoInFront && (
-                                         <div className="flex justify-center mb-4">
-                                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src="https://i.imgur.com/Lf9QBbc.png"
-                                                alt="Elegant Smile Logo"
-                                                style={{ width: `150px`, height: 'auto' }}
-                                            />
-                                        </div>
-                                    )}
                                     <h1 className="text-3xl font-bold">Elegant Smile</h1>
                                     <h2 className="text-2xl">Invoice</h2>
                                 </div>
@@ -985,3 +960,5 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
