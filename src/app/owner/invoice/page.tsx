@@ -530,7 +530,7 @@ export default function InvoicePage() {
                             >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src="https://i.imgur.com/BYbgglV.png"
+                                    src="https://i.imgur.com/Lf9QBbc.png"
                                     alt="Watermark Preview"
                                     style={{
                                         width: `${watermarkSize}px`,
@@ -654,7 +654,7 @@ export default function InvoicePage() {
                             }}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src="https://i.imgur.com/BYbgglV.png"
+                                    src="https://i.imgur.com/Lf9QBbc.png"
                                     alt="Watermark"
                                     style={{
                                         width: `${watermarkSize}px`,
@@ -708,7 +708,7 @@ export default function InvoicePage() {
                                             <span className="font-bold">Subtotal:</span>
                                             <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
                                         </div>
-                                        <div className="flex justify-between items-center text-lg p-2">
+                                         <div className="flex justify-between items-center text-lg p-2">
                                             <span className="font-bold">Paid Amount:</span>
                                             <span className="font-bold" style={{ color: 'red' }}>
                                                 {`${formatAmount(invoiceSummary.paidAmount)} JOD`}
