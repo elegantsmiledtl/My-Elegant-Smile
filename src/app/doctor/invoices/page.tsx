@@ -297,12 +297,10 @@ export default function DoctorInvoicesPage() {
         <div ref={printableInvoiceRef} className="relative p-8">
             {invoiceForPdf && (
                  <>
-                    <div className="absolute inset-0 flex items-center justify-center z-0 opacity-10">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="https://i.imgur.com/BYbgglV.png" alt="Watermark" className="max-w-full h-auto" />
-                    </div>
                     <div className="relative z-10 space-y-6">
                         <div className="text-center mb-8">
+                           {/* eslint-disable-next-line @next/next/no-img-element */}
+                           <img src="https://i.imgur.com/BYbgglV.png" alt="Logo" className="w-48 mx-auto mb-4" />
                             <h1 className="text-3xl font-bold">Elegant Smile</h1>
                             <h2 className="text-2xl">Invoice</h2>
                         </div>
@@ -348,11 +346,9 @@ export default function DoctorInvoicesPage() {
                                 </div>
                                  <div className="flex justify-between items-center text-lg p-2">
                                     <span className="font-bold">Paid Amount:</span>
-                                    {invoiceForPdf.paidAmount > 0 ? (
-                                        <span className="font-bold text-red-600">{`${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
-                                    ) : (
-                                        <span>{`${formatAmount(invoiceForPdf.paidAmount)} JOD`}</span>
-                                    )}
+                                    <span className="font-bold" style={{ color: 'red' }}>
+                                        {`${formatAmount(invoiceForPdf.paidAmount)} JOD`}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                     <span>Total Due:</span>
