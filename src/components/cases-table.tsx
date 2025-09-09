@@ -54,6 +54,7 @@ interface CasesTableProps {
   onSelectedCasesChange?: (selectedIds: string[]) => void;
   highlightDeleted?: boolean;
   showSerialNumber?: boolean;
+  showTotalAmount?: boolean;
 }
 
 function EditableUnitPriceCell({ dentalCase, onUpdateCase }: { dentalCase: DentalCase, onUpdateCase?: (updatedCase: DentalCase) => void }) {
@@ -108,6 +109,7 @@ export default function CasesTable({
     onSelectedCasesChange,
     highlightDeleted = true,
     showSerialNumber = false,
+    showTotalAmount = false,
 }: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -177,7 +179,7 @@ export default function CasesTable({
   const showActions = !!onDeleteCase && !!onUpdateCase;
   const showCheckboxes = !!onSelectedCasesChange;
   const showDeletionRequest = !!onDeletionRequest;
-  const showUnitPrice = cases.some(c => c.unitPrice !== undefined);
+  const showUnitPrice = cases.some(c => c.unitPrice !== undefined) && onUpdateCase;
   const numSelected = selectedCases.length;
   const rowCount = cases.length;
   const showPatientNumber = cases.some(c => c.patientNumber) && !hidePatientNumber;
@@ -207,6 +209,7 @@ export default function CasesTable({
             <TableHead>Material</TableHead>
             {showUnitPrice && <TableHead>Unit Price</TableHead>}
             <TableHead>Prosthesis</TableHead>
+            {showTotalAmount && <TableHead>Total Amount</TableHead>}
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideShade && <TableHead>Shade</TableHead>}
             <TableHead>Notes</TableHead>
@@ -255,6 +258,7 @@ export default function CasesTable({
                 </TableCell>
               )}
               <TableCell>{c.prosthesisType}</TableCell>
+              {showTotalAmount && <TableCell>{formatCurrency(c.totalAmount)}</TableCell>}
               {showPatientNumber && (
                 <TableCell>
                   {c.patientNumber ? (
@@ -351,3 +355,5 @@ export default function CasesTable({
     </div>
   );
 }
+
+    
