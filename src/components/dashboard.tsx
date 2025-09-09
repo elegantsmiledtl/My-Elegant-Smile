@@ -92,12 +92,12 @@ export default function Dashboard({ cases }: DashboardProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="md:col-span-2">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Filtered Cases Summary</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-6 text-center">
+                <div className="flex flex-col space-y-6 text-center">
                     <div>
                         <div className="flex items-center justify-center gap-2 text-muted-foreground">
                             <DollarSign className="h-4 w-4" />
@@ -134,7 +134,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                 </ResponsiveContainer>
             </CardContent>
         </Card>
-        <Card className="lg:col-span-2">
+        <Card>
             <CardHeader>
                 <CardTitle>Case Count by Material</CardTitle>
             </CardHeader>
@@ -150,7 +150,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                 </ResponsiveContainer>
             </CardContent>
         </Card>
-         <Card className="lg-col-span-2">
+         <Card>
             <CardHeader>
                 <CardTitle>Unit Count by Material</CardTitle>
             </CardHeader>
