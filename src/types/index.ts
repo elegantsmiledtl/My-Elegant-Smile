@@ -14,6 +14,7 @@ export type DentalCase = {
   patientNumber?: string;
   isDeleted?: boolean;
   deletionRequested?: boolean;
+  unitPrice?: number;
 };
 
 export type User = {
@@ -57,5 +58,4 @@ export type LoginLog = {
     dentistName: string;
     timestamp: any;
 };
-
     

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { DentalCase, LoginLog, User } from '@/types';
 import PageHeader from '@/components/page-header';
 import CasesTable from '@/components/cases-table';
@@ -41,6 +41,15 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
+
+const materialPrices: Record<string, number> = {
+    "Zolid": 25,
+    "Zirconia": 30,
+    "Nickel Free": 20,
+    "N-Guard": 15,
+    "Implant": 50,
+    "MookUp": 10
+};
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -451,17 +460,29 @@ export default function OwnerPage() {
     }
   };
 
-  const filteredCases = cases.filter(c => {
-    // Hide soft-deleted cases from owner view by default
-    if (c.isDeleted) return false;
+  const filteredCases = useMemo(() => {
+    return cases
+      .filter(c => {
+        if (c.isDeleted) return false;
 
-    const searchMatch = c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const materialMatch = materialFilter !== 'all' ? c.material.includes(materialFilter) : true;
+        const searchMatch =
+          c.dentistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.patientName.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return searchMatch && materialMatch;
-  });
+        const materialMatch =
+          materialFilter !== 'all' ? c.material.includes(materialFilter) : true;
+
+        return searchMatch && materialMatch;
+      })
+      .map(c => {
+        // This assumes a single material per case for pricing. 
+        // If multiple, this logic needs refinement.
+        const mainMaterial = c.material.split(',')[0].trim();
+        const unitPrice = materialPrices[mainMaterial] || 0;
+        return { ...c, unitPrice };
+      });
+  }, [cases, searchQuery, materialFilter]);
+
 
   if (!isMounted) {
     return null;

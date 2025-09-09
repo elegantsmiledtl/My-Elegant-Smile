@@ -132,6 +132,7 @@ export default function CasesTable({
   const showActions = !!onDeleteCase && !!onUpdateCase;
   const showCheckboxes = !!onSelectedCasesChange;
   const showDeletionRequest = !!onDeletionRequest;
+  const showUnitPrice = cases.some(c => c.unitPrice !== undefined);
   const numSelected = selectedCases.length;
   const rowCount = cases.length;
   const showPatientNumber = cases.some(c => c.patientNumber) && !hidePatientNumber;
@@ -158,6 +159,7 @@ export default function CasesTable({
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Unit(s)</TableHead>
+            {showUnitPrice && <TableHead>Unit Price</TableHead>}
             <TableHead>Material</TableHead>
             <TableHead>Prosthesis</TableHead>
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
@@ -201,6 +203,9 @@ export default function CasesTable({
               <TableCell className="font-medium">
                 {c.toothNumbers.split(',').filter(t => t.trim() !== '').length}
               </TableCell>
+              {showUnitPrice && (
+                <TableCell className="font-medium">{c.unitPrice ? `${c.unitPrice} JOD` : 'N/A'}</TableCell>
+              )}
               <TableCell>{c.material}</TableCell>
               <TableCell>{c.prosthesisType}</TableCell>
               {showPatientNumber && (
