@@ -72,7 +72,8 @@ export const getCases = async (): Promise<DentalCase[]> => {
 export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[]> => {
   const q = query(
     casesCollection, 
-    where("dentistName", "==", dentistName)
+    where("dentistName", "==", dentistName),
+    orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(q);
   const cases = snapshot.docs.map(doc => {
@@ -87,7 +88,7 @@ export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[
   return cases.sort((a, b) => {
     const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
     const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-    return dateA.getTime() - dateB.getTime();
+    return dateB.getTime() - dateA.getTime();
   });
 };
 

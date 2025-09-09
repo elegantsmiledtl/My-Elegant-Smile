@@ -155,23 +155,24 @@ export default function InvoicePage() {
         acc[material] = { toothCount: 0, price: materialPrices[material] || 0, total: 0 };
         return acc;
     }, {} as Record<string, { toothCount: number; price: number; total: number }>);
+    
+    let subtotal = 0;
 
     filteredCasesByDate.forEach(c => {
         const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
-        const materialsInCase = c.material.split(',').map(m => m.trim());
-        materialsInCase.forEach(material => {
-            if (summary.hasOwnProperty(material)) {
-                summary[material].toothCount += toothCountInCase;
-            }
-        });
-    });
+        const mainMaterial = c.material.split(',')[0].trim();
+        const unitPrice = c.unitPrice ?? materialPrices[mainMaterial] ?? 0;
 
-    let subtotal = 0;
+        if (summary.hasOwnProperty(mainMaterial)) {
+             summary[mainMaterial].toothCount += toothCountInCase;
+             summary[mainMaterial].price = unitPrice; // Use the specific case price
+        }
+        subtotal += toothCountInCase * unitPrice;
+    });
+    
     Object.keys(summary).forEach(material => {
         const materialInfo = summary[material];
-        materialInfo.price = materialPrices[material] || 0; // Ensure price is always up-to-date
         materialInfo.total = materialInfo.toothCount * materialInfo.price;
-        subtotal += materialInfo.total;
     });
     
     const grandTotal = subtotal - paidAmount;
