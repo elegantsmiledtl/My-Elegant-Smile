@@ -7,6 +7,7 @@ import type { DentalCase } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useMemo } from 'react';
 import { Users, ClipboardCheck, DollarSign } from 'lucide-react';
+import { Separator } from './ui/separator';
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -91,24 +92,30 @@ export default function Dashboard({ cases }: DashboardProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="md:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Units</CardTitle>
-                <ToothIcon className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Filtered Cases Summary</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{stats.totalTeeth}</div>
-                <p className="text-xs text-muted-foreground">Across all filtered cases</p>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})} JOD</div>
-                <p className="text-xs text-muted-foreground">From all filtered cases</p>
+                <div className="flex items-center justify-around">
+                    <div className="text-center">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <ToothIcon className="h-4 w-4" />
+                            <span className="text-sm font-medium">Total Units</span>
+                        </div>
+                        <div className="text-2xl font-bold">{stats.totalTeeth}</div>
+                        <p className="text-xs text-muted-foreground">Across all filtered cases</p>
+                    </div>
+                    <Separator orientation="vertical" className="h-16" />
+                    <div className="text-center">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <DollarSign className="h-4 w-4" />
+                            <span className="text-sm font-medium">Total Revenue</span>
+                        </div>
+                        <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})} JOD</div>
+                        <p className="text-xs text-muted-foreground">From all filtered cases</p>
+                    </div>
+                </div>
             </CardContent>
         </Card>
         <Card className="lg:col-span-2">
