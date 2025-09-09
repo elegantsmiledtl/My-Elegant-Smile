@@ -9,24 +9,6 @@ import { useMemo } from 'react';
 import { Users, ClipboardCheck, DollarSign } from 'lucide-react';
 import { Separator } from './ui/separator';
 
-
-const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M9.34 2.126a3.5 3.5 0 0 1 5.32 0l.223.245a3.5 3.5 0 0 1 .53 4.28l-1.22 2.032a2 2 0 0 0-.28 1.634l.394 2.368a2 2 0 0 1-1.033 2.29l-1.575.908a2 2 0 0 1-2.228 0l-1.574-.908a2 2 0 0 1-1.033-2.29l.394-2.368a2 2 0 0 0-.28-1.634L7.4 6.65a3.5 3.5 0 0 1 .53-4.28l.223-.245Z" />
-      <path d="M20 12l-1.55 4.34a2 2 0 0 1-1.8 1.36h-9.3a2 2 0 0 1-1.8-1.36L4 12" />
-      <path d="M16 18a4 4 0 0 0-8 0" />
-    </svg>
-  );
-
 interface DashboardProps {
   cases: DentalCase[];
 }
@@ -109,7 +91,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                     <Separator />
                     <div>
                         <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                            <ToothIcon className="h-4 w-4" />
+                            <ClipboardCheck className="h-4 w-4" />
                             <span className="text-sm font-medium">Total Units</span>
                         </div>
                         <div className="text-2xl font-bold">{stats.totalTeeth}</div>

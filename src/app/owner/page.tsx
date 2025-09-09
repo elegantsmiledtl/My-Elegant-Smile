@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus, RefreshCw } from 'lucide-react';
+import { QrCode, Trash2, Receipt, History, X, Edit, Users, UserPlus, RefreshCw, ClipboardCheck } from 'lucide-react';
 import { getCases, deleteCase, updateCase, getLoginLogs, getUnreadNotifications, markNotificationAsRead, getUsers, addUser, updateUser, deleteUser, createNotification, getCaseById } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -51,23 +51,6 @@ const materialPrices: Record<string, number> = {
     "Implant": 50,
     "MookUp": 10
 };
-
-const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M9.34 2.126a3.5 3.5 0 0 1 5.32 0l.223.245a3.5 3.5 0 0 1 .53 4.28l-1.22 2.032a2 2 0 0 0-.28 1.634l.394 2.368a2 2 0 0 1-1.033 2.29l-1.575.908a2 2 0 0 1-2.228 0l-1.574-.908a2 2 0 0 1-1.033-2.29l.394-2.368a2 2 0 0 0-.28-1.634L7.4 6.65a3.5 3.5 0 0 1 .53-4.28l.223-.245Z" />
-    <path d="M20 12l-1.55 4.34a2 2 0 0 1-1.8 1.36h-9.3a2 2 0 0 1-1.8-1.36L4 12" />
-    <path d="M16 18a4 4 0 0 0-8 0" />
-  </svg>
-);
 
 const APP_PASSWORD = "Ahmad0903"; 
 const AUTH_KEY = "owner_app_auth";
@@ -655,7 +638,7 @@ export default function OwnerPage() {
               <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-start">
                       <CardTitle className="flex items-center gap-2 font-headline">
-                          <ToothIcon className="w-6 h-6 text-primary" />
+                          <ClipboardCheck className="w-6 h-6 text-primary" />
                           All Recorded Cases
                       </CardTitle>
                   </div>
