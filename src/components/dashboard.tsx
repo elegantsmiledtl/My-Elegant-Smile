@@ -97,23 +97,23 @@ export default function Dashboard({ cases }: DashboardProps) {
                 <CardTitle className="text-sm font-medium">Filtered Cases Summary</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="flex items-center justify-around">
-                    <div className="text-center">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <ToothIcon className="h-4 w-4" />
-                            <span className="text-sm font-medium">Total Units</span>
-                        </div>
-                        <div className="text-2xl font-bold">{stats.totalTeeth}</div>
-                        <p className="text-xs text-muted-foreground">Across all filtered cases</p>
-                    </div>
-                    <Separator orientation="vertical" className="h-16" />
-                    <div className="text-center">
-                        <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="space-y-6 text-center">
+                    <div>
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
                             <DollarSign className="h-4 w-4" />
                             <span className="text-sm font-medium">Total Revenue</span>
                         </div>
                         <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})} JOD</div>
                         <p className="text-xs text-muted-foreground">From all filtered cases</p>
+                    </div>
+                    <Separator />
+                    <div>
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                            <ToothIcon className="h-4 w-4" />
+                            <span className="text-sm font-medium">Total Units</span>
+                        </div>
+                        <div className="text-2xl font-bold">{stats.totalTeeth}</div>
+                        <p className="text-xs text-muted-foreground">Across all filtered cases</p>
                     </div>
                 </div>
             </CardContent>
