@@ -764,7 +764,7 @@ export default function InvoicePage() {
                                         />
                                         <AccordionTrigger className="flex-grow">
                                             <div className="flex justify-between w-full pr-4">
-                                                <span>Invoice from {formatDateTime(invoice.createdAt)}</span>
+                                                <span>{`Invoice from ${formatDate(invoice.fromDate)} to ${formatDate(invoice.toDate)}`}</span>
                                                 <span className="font-bold text-primary">{formatAmount(invoice.grandTotal)} JOD</span>
                                             </div>
                                         </AccordionTrigger>
@@ -881,5 +881,6 @@ export default function InvoicePage() {
     
 
     
+
 
 
