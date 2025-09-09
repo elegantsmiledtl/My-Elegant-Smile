@@ -107,7 +107,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)} JOD</div>
+                <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})} JOD</div>
                 <p className="text-xs text-muted-foreground">From all filtered cases</p>
             </CardContent>
         </Card>
@@ -143,7 +143,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                 </ResponsiveContainer>
             </CardContent>
         </Card>
-         <Card className="lg:col-span-2">
+         <Card className="lg-col-span-2">
             <CardHeader>
                 <CardTitle>Unit Count by Material</CardTitle>
             </CardHeader>
