@@ -475,8 +475,10 @@ export default function OwnerPage() {
         return searchMatch && materialMatch;
       })
       .map(c => {
-        // This assumes a single material per case for pricing. 
-        // If multiple, this logic needs refinement.
+        // Use stored unitPrice if it exists, otherwise calculate it.
+        if (c.unitPrice !== undefined && c.unitPrice !== null) {
+            return c;
+        }
         const mainMaterial = c.material.split(',')[0].trim();
         const unitPrice = materialPrices[mainMaterial] || 0;
         return { ...c, unitPrice };
@@ -759,3 +761,5 @@ export default function OwnerPage() {
     </>
   );
 }
+
+    

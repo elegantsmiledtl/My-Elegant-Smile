@@ -34,10 +34,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import CaseEntryForm from './case-entry-form';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { parseISO, isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Checkbox } from './ui/checkbox';
+import { Input } from './ui/input';
 
 interface CasesTableProps {
   cases: DentalCase[];
@@ -52,6 +53,45 @@ interface CasesTableProps {
   onSelectedCasesChange?: (selectedIds: string[]) => void;
   highlightDeleted?: boolean;
   showSerialNumber?: boolean;
+}
+
+function EditableUnitPriceCell({ dentalCase, onUpdateCase }: { dentalCase: DentalCase, onUpdateCase?: (updatedCase: DentalCase) => void }) {
+    const [price, setPrice] = useState(dentalCase.unitPrice ?? 0);
+    const [isEditing, setIsEditing] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleSave = () => {
+        if (onUpdateCase && price !== dentalCase.unitPrice) {
+            onUpdateCase({ ...dentalCase, unitPrice: price });
+        }
+        setIsEditing(false);
+    };
+    
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPrice(value === '' ? 0 : parseFloat(value));
+    };
+    
+    if (isEditing) {
+        return (
+            <Input
+                ref={inputRef}
+                type="number"
+                value={price}
+                onChange={handlePriceChange}
+                onBlur={handleSave}
+                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                className="h-8 w-24"
+                autoFocus
+            />
+        );
+    }
+
+    return (
+        <div onClick={() => setIsEditing(true)} className="cursor-pointer font-medium p-2">
+            {price} JOD
+        </div>
+    );
 }
 
 export default function CasesTable({ 
@@ -204,7 +244,9 @@ export default function CasesTable({
                 {c.toothNumbers.split(',').filter(t => t.trim() !== '').length}
               </TableCell>
               {showUnitPrice && (
-                <TableCell className="font-medium">{c.unitPrice ? `${c.unitPrice} JOD` : 'N/A'}</TableCell>
+                <TableCell>
+                   <EditableUnitPriceCell dentalCase={c} onUpdateCase={onUpdateCase} />
+                </TableCell>
               )}
               <TableCell>{c.material}</TableCell>
               <TableCell>{c.prosthesisType}</TableCell>
@@ -304,3 +346,5 @@ export default function CasesTable({
     </div>
   );
 }
+
+    
