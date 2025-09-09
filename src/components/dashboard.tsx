@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from 'recharts';
 import type { DentalCase } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useMemo } from 'react';
-import { Users, ClipboardCheck } from 'lucide-react';
+import { Users, ClipboardCheck, DollarSign } from 'lucide-react';
 
 
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -35,6 +36,7 @@ export default function Dashboard({ cases }: DashboardProps) {
   const stats = useMemo(() => {
     if (!cases) return {
         totalTeeth: 0,
+        totalRevenue: 0,
         casesByDentist: [],
         materialUsage: [],
         teethByMaterial: [],
@@ -67,9 +69,14 @@ export default function Dashboard({ cases }: DashboardProps) {
         return sum + toothCount;
     }, 0);
 
+    const totalRevenue = cases.reduce((sum, c) => {
+        return sum + (c.totalAmount || 0);
+    }, 0);
+
 
     return {
         totalTeeth,
+        totalRevenue,
         casesByDentist: Object.entries(casesByDentist).map(([name, value]) => ({ name, cases: value })),
         materialUsage: Object.entries(materialUsage).map(([name, value]) => ({ name, count: value })),
         teethByMaterial: Object.entries(teethByMaterial).map(([name, value]) => ({ name, units: value })),
@@ -83,7 +90,7 @@ export default function Dashboard({ cases }: DashboardProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Units</CardTitle>
@@ -91,7 +98,17 @@ export default function Dashboard({ cases }: DashboardProps) {
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold">{stats.totalTeeth}</div>
-                <p className="text-xs text-muted-foreground">Across all cases</p>
+                <p className="text-xs text-muted-foreground">Across all filtered cases</p>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)} JOD</div>
+                <p className="text-xs text-muted-foreground">From all filtered cases</p>
             </CardContent>
         </Card>
         <Card className="lg:col-span-2">
@@ -126,7 +143,7 @@ export default function Dashboard({ cases }: DashboardProps) {
                 </ResponsiveContainer>
             </CardContent>
         </Card>
-         <Card className="lg:col-span-1">
+         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle>Unit Count by Material</CardTitle>
             </CardHeader>

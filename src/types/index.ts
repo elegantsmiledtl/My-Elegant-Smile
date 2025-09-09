@@ -15,6 +15,7 @@ export type DentalCase = {
   isDeleted?: boolean;
   deletionRequested?: boolean;
   unitPrice?: number;
+  totalAmount?: number;
 };
 
 export type User = {

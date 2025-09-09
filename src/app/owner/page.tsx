@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -475,13 +476,11 @@ export default function OwnerPage() {
         return searchMatch && materialMatch;
       })
       .map(c => {
-        // Use stored unitPrice if it exists, otherwise calculate it.
-        if (c.unitPrice !== undefined && c.unitPrice !== null) {
-            return c;
-        }
         const mainMaterial = c.material.split(',')[0].trim();
-        const unitPrice = materialPrices[mainMaterial] || 0;
-        return { ...c, unitPrice };
+        const unitPrice = c.unitPrice ?? materialPrices[mainMaterial] ?? 0;
+        const units = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
+        const totalAmount = unitPrice * units;
+        return { ...c, unitPrice, totalAmount };
       });
   }, [cases, searchQuery, materialFilter]);
 
@@ -753,6 +752,7 @@ export default function OwnerPage() {
                   selectedCases={selectedCases}
                   onSelectedCasesChange={setSelectedCases}
                   showSerialNumber={true}
+                  showTotalAmount={true}
               />
             </CardContent>
           </Card>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -53,6 +54,7 @@ interface CasesTableProps {
   onSelectedCasesChange?: (selectedIds: string[]) => void;
   highlightDeleted?: boolean;
   showSerialNumber?: boolean;
+  showTotalAmount?: boolean;
 }
 
 function EditableUnitPriceCell({ dentalCase, onUpdateCase }: { dentalCase: DentalCase, onUpdateCase?: (updatedCase: DentalCase) => void }) {
@@ -107,6 +109,7 @@ export default function CasesTable({
     onSelectedCasesChange,
     highlightDeleted = true,
     showSerialNumber = false,
+    showTotalAmount = false,
 }: CasesTableProps) {
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -145,6 +148,10 @@ export default function CasesTable({
 
   const formatDate = (timestamp: any) => formatDateGeneric(timestamp, 'PPP');
   const formatDateTime = (timestamp: any) => formatDateGeneric(timestamp, 'PPP p');
+  const formatCurrency = (amount?: number) => {
+    if (typeof amount !== 'number') return 'N/A';
+    return `${amount.toFixed(2)} JOD`;
+  };
 
   const handleSelectAll = (checked: boolean | 'indeterminate') => {
     if (onSelectedCasesChange) {
@@ -200,6 +207,7 @@ export default function CasesTable({
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Unit(s)</TableHead>
             {showUnitPrice && <TableHead>Unit Price</TableHead>}
+            {showTotalAmount && <TableHead>Total Amount</TableHead>}
             <TableHead>Material</TableHead>
             <TableHead>Prosthesis</TableHead>
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
@@ -246,6 +254,11 @@ export default function CasesTable({
               {showUnitPrice && (
                 <TableCell>
                    <EditableUnitPriceCell dentalCase={c} onUpdateCase={onUpdateCase} />
+                </TableCell>
+              )}
+              {showTotalAmount && (
+                <TableCell className="font-semibold text-primary">
+                    {formatCurrency(c.totalAmount)}
                 </TableCell>
               )}
               <TableCell>{c.material}</TableCell>
