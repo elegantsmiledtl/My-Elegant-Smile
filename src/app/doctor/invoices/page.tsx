@@ -315,7 +315,7 @@ export default function DoctorInvoicesPage() {
                     </div>
                     <div className="relative z-10 space-y-6">
                         <div className="text-center mb-8">
-                            <h1 className="text-3xl font-bold">Elegant Smile</h1>
+                            <h1 className="text-3xl font-bold" style={{ color: '#C6A963' }}>Elegant Smile</h1>
                             <h2 className="text-2xl">Invoice</h2>
                         </div>
                             <div className="flex justify-between mb-6">
@@ -408,5 +408,7 @@ export default function DoctorInvoicesPage() {
     </>
   );
 }
+
+    
 
     
