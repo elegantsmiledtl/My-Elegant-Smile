@@ -162,16 +162,22 @@ export default function InvoicePage() {
         const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const mainMaterial = c.material.split(',')[0].trim();
         const unitPrice = c.unitPrice ?? materialPrices[mainMaterial] ?? 0;
-        const caseTotal = toothCountInCase * unitPrice;
-
+        
         if (summary.hasOwnProperty(mainMaterial)) {
              summary[mainMaterial].toothCount += toothCountInCase;
              summary[mainMaterial].price = unitPrice;
-             summary[mainMaterial].total += caseTotal;
         }
-        subtotal += caseTotal;
     });
     
+    // Recalculate totals based on current prices in the inputs
+    Object.keys(summary).forEach(material => {
+        const materialData = summary[material];
+        const currentPrice = materialPrices[material] ?? materialData.price;
+        materialData.price = currentPrice;
+        materialData.total = materialData.toothCount * currentPrice;
+        subtotal += materialData.total;
+    });
+
     const grandTotal = subtotal - paidAmount;
 
     return { summary, subtotal, paidAmount, grandTotal, cases: filteredCasesByDate };
@@ -875,4 +881,5 @@ export default function InvoicePage() {
     
 
     
+
 
