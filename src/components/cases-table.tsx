@@ -204,8 +204,8 @@ export default function CasesTable({
             {!hideDentist && <TableHead>Dentist</TableHead>}
             <TableHead>Tooth #(s)</TableHead>
             <TableHead>Unit(s)</TableHead>
-            {showUnitPrice && <TableHead>Unit Price</TableHead>}
             <TableHead>Material</TableHead>
+            {showUnitPrice && <TableHead>Unit Price</TableHead>}
             <TableHead>Prosthesis</TableHead>
             {showPatientNumber && <TableHead>Patient Number</TableHead>}
             {!hideShade && <TableHead>Shade</TableHead>}
@@ -248,12 +248,12 @@ export default function CasesTable({
               <TableCell className="font-medium">
                 {c.toothNumbers.split(',').filter(t => t.trim() !== '').length}
               </TableCell>
+              <TableCell>{c.material}</TableCell>
               {showUnitPrice && (
                 <TableCell>
                    <EditableUnitPriceCell dentalCase={c} onUpdateCase={onUpdateCase} />
                 </TableCell>
               )}
-              <TableCell>{c.material}</TableCell>
               <TableCell>{c.prosthesisType}</TableCell>
               {showPatientNumber && (
                 <TableCell>
