@@ -752,7 +752,6 @@ export default function OwnerPage() {
                   selectedCases={selectedCases}
                   onSelectedCasesChange={setSelectedCases}
                   showSerialNumber={true}
-                  showTotalAmount={true}
               />
             </CardContent>
           </Card>
@@ -761,5 +760,3 @@ export default function OwnerPage() {
     </>
   );
 }
-
-    
