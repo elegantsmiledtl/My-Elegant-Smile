@@ -300,14 +300,8 @@ export default function OwnerPage() {
         if (isAuthenticated) {
             try {
                 const unreadNotifications = await getUnreadNotifications('owner');
-                const patientsToSkip = ["Abdullah Mishael", "Vyfv"];
                 const filteredNotifications = unreadNotifications.filter(notif => {
-                    const isDeletionRequest = notif.message.includes('has requested to delete the case for patient:');
-                    if (!isDeletionRequest) {
-                        return true; 
-                    }
-                    const patientName = notif.message.split(':').pop()?.trim();
-                    return !patientsToSkip.some(p => patientName === p);
+                    return true;
                 });
 
                 if (filteredNotifications.length > 0) {
@@ -359,12 +353,11 @@ export default function OwnerPage() {
   
   const handleDeleteCase = async (caseToDelete: DentalCase) => {
     try {
-      if (caseToDelete.dentistName === 'Dr.Ibraheem Omar') {
-        // Soft delete for Dr. Ibraheem Omar
+      const doctorsToSoftDelete = ['Dr.Ibraheem Omar', 'Dr.Mahmod Mishael'];
+      if (doctorsToSoftDelete.includes(caseToDelete.dentistName)) {
         await updateCase(caseToDelete.id, { isDeleted: true });
         toast({ title: "Case Hidden", description: "Case has been hidden from the owner view but remains in the doctor's backup." });
       } else {
-        // Permanent delete for others
         await deleteCase(caseToDelete.id);
         toast({ title: "Success", description: "Case deleted successfully." });
       }
@@ -425,7 +418,8 @@ export default function OwnerPage() {
     try {
       const casesToDelete = cases.filter(c => selectedCases.includes(c.id));
       const deletePromises = casesToDelete.map(c => {
-        if (c.dentistName === 'Dr.Ibraheem Omar') {
+        const doctorsToSoftDelete = ['Dr.Ibraheem Omar', 'Dr.Mahmod Mishael'];
+        if (doctorsToSoftDelete.includes(c.dentistName)) {
           return updateCase(c.id, { isDeleted: true }); // Soft delete
         } else {
           return deleteCase(c.id); // Hard delete
@@ -743,5 +737,3 @@ export default function OwnerPage() {
     </>
   );
 }
-
-    

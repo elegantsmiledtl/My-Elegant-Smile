@@ -47,6 +47,7 @@ interface CaseEntryFormProps {
 
 const materialOptions = ["Zolid", "Zirconia", "Nickel Free", "N-Guard", "Implant", "MookUp"];
 const prosthesisTypeOptions = ["Separate", "Bridge"];
+const doctorsWithPatientNumber = ["Dr.Ibraheem Omar", "Dr.Mahmod Mishael"];
 
 export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseEntryFormProps) {
   const { toast } = useToast();
@@ -138,7 +139,7 @@ export default function CaseEntryForm({ caseToEdit, onUpdate, onAddCase }: CaseE
                         </FormItem>
                       )}
                     />
-                    {currentDentistName === 'Dr.Ibraheem Omar' && (
+                    {doctorsWithPatientNumber.includes(currentDentistName) && (
                        <FormField
                         control={form.control}
                         name="patientNumber"

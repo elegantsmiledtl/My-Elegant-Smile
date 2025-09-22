@@ -84,12 +84,7 @@ export const getCasesByDoctor = async (dentistName: string): Promise<DentalCase[
     } as DentalCase;
   });
 
-  // Sort in-memory to avoid needing a composite index
-  return cases.sort((a, b) => {
-    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-    return dateB.getTime() - dateA.getTime();
-  });
+  return cases;
 };
 
 
@@ -126,10 +121,17 @@ export const deleteCase = async (caseId: string) => {
 
 export const requestCaseDeletion = async (caseId: string, patientName: string) => {
     const caseDocRef = doc(db, 'dentalCases', caseId);
+    
+    const caseDoc = await getDoc(caseDocRef);
+    if (!caseDoc.exists()) {
+        throw new Error("Case not found");
+    }
+    const dentistName = caseDoc.data().dentistName;
+
     await updateDoc(caseDocRef, { deletionRequested: true });
 
     // Notify the owner
-    await createNotification('owner', `Dr. Ibraheem Omar has requested to delete the case for patient: ${patientName}.`, caseId);
+    await createNotification('owner', `${dentistName} has requested to delete the case for patient: ${patientName}.`, caseId);
 };
 
 // --- User Management Functions ---
@@ -292,5 +294,3 @@ export const getLoginLogs = async (): Promise<LoginLog[]> => {
         ...doc.data(),
     } as LoginLog));
 };
-
-    

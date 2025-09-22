@@ -98,13 +98,7 @@ export default function DoctorPage() {
   }, [doctorCases]);
 
   const filteredCases = useMemo(() => {
-    const patientsToExclude = ["Abdullah Mishael", "Vyfv"];
     return doctorCases.filter(c => {
-      // Exclude specific patients for Dr. Ibraheem Omar
-      if (dentistName === 'Dr.Ibraheem Omar' && patientsToExclude.includes(c.patientName)) {
-          return false;
-      }
-      
       // Hide cases that the doctor requested to delete AND which were approved by the owner.
       if (c.deletionRequested && c.isDeleted) {
           return false;
@@ -121,7 +115,7 @@ export default function DoctorPage() {
     return null; // Or a loading spinner
   }
 
-  const isIbraheemOmar = dentistName === 'Dr.Ibraheem Omar';
+  const canRequestDeletion = ['Dr.Ibraheem Omar', 'Dr.Mahmod Mishael'].includes(dentistName);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -140,39 +134,37 @@ export default function DoctorPage() {
            <CardHeader>
                 <div className="flex flex-col gap-4 items-start">
                     <CardTitle>My Case History</CardTitle>
-                    {isIbraheemOmar && (
-                      <div className="flex flex-col gap-2 items-start">
-                          <div className="relative">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input 
-                                  placeholder="Search by patient..."
-                                  value={searchQuery}
-                                  onChange={(e) => setSearchQuery(e.target.value)}
-                                  className="pl-10 w-[250px]"
-                              />
-                          </div>
-                          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                              <SelectTrigger className="w-[250px]">
-                                  <Calendar className="mr-2 h-4 w-4" />
-                                  <SelectValue placeholder="Filter by month..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                  <SelectItem value="all">All Months</SelectItem>
-                                  {monthOptions.map(month => (
-                                      <SelectItem key={month} value={month}>
-                                          {format(parseISO(`${month}-01`), 'MMMM yyyy')}
-                                      </SelectItem>
-                                  ))}
-                              </SelectContent>
-                          </Select>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-2 items-start">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Search by patient..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 w-[250px]"
+                            />
+                        </div>
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                            <SelectTrigger className="w-[250px]">
+                                <Calendar className="mr-2 h-4 w-4" />
+                                <SelectValue placeholder="Filter by month..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Months</SelectItem>
+                                {monthOptions.map(month => (
+                                    <SelectItem key={month} value={month}>
+                                        {format(parseISO(`${month}-01`), 'MMMM yyyy')}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </CardHeader>
           <CardContent className="pt-0">
             <CasesTable 
               cases={filteredCases}
-              onDeletionRequest={isIbraheemOmar ? handleRequestDeletion : undefined}
+              onDeletionRequest={canRequestDeletion ? handleRequestDeletion : undefined}
               highlightDeleted={false}
             />
           </CardContent>
