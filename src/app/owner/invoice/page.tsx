@@ -732,7 +732,7 @@ export default function InvoicePage() {
                                         </div>
                                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                             <span>Total Due:</span>
-                                            <span style={{ color: 'lightblue' }}>{`${formatAmount(liveRecalculatedSummary.grandTotal)} JOD`}</span>
+                                            <span style={{ color: '#1778ad' }}>{`${formatAmount(liveRecalculatedSummary.grandTotal)} JOD`}</span>
                                         </div>
                                     </div>
                                 </div>
