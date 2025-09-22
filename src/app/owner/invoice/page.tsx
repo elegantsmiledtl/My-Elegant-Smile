@@ -534,8 +534,8 @@ export default function InvoicePage() {
                             PDF Watermark Settings
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="watermark-size">Size: {watermarkSize}px</Label>
                                 <Slider id="watermark-size" value={[watermarkSize]} onValueChange={(v) => setWatermarkSize(v[0])} max={800} step={10} />
@@ -665,7 +665,7 @@ export default function InvoicePage() {
                             <div className="absolute inset-0 flex items-center justify-center" style={{
                                 top: `${watermarkY}%`,
                                 left: `${watermarkX}%`,
-                                transform: `translate(-${watermarkX}%, -${watermarkY}%)`,
+                                transform: `translate(-50%, -50%)`,
                                 zIndex: isWatermarkInFront ? 20 : -1,
                             }}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -971,6 +971,9 @@ export default function InvoicePage() {
 
 
 
+
+
+    
 
 
     
