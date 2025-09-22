@@ -545,14 +545,17 @@ export default function InvoicePage() {
                                 <Slider id="watermark-opacity" value={[watermarkOpacity]} onValueChange={(v) => setWatermarkOpacity(v[0])} max={1} step={0.05} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="watermark-x">Horizontal Position: {watermarkX}%</Label>
+                                <Label htmlFor="watermark-x">Horizontal Offset: {watermarkX}%</Label>
                                 <Slider id="watermark-x" value={[watermarkX]} onValueChange={(v) => setWatermarkX(v[0])} max={100} step={1} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="watermark-y">Vertical Position: {watermarkY}%</Label>
+                                <Label htmlFor="watermark-y">Vertical Offset: {watermarkY}%</Label>
                                 <Slider id="watermark-y" value={[watermarkY]} onValueChange={(v) => setWatermarkY(v[0])} max={100} step={1} />
                             </div>
                         </div>
+                         <p className="text-xs text-muted-foreground pt-2">
+                            An offset of 50% for both horizontal and vertical will center the logo.
+                        </p>
                         <div className="flex items-center space-x-2 pt-2">
                             <Switch id="watermark-layer" checked={isWatermarkInFront} onCheckedChange={setIsWatermarkInFront} />
                             <Label htmlFor="watermark-layer">Show watermark in front of content</Label>
