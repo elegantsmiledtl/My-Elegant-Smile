@@ -71,7 +71,7 @@ export default function InvoicePage() {
   const [watermarkSize, setWatermarkSize] = useState(440);
   const [watermarkOpacity, setWatermarkOpacity] = useState(0.1);
   const [watermarkX, setWatermarkX] = useState(50);
-  const [watermarkY, setWatermarkY] = useState(61);
+  const [watermarkY, setWatermarkY] = useState(50);
 
 
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
