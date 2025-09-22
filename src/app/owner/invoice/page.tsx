@@ -161,27 +161,65 @@ export default function InvoicePage() {
     filteredCasesByDate.forEach(c => {
         const toothCountInCase = c.toothNumbers.split(',').filter(t => t.trim() !== '').length;
         const mainMaterial = c.material.split(',')[0].trim();
+        
+        // This is the important change: use the case's specific unit price if available
         const unitPrice = c.unitPrice ?? materialPrices[mainMaterial] ?? 0;
         
         if (summary.hasOwnProperty(mainMaterial)) {
              summary[mainMaterial].toothCount += toothCountInCase;
-             summary[mainMaterial].price = unitPrice;
+             // We don't set the price here anymore. We calculate the total case by case.
+        } else {
+             summary[mainMaterial] = { toothCount: toothCountInCase, price: unitPrice, total: 0 };
         }
+        
+        // Accumulate subtotal based on individual case prices
+        subtotal += toothCountInCase * unitPrice;
     });
     
-    // Recalculate totals based on current prices in the inputs
+    // Now, we can determine an *average* price for display in the editable field,
+    // but the subtotal is already correctly calculated.
     Object.keys(summary).forEach(material => {
         const materialData = summary[material];
-        const currentPrice = materialPrices[material] ?? materialData.price;
-        materialData.price = currentPrice;
-        materialData.total = materialData.toothCount * currentPrice;
-        subtotal += materialData.total;
+        const casesWithMaterial = filteredCasesByDate.filter(c => c.material.split(',')[0].trim() === material);
+        if (casesWithMaterial.length > 0) {
+            // Find a representative price. The first one found is fine for the input field.
+            const representativePrice = casesWithMaterial[0].unitPrice ?? materialPrices[material] ?? 0;
+            materialData.price = representativePrice;
+        }
+        // The total is now just for display and will be recalculated live on edit.
+        materialData.total = materialData.toothCount * materialData.price;
     });
 
     const grandTotal = subtotal - paidAmount;
 
     return { summary, subtotal, paidAmount, grandTotal, cases: filteredCasesByDate };
-  }, [allCases, selectedDoctor, fromDate, toDate, materialPrices, paidAmount, isLoading]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCases, selectedDoctor, fromDate, toDate, paidAmount, isLoading]);
+  
+   const liveRecalculatedSummary = useMemo(() => {
+    if (!invoiceSummary) return null;
+
+    let newSubtotal = 0;
+    const newSummary = { ...invoiceSummary.summary };
+
+    Object.keys(newSummary).forEach(material => {
+        const materialData = newSummary[material];
+        const currentPrice = materialPrices[material] ?? materialData.price;
+        const newTotal = materialData.toothCount * currentPrice;
+        newSummary[material] = { ...materialData, price: currentPrice, total: newTotal };
+        newSubtotal += newTotal;
+    });
+
+    const newGrandTotal = newSubtotal - paidAmount;
+
+    return { 
+        ...invoiceSummary, 
+        summary: newSummary, 
+        subtotal: newSubtotal, 
+        grandTotal: newGrandTotal 
+    };
+
+   }, [invoiceSummary, materialPrices, paidAmount]);
   
    const handlePriceChange = (material: string, value: string) => {
     const newPrice = parseFloat(value);
@@ -193,9 +231,20 @@ export default function InvoicePage() {
     }
   };
 
+   useEffect(() => {
+    if (invoiceSummary) {
+        const initialPrices = Object.entries(invoiceSummary.summary).reduce((acc, [material, data]) => {
+            acc[material] = data.price;
+            return acc;
+        }, {} as Record<string, number>);
+        setMaterialPrices(initialPrices);
+    }
+  }, [invoiceSummary]);
+
+
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
-    if (!invoiceElement || !selectedDoctor || !invoiceSummary) {
+    if (!invoiceElement || !selectedDoctor || !liveRecalculatedSummary) {
         toast({
             variant: 'destructive',
             title: 'Error',
@@ -249,7 +298,7 @@ export default function InvoicePage() {
   };
 
   const handleShareInvoice = async () => {
-    if (!selectedDoctor || !invoiceSummary) {
+    if (!selectedDoctor || !liveRecalculatedSummary) {
         toast({
             variant: 'destructive',
             title: 'Cannot Share',
@@ -262,7 +311,7 @@ export default function InvoicePage() {
 
     try {
         // Sanitize cases data before saving
-        const sanitizedCases = invoiceSummary.cases.map(c => {
+        const sanitizedCases = liveRecalculatedSummary.cases.map(c => {
           const sanitizedCase: any = { ...c };
           if (c.createdAt && typeof c.createdAt.toDate === 'function') {
             sanitizedCase.createdAt = c.createdAt.toDate().toISOString();
@@ -278,10 +327,10 @@ export default function InvoicePage() {
             dentistName: selectedDoctor,
             fromDate: fromDate || null,
             toDate: toDate || null,
-            summary: invoiceSummary.summary,
-            subtotal: invoiceSummary.subtotal,
-            paidAmount: invoiceSummary.paidAmount,
-            grandTotal: invoiceSummary.grandTotal,
+            summary: liveRecalculatedSummary.summary,
+            subtotal: liveRecalculatedSummary.subtotal,
+            paidAmount: liveRecalculatedSummary.paidAmount,
+            grandTotal: liveRecalculatedSummary.grandTotal,
             cases: sanitizedCases,
         };
 
@@ -477,7 +526,7 @@ export default function InvoicePage() {
             </Card>
 
             
-             {invoiceSummary && fromDate && toDate && (
+             {liveRecalculatedSummary && fromDate && toDate && (
                  <Card className="mt-6">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
@@ -485,24 +534,26 @@ export default function InvoicePage() {
                             PDF Watermark Settings
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="watermark-size">Size: {watermarkSize}px</Label>
-                            <Slider id="watermark-size" value={[watermarkSize]} onValueChange={(v) => setWatermarkSize(v[0])} max={800} step={10} />
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="watermark-size">Size: {watermarkSize}px</Label>
+                                <Slider id="watermark-size" value={[watermarkSize]} onValueChange={(v) => setWatermarkSize(v[0])} max={800} step={10} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="watermark-opacity">Opacity: {watermarkOpacity.toFixed(2)}</Label>
+                                <Slider id="watermark-opacity" value={[watermarkOpacity]} onValueChange={(v) => setWatermarkOpacity(v[0])} max={1} step={0.05} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="watermark-x">Horizontal Position: {watermarkX}%</Label>
+                                <Slider id="watermark-x" value={[watermarkX]} onValueChange={(v) => setWatermarkX(v[0])} max={100} step={1} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="watermark-y">Vertical Position: {watermarkY}%</Label>
+                                <Slider id="watermark-y" value={[watermarkY]} onValueChange={(v) => setWatermarkY(v[0])} max={100} step={1} />
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="watermark-opacity">Opacity: {watermarkOpacity.toFixed(2)}</Label>
-                            <Slider id="watermark-opacity" value={[watermarkOpacity]} onValueChange={(v) => setWatermarkOpacity(v[0])} max={1} step={0.05} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="watermark-x">Horizontal Position: {watermarkX}%</Label>
-                            <Slider id="watermark-x" value={[watermarkX]} onValueChange={(v) => setWatermarkX(v[0])} max={100} step={1} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="watermark-y">Vertical Position: {watermarkY}%</Label>
-                            <Slider id="watermark-y" value={[watermarkY]} onValueChange={(v) => setWatermarkY(v[0])} max={100} step={1} />
-                        </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 pt-2">
                             <Switch id="watermark-layer" checked={isWatermarkInFront} onCheckedChange={setIsWatermarkInFront} />
                             <Label htmlFor="watermark-layer">Show watermark in front of content</Label>
                         </div>
@@ -510,7 +561,7 @@ export default function InvoicePage() {
                 </Card>
             )}
         
-             {invoiceSummary && fromDate && toDate && (
+             {liveRecalculatedSummary && fromDate && toDate && (
               <div className="mt-6">
                 {/* The live, interactive invoice for the UI */}
                 <div className="bg-white text-black p-4 rounded-lg shadow-md">
@@ -536,7 +587,7 @@ export default function InvoicePage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                        {Object.entries(liveRecalculatedSummary.summary).map(([material, data]) => (
                                             data.toothCount > 0 && (
                                                 <TableRow key={material}>
                                                     <TableCell className="font-medium">{material}</TableCell>
@@ -563,7 +614,7 @@ export default function InvoicePage() {
                                     <div className="flex items-center gap-4 justify-end">
                                         <p className="font-semibold">Subtotal:</p>
                                         <p className="text-lg font-semibold w-[120px] text-left">
-                                            {formatAmount(invoiceSummary.subtotal)} JOD
+                                            {formatAmount(liveRecalculatedSummary.subtotal)} JOD
                                         </p>
                                     </div>
                                      <div className="flex items-center gap-4 justify-end">
@@ -580,7 +631,7 @@ export default function InvoicePage() {
                                      <div className="flex items-center gap-4 justify-end border-t pt-2 mt-2">
                                         <p className="text-lg font-bold">Total Due:</p>
                                         <p className="text-2xl font-bold text-primary w-[120px] text-left">
-                                            {`${formatAmount(invoiceSummary.grandTotal)} JOD`}
+                                            {`${formatAmount(liveRecalculatedSummary.grandTotal)} JOD`}
                                         </p>
                                     </div>
                                 </div>
@@ -590,7 +641,7 @@ export default function InvoicePage() {
                         <div>
                             <h3 className="text-xl font-bold mb-4 mt-6">Cases Included in Invoice</h3>
                             <CasesTable 
-                                cases={invoiceSummary.cases}
+                                cases={liveRecalculatedSummary.cases}
                                 hideDentist 
                                 hideDeliveryDate 
                                 hideShade 
@@ -606,7 +657,7 @@ export default function InvoicePage() {
             {/* Hidden, simplified invoice for PDF generation */}
             <div className="fixed -z-50 -top-[9999px] -left-[9999px] w-[800px] bg-white text-black">
                 <div ref={printableInvoiceRef} className="relative p-8">
-                    {invoiceSummary && selectedDoctor && fromDate && toDate && (
+                    {liveRecalculatedSummary && selectedDoctor && fromDate && toDate && (
                          <>
                             <div className="absolute inset-0 flex items-center justify-center" style={{
                                 top: `${watermarkY}%`,
@@ -651,7 +702,7 @@ export default function InvoicePage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Object.entries(invoiceSummary.summary).map(([material, data]) => (
+                                        {Object.entries(liveRecalculatedSummary.summary).map(([material, data]) => (
                                             data.toothCount > 0 && (
                                                 <tr key={material}>
                                                     <td className="border p-2 font-medium">{material}</td>
@@ -668,17 +719,17 @@ export default function InvoicePage() {
                                     <div className="w-2/5 space-y-2">
                                         <div className="flex justify-between items-center text-lg p-2">
                                             <span className="font-bold">Subtotal:</span>
-                                            <span>{`${formatAmount(invoiceSummary.subtotal)} JOD`}</span>
+                                            <span>{`${formatAmount(liveRecalculatedSummary.subtotal)} JOD`}</span>
                                         </div>
                                          <div className="flex justify-between items-center text-lg p-2">
                                             <span className="font-bold">Paid Amount:</span>
                                             <span className="font-bold" style={{ color: 'red' }}>
-                                                {`${formatAmount(invoiceSummary.paidAmount)} JOD`}
+                                                {`${formatAmount(liveRecalculatedSummary.paidAmount)} JOD`}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center text-xl font-bold p-2 bg-gray-100">
                                             <span>Total Due:</span>
-                                            <span>{`${formatAmount(invoiceSummary.grandTotal)} JOD`}</span>
+                                            <span>{`${formatAmount(liveRecalculatedSummary.grandTotal)} JOD`}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -698,7 +749,7 @@ export default function InvoicePage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        {invoiceSummary.cases.map(c => (
+                                        {liveRecalculatedSummary.cases.map(c => (
                                                 <tr key={c.id}>
                                                     <td className="border p-2">{formatDate(c.createdAt)}</td>
                                                     <td className="border p-2">{c.patientName}</td>
@@ -718,7 +769,7 @@ export default function InvoicePage() {
                 </div>
             </div>
 
-            {invoiceSummary && fromDate && toDate && (
+            {liveRecalculatedSummary && fromDate && toDate && (
                 <div className="flex justify-end p-6 pt-0 gap-2">
                     <Button onClick={handleShareInvoice} disabled={isSharing || isSavingPdf}>
                         <Send className="mr-2 h-4 w-4" />
@@ -917,3 +968,6 @@ export default function InvoicePage() {
 
 
 
+
+
+    
