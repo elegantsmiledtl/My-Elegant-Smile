@@ -787,7 +787,6 @@ export default function InvoicePage() {
                                         <th className="border p-2 text-right">Unit(s)</th>
                                         <th className="border p-2 text-left">Prosthesis</th>
                                         <th className="border p-2 text-left">Material</th>
-                                        <th className="border p-2 text-left">Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -799,7 +798,6 @@ export default function InvoicePage() {
                                             <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
                                             <td className="border p-2">{c.prosthesisType}</td>
                                             <td className="border p-2">{c.material}</td>
-                                            <td className="border p-2">{c.notes}</td>
                                         </tr>
                                     ))}
                                 </tbody>
