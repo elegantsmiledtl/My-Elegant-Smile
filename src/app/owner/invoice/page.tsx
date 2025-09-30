@@ -61,6 +61,7 @@ export default function InvoicePage() {
   });
   const { toast } = useToast();
   const printableInvoiceRef = useRef<HTMLDivElement>(null);
+  const printableCasesRef = useRef<HTMLDivElement>(null); // Ref for the cases table
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [sharedInvoices, setSharedInvoices] = useState<Invoice[]>([]);
@@ -244,7 +245,9 @@ export default function InvoicePage() {
 
    const handleSaveAsPdf = async () => {
     const invoiceElement = printableInvoiceRef.current;
-    if (!invoiceElement || !selectedDoctor || !liveRecalculatedSummary) {
+    const casesElement = printableCasesRef.current;
+
+    if (!invoiceElement || !casesElement || !selectedDoctor || !liveRecalculatedSummary) {
         toast({
             variant: 'destructive',
             title: 'Error',
@@ -256,26 +259,54 @@ export default function InvoicePage() {
     setIsSavingPdf(true);
 
     try {
-        const canvas = await html2canvas(invoiceElement, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: null, // Transparent background to capture only the content
-        });
-
-        const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
             format: 'a4',
         });
 
+        // --- Page 1: Invoice ---
+        const canvas1 = await html2canvas(invoiceElement, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: null,
+        });
+
+        const imgData1 = canvas1.toDataURL('image/png');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgProps1 = pdf.getImageProperties(imgData1);
+        const imgHeight1 = (imgProps1.height * pdfWidth) / imgProps1.width;
         
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight > pdfHeight ? pdfHeight : imgHeight, undefined, 'FAST');
+        pdf.addImage(imgData1, 'PNG', 0, 0, pdfWidth, imgHeight1 > pdfHeight ? pdfHeight : imgHeight1, undefined, 'FAST');
+
+        // --- Page 2: Cases Table ---
+        if (liveRecalculatedSummary.cases.length > 0) {
+            pdf.addPage();
+            const canvas2 = await html2canvas(casesElement, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff', // Give cases page a white background
+            });
+
+            const imgData2 = canvas2.toDataURL('image/png');
+            const imgProps2 = pdf.getImageProperties(imgData2);
+            const imgHeight2 = (imgProps2.height * pdfWidth) / imgProps2.width;
+
+            let heightLeft = imgHeight2;
+            let position = 0;
+            
+            // Add cases image, handle pagination within the cases page if necessary
+            pdf.addImage(imgData2, 'PNG', 0, position, pdfWidth, imgHeight2, undefined, 'FAST');
+            heightLeft -= pdfHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight2;
+                pdf.addPage();
+                pdf.addImage(imgData2, 'PNG', 0, position, pdfWidth, imgHeight2, undefined, 'FAST');
+                heightLeft -= pdfHeight;
+            }
+        }
 
         const fileName = `invoice-${selectedDoctor.replace(/\s/g, '_')}-${formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')}.pdf`;
         pdf.save(fileName);
@@ -659,6 +690,7 @@ export default function InvoicePage() {
              
             {/* Hidden, simplified invoice for PDF generation */}
             <div className="fixed -z-50 -top-[9999px] -left-[9999px] w-[800px] bg-white text-black">
+                {/* Page 1: Invoice */}
                 <div ref={printableInvoiceRef} className="relative p-8">
                     {liveRecalculatedSummary && selectedDoctor && fromDate && toDate && (
                          <>
@@ -736,39 +768,44 @@ export default function InvoicePage() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="mt-8">
-                                    <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
-                                    <table className="w-full border-collapse text-xs">
-                                        <thead>
-                                            <tr className="bg-gray-100">
-                                                <th className="border p-2 text-left">Created At</th>
-                                                <th className="border p-2 text-left">Patient</th>
-                                                <th className="border p-2 text-left">Tooth #(s)</th>
-                                                <th className="border p-2 text-right">Unit(s)</th>
-                                                <th className="border p-2 text-left">Prosthesis</th>
-                                                <th className="border p-2 text-left">Material</th>
-                                                <th className="border p-2 text-left">Notes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        {liveRecalculatedSummary.cases.map(c => (
-                                                <tr key={c.id}>
-                                                    <td className="border p-2">{formatDate(c.createdAt)}</td>
-                                                    <td className="border p-2">{c.patientName}</td>
-                                                    <td className="border p-2">{c.toothNumbers}</td>
-                                                    <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
-                                                    <td className="border p-2">{c.prosthesisType}</td>
-                                                    <td className="border p-2">{c.material}</td>
-                                                    <td className="border p-2">{c.notes}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
                             </div>
                         </>
                     )}
+                </div>
+
+                {/* Page 2: Cases Table */}
+                <div ref={printableCasesRef} className="p-8">
+                     {liveRecalculatedSummary && liveRecalculatedSummary.cases.length > 0 && (
+                        <div className="mt-8">
+                            <h3 className="text-xl font-bold mb-4">Cases Included in Invoice</h3>
+                            <table className="w-full border-collapse text-xs">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="border p-2 text-left">Created At</th>
+                                        <th className="border p-2 text-left">Patient</th>
+                                        <th className="border p-2 text-left">Tooth #(s)</th>
+                                        <th className="border p-2 text-right">Unit(s)</th>
+                                        <th className="border p-2 text-left">Prosthesis</th>
+                                        <th className="border p-2 text-left">Material</th>
+                                        <th className="border p-2 text-left">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {liveRecalculatedSummary.cases.map(c => (
+                                        <tr key={c.id}>
+                                            <td className="border p-2">{formatDate(c.createdAt)}</td>
+                                            <td className="border p-2">{c.patientName}</td>
+                                            <td className="border p-2">{c.toothNumbers}</td>
+                                            <td className="border p-2 text-right">{c.toothNumbers.split(',').filter(t => t.trim() !== '').length}</td>
+                                            <td className="border p-2">{c.prosthesisType}</td>
+                                            <td className="border p-2">{c.material}</td>
+                                            <td className="border p-2">{c.notes}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                     )}
                 </div>
             </div>
 
