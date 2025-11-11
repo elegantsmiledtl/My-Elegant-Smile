@@ -56,11 +56,11 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.2.0",
     "zod": "^3.24.2"
   },
   "optionalDependencies": {
-    "html2canvas": "^1.4.1",
-    "twilio": "^5.2.0"
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "@types/node": "^20",
