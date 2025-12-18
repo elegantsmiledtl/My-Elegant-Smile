@@ -702,7 +702,7 @@ export default function InvoicePage() {
                             }}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src="https://i.imgur.com/U9T505G.png"
+                                    src="https://i.imgur.com/kDubvxf.png"
                                     alt="Watermark"
                                     style={{
                                         width: `${watermarkSize}px`,
@@ -996,6 +996,8 @@ export default function InvoicePage() {
     </div>
   );
 }
+
+    
 
     
 
