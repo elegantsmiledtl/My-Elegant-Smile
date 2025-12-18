@@ -9,14 +9,16 @@
   "theme_color": "#210_90%_55%",
   "icons": [
     {
-      "src": "https://i.imgur.com/Lf9QBbc.png",
+      "src": "https://i.imgur.com/U9T505G.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.imgur.com/Lf9QBbc.png",
+      "src": "https://i.imgur.com/U9T505G.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
+    

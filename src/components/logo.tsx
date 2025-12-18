@@ -12,9 +12,7 @@ interface LogoProps {
 
 export default function Logo({ width = 300, height = 80, isLoginPage = false }: LogoProps) {
   const isSmall = width < 200;
-  const src = isSmall 
-    ? "https://i.imgur.com/Lf9QBbc.png" 
-    : "https://i.imgur.com/BYbgglV.png";
+  const src = "https://i.imgur.com/U9T505G.png";
   
   const alt = isSmall 
     ? "Elegant Smile Small Logo" 
@@ -41,3 +39,5 @@ export default function Logo({ width = 300, height = 80, isLoginPage = false }: 
     </Link>
   );
 }
+
+    

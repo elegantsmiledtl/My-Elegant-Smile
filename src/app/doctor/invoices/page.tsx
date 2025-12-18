@@ -304,7 +304,7 @@ export default function DoctorInvoicesPage() {
                         }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="https://i.imgur.com/Lf9QBbc.png"
+                            src="https://i.imgur.com/U9T505G.png"
                             alt="Watermark"
                             style={{
                                 width: `400px`,
@@ -408,6 +408,8 @@ export default function DoctorInvoicesPage() {
     </>
   );
 }
+
+    
 
     
 
