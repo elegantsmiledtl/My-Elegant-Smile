@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@genkit-ai/googleai": "^1.14.1",
+    "@genkit-ai/google-genai": "^1.14.1",
     "@genkit-ai/next": "^1.14.1",
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -47,20 +47,20 @@
     "genkit": "^1.14.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.475.0",
-    "next": "15.5.0",
-    "react": "^18.3.1",
+    "next": "15.0.7",
+    "react": "19.0.0-rc-f994737d14-20240522",
     "react-day-picker": "^8.10.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "19.0.0-rc-f994737d14-20240522",
     "react-hook-form": "^7.54.2",
     "react-qr-code": "^2.0.15",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "twilio": "^5.2.0",
     "zod": "^3.24.2"
   },
   "optionalDependencies": {
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "twilio": "^5.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
