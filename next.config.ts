@@ -18,10 +18,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.imgur.com',
-      },
-       {
-        protocol: 'https',
-        hostname: 'studio--elegant-smile-r6jex.us-central1.hosted.app',
       }
     ],
   },
