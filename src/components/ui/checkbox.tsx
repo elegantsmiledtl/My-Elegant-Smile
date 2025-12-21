@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -11,14 +12,22 @@ const Checkbox = React.forwardRef<
   Omit<React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'checked'> & {
     checked?: boolean | 'indeterminate'
   }
->(({ className, checked, ...props }, ref) => {
+>(({ className, checked, ...props }, forwardedRef) => {
   const isIndeterminate = checked === 'indeterminate';
+  const ref = React.useRef<HTMLButtonElement>(null);
 
+  React.useImperativeHandle(forwardedRef, () => ref.current!);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      ref.current.dataset.state = isIndeterminate ? 'indeterminate' : (checked ? 'checked' : 'unchecked');
+    }
+  }, [checked, isIndeterminate]);
+  
   return (
     <CheckboxPrimitive.Root
       ref={ref}
       checked={isIndeterminate ? false : checked}
-      data-state={isIndeterminate ? 'indeterminate' : (checked ? 'checked' : 'unchecked')}
       className={cn(
         "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
         className
