@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -830,11 +831,16 @@ export default function InvoicePage() {
                             </CardTitle>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center space-x-2">
-                                    <Checkbox 
-                                        id="select-all" 
+                                    <Checkbox
+                                        id="select-all"
+                                        checked={
+                                            sharedInvoices.length > 0 && selectedInvoices.length === sharedInvoices.length
+                                            ? true
+                                            : selectedInvoices.length > 0
+                                            ? 'indeterminate'
+                                            : false
+                                        }
                                         onCheckedChange={handleSelectAllInvoices}
-                                        checked={selectedInvoices.length === sharedInvoices.length && sharedInvoices.length > 0}
-                                        indeterminate={selectedInvoices.length > 0 && selectedInvoices.length < sharedInvoices.length}
                                     />
                                     <label
                                         htmlFor="select-all"

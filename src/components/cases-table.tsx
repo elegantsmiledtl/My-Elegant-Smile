@@ -186,8 +186,13 @@ export default function CasesTable({
             {showCheckboxes && (
               <TableHead className="w-[50px]">
                 <Checkbox
-                  checked={numSelected === rowCount && rowCount > 0}
-                  indeterminate={numSelected > 0 && numSelected < rowCount}
+                  checked={
+                    numSelected === rowCount && rowCount > 0
+                      ? true
+                      : numSelected > 0
+                      ? 'indeterminate'
+                      : false
+                  }
                   onCheckedChange={handleSelectAll}
                   aria-label="Select all"
                 />
