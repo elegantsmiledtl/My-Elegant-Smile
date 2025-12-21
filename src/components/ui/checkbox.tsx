@@ -11,23 +11,39 @@ const Checkbox = React.forwardRef<
   Omit<React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'checked'> & {
     checked?: boolean | 'indeterminate'
   }
->(({ className, checked, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(
-      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
-      className
-    )}
-    checked={checked}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      className={cn("flex items-center justify-center text-current")}
+>(({ className, checked, ...props }, ref) => {
+  const localRef = React.useRef<HTMLButtonElement>(null);
+  const resolvedRef = (ref || localRef) as React.RefObject<HTMLButtonElement>;
+
+  React.useEffect(() => {
+    if (resolvedRef.current) {
+      resolvedRef.current.dataset.state = checked === 'indeterminate' 
+        ? 'indeterminate' 
+        : checked 
+        ? 'checked' 
+        : 'unchecked';
+    }
+  }, [resolvedRef, checked]);
+
+
+  return (
+    <CheckboxPrimitive.Root
+      ref={resolvedRef}
+      className={cn(
+        "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
+        className
+      )}
+      checked={checked === 'indeterminate' ? false : checked}
+      {...props}
     >
-      <Check className="h-4 w-4" />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-))
+      <CheckboxPrimitive.Indicator
+        className={cn("flex items-center justify-center text-current")}
+      >
+        <Check className="h-4 w-4" />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  )
+})
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }
