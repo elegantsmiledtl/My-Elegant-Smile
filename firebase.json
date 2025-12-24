@@ -1,12 +1,13 @@
 {
-  "apphosting": {
+  "hosting": {
     "source": ".",
-    "backends": [
-      {
-        "id": "elegant-smile-backend",
-        "region": "us-central1",
-        "serviceAccount": "app-hosting-SA@elegant-smile-r6jex.iam.gserviceaccount.com"
-      }
-    ]
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
   }
 }

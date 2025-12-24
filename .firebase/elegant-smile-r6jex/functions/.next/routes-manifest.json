@@ -1,0 +1,110 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/doctor/[dentistName]",
+      "regex": "^/doctor/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPdentistName": "nxtPdentistName"
+      },
+      "namedRegex": "^/doctor/(?<nxtPdentistName>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/add-case",
+      "regex": "^/add\\-case(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/add\\-case(?:/)?$"
+    },
+    {
+      "page": "/doctor/invoices",
+      "regex": "^/doctor/invoices(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/doctor/invoices(?:/)?$"
+    },
+    {
+      "page": "/doctor-portal",
+      "regex": "^/doctor\\-portal(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/doctor\\-portal(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/owner",
+      "regex": "^/owner(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/owner(?:/)?$"
+    },
+    {
+      "page": "/owner/invoice",
+      "regex": "^/owner/invoice(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/owner/invoice(?:/)?$"
+    },
+    {
+      "page": "/owner/qr",
+      "regex": "^/owner/qr(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/owner/qr(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

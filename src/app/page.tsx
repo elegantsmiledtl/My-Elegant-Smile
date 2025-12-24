@@ -1,10 +1,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, User, UserCog } from 'lucide-react';
 import Logo from '@/components/logo';
-import { Metadata } from 'next';
 import Head from 'next/head';
 
 export default function HomePage() {

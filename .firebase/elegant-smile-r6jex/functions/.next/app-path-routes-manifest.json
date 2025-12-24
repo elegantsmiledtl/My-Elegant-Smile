@@ -1,0 +1,13 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/add-case/page": "/add-case",
+  "/doctor-portal/page": "/doctor-portal",
+  "/doctor/[dentistName]/page": "/doctor/[dentistName]",
+  "/doctor/invoices/page": "/doctor/invoices",
+  "/login/page": "/login",
+  "/owner/invoice/page": "/owner/invoice",
+  "/owner/page": "/owner",
+  "/owner/qr/page": "/owner/qr",
+  "/page": "/"
+}

@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "elegant-smile-r6jex"
-  }
+    "default": "elegant-smile-r6jex",
+    "My Elegant": "elegant-smile-r6jex"
+  },
+  "targets": {},
+  "etags": {}
 }
