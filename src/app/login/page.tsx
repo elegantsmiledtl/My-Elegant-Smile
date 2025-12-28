@@ -10,9 +10,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { verifyUser, addLoginLog } from '@/lib/firebase';
 import Logo from '@/components/logo';
-import { Metadata } from 'next';
-import Head from 'next/head';
-
 
 function LoginPageContent() {
   const router = useRouter();
@@ -71,10 +68,6 @@ function LoginPageContent() {
   }
 
   return (
-    <>
-      <Head>
-        <link rel="manifest" href="/manifest-doctor.json" />
-      </Head>
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="mb-8">
           <Logo isLoginPage />
@@ -116,7 +109,6 @@ function LoginPageContent() {
           </CardContent>
         </Card>
       </div>
-    </>
   );
 }
 

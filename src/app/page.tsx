@@ -1,14 +1,9 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/logo';
-import Head from 'next/head';
 
 export default function HomePage() {
   return (
-    <>
-      <Head>
-        <link rel="manifest" href="/manifest-owner.json" />
-      </Head>
       <div className="min-h-screen bg-background text-foreground flex flex-col">
         <header className="bg-card border-b shadow-sm p-4">
           <div className="container mx-auto flex justify-end items-center">
@@ -31,6 +26,5 @@ export default function HomePage() {
           <p>Elegant Smile &copy; {new Date().getFullYear()}</p>
         </footer>
       </div>
-    </>
   );
 }
